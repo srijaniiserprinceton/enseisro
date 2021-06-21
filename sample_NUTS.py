@@ -23,7 +23,7 @@ X = random.normal(random.PRNGKey(seed = 123), (N, J))
 weight = np.array([1.5, -2.8])
 error = random.normal(random.PRNGKey(234), (N, )) # standard Normal
 b = 10.5
-y_obs = X @ weight + b + error
+y_obs = X @ weight + b + 0.01 * error
 y = y_obs.reshape((N, 1))
 X = jax.device_get(X) # convert jax array into numpy array
 y = jax.device_get(y) # convert jax array into numpy array
