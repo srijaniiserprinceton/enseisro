@@ -1,2 +1,6 @@
 *.npy
 *.dat
+*.egg-info/
+.config
+*~
+*__pycache*
