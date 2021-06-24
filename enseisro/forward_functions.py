@@ -1,35 +1,84 @@
-import jax.numpy as np
-import numpy as onp
+# import jax.numpy as np
+import numpy as np
+import enseisro.loading_functions as loadfunc
+import enseisro.misc_functions as FN
+from scipy.integrate import simps
 
-def compute_Tsr(self, s_arr):
-        Tsr = np.zeros((len(s_arr), len(self.sup.gvar.r)))
-        if self.sup.gvar.args.use_precomputed:
-            enn1 = self.sup.nl_neighbors[self.ix, 0]
-            ell1 = self.sup.nl_neighbors[self.ix, 1]
-            enn2 = self.sup.nl_neighbors[self.iy, 0]
-            ell2 = self.sup.nl_neighbors[self.iy, 1]
-            arg_str1 = f"{enn1}.{ell1}"
-            arg_str2 = f"{enn2}.{ell2}"
-            U1 = self.sup.eigU[arg_str1]
-            U2 = self.sup.eigU[arg_str2]
-            V1 = self.sup.eigV[arg_str1]
-            V2 = self.sup.eigV[arg_str2]
-        else:
-            m1idx = self.sup.nl_neighbors_idx[self.ix]
-            m2idx = self.sup.nl_neighbors_idx[self.iy]
-            U1, V1 = self.get_eig(m1idx)
-            U2, V2 = self.get_eig(m2idx)
-        L1sq = self.ell1*(self.ell1+1)
-        L2sq = self.ell2*(self.ell2+1)
-        Om1 = Omega(self.ell1, 0)
-        Om2 = Omega(self.ell2, 0)
+WFNAME = 'w_s/w.dat'
+
+# {{{ def compute_splitting():
+def compute_splitting(GVAR, mult, s_arr):
+        '''Function to compute the frequency splittings
+        under isolated multiplet approximation.
+        - GVAR: Dictionary of global parameters
+        - mult: Isolated multiplet whose splitting is to be calculated
+        '''
+        ell, n = mult[0][0], mult[0][1]
+        m = np.arange(-ell, ell+1)
+
+        mult_idx = FN.nl_idx(GVAR, n, ell)
+        omeganl = GVAR.omega_list[mult_idx]
+
+        wigvals = np.zeros((2*ell+1, len(s_arr)))
+        for i in range(len(s_arr)):
+            wigvals[:, i] = FN.w3j_vecm(ell, s_arr[i], ell, -m, 0*m, m)
+
+        Tsr = compute_Tsr(GVAR, mult, mult, s_arr)
+        
+        # Loading the synthetic flow profile
+        # -1 factor from definition of toroidal field                                                                                                                                   
+
+        wsr = np.loadtxt(f'{GVAR.datadir}/{WFNAME}')\
+              [:, GVAR.rmin_idx:GVAR.rmax_idx] * (-1.0)
+        wsr[0, :] *= 0.0 # setting w1 = 0                                                                                                                                            
+ 
+        # wsr[1, :] *= 0.0 # setting w3 = 0                                                                                                                                              
+        # wsr[2, :] *= 0.0 # setting w5 = 0                                                                                                                                              
+        
+        # integrating over radial grid
+        # integrand = Tsr * wsr * (self.sup.gvar.rho * self.sup.gvar.r**2)[NAX, :]                                                                                                      
+        integrand = Tsr * wsr   # since U and V are scaled by sqrt(rho) * r                                                                                                             
+        integral = simps(integrand, axis=1, x=GVAR.r)
+
+        prod_gammas = FN.gamma(ell) * FN.gamma(ell) * FN.gamma(s_arr)
+
+        Cvec = FN.minus1pow_vec(m) * 8*np.pi * omeganl * (wigvals @ (prod_gammas * integral))
+        
+        return Cvec
+
+
+# }}} compute_splitting()
+
+# {{{ compute_Tsr():
+def compute_Tsr(GVAR, mult1, mult2, s_arr):
+        '''Function to compute the T-kern as in LR92 for coupling
+        of two multiplets.
+        '''
+        Tsr = np.zeros((len(s_arr), len(GVAR.r)))
+
+        # reading off the ells corresponding to the multiplets
+        ell1, ell2 = mult1[0][0], mult2[0][0]
+        
+        # allowing for different multiplets for mode-coupling purposes
+        m1idx = FN.nl_idx_vec(GVAR, mult1)[0]
+        m2idx = FN.nl_idx_vec(GVAR, mult2)[0]
+        
+        # loading the eigenfunctions
+        U1, V1 = loadfunc.get_eig(m1idx)
+        U2, V2 = loadfunc.get_eig(m2idx)
+
+        L1sq = ell1*(ell1+1)
+        L2sq = ell2*(ell2+1)
+
+        Om1 = FN.Omega(ell1, 0)
+        Om2 = FN.Omega(ell2, 0)
         for i in range(len(s_arr)):
             s = s_arr[i]
             ls2fac = L1sq + L2sq - s*(s+1)
             eigfac = U2*V1 + V2*U1 - U1*U2 - 0.5*V1*V2*ls2fac
-            wigval = w3j(self.ell1, s, self.ell2, -1, 0, 1)
-            Tsr[i, :] = -(1 - minus1pow(self.ell1 + self.ell2 + s)) * \
-                Om1 * Om2 * wigval * eigfac / self.sup.gvar.r
-            LOGGER.debug(" -- s = {}, eigmax = {}, wigval = {}, Tsrmax = {}"\
-                         .format(s, abs(eigfac).max(), wigval, abs(Tsr[i, :]).max()))
+            wigval = FN.w3j(ell1, s, ell2, -1, 0, 1)
+            Tsr[i, :] = -(1 - FN.minus1pow(ell1 + ell2 + s)) * \
+                Om1 * Om2 * wigval * eigfac / GVAR.r
+
         return Tsr
+# }}} compute_Tsr()
