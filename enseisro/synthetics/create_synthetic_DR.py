@@ -35,7 +35,7 @@ def make_DR_copies_random(GVAR, wsr, N=10, p=1):
 
     # introducing upto a p-percent difference from 
     # original w_s(r)
-    wsr_ens *= (rand_arr  * (1 + p * 0.01))[NAX, NAX, :]
+    wsr_ens *= (1 + rand_arr * p * 0.01)[NAX, NAX, :]
 
     return wsr_ens
     

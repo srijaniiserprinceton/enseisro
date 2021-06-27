@@ -7,7 +7,7 @@ from scipy.integrate import simps
 WFNAME = 'w_s/w.dat'
 
 # {{{ def compute_splitting():
-def compute_splitting(GVAR, mult, s_arr):
+def compute_splitting(GVAR, wsr, mult):
         '''Function to compute the frequency splittings
         under isolated multiplet approximation.
         - GVAR: Dictionary of global parameters
@@ -15,6 +15,10 @@ def compute_splitting(GVAR, mult, s_arr):
         '''
         ell, n = mult[0][0], mult[0][1]
         m = np.arange(-ell, ell+1)
+
+        # calculating the s_arr from w_s(r) shape
+        lens = wsr.shape[0]
+        s_arr = np.arange(1, (2*lens - 1) + 1, 2)
 
         mult_idx = FN.nl_idx(GVAR, n, ell)
         omeganl = GVAR.omega_list[mult_idx]
@@ -30,7 +34,7 @@ def compute_splitting(GVAR, mult, s_arr):
 
         wsr = np.loadtxt(f'{GVAR.datadir}/{WFNAME}')\
               [:, GVAR.rmin_idx:GVAR.rmax_idx] * (-1.0)
-        wsr[0, :] *= 0.0 # setting w1 = 0                                                                                                                                            
+        # wsr[0, :] *= 0.0 # setting w1 = 0                                                                                                                                            
  
         # wsr[1, :] *= 0.0 # setting w3 = 0                                                                                                                                              
         # wsr[2, :] *= 0.0 # setting w5 = 0                                                                                                                                              
@@ -43,6 +47,9 @@ def compute_splitting(GVAR, mult, s_arr):
         prod_gammas = FN.gamma(ell) * FN.gamma(ell) * FN.gamma(s_arr)
 
         Cvec = FN.minus1pow_vec(m) * 8*np.pi * omeganl * (wigvals @ (prod_gammas * integral))
+
+        # to get \delta omega_{nlm} instead of 2 \omega_{nl} \delta \omega_{nlm}
+        Cvec = Cvec / (2 * omeganl)
         
         return Cvec
 
