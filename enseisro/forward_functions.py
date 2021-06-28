@@ -13,7 +13,7 @@ def compute_splitting(GVAR, wsr, mult):
         - GVAR: Dictionary of global parameters
         - mult: Isolated multiplet whose splitting is to be calculated
         '''
-        ell, n = mult[0][0], mult[0][1]
+        n, ell = mult[0][0], mult[0][1]
         m = np.arange(-ell, ell+1)
 
         # calculating the s_arr from w_s(r) shape
@@ -32,8 +32,6 @@ def compute_splitting(GVAR, wsr, mult):
         # Loading the synthetic flow profile
         # -1 factor from definition of toroidal field                                                                                                                                   
 
-        wsr = np.loadtxt(f'{GVAR.datadir}/{WFNAME}')\
-              [:, GVAR.rmin_idx:GVAR.rmax_idx] * (-1.0)
         # wsr[0, :] *= 0.0 # setting w1 = 0                                                                                                                                            
  
         # wsr[1, :] *= 0.0 # setting w3 = 0                                                                                                                                              
@@ -64,7 +62,7 @@ def compute_Tsr(GVAR, mult1, mult2, s_arr):
         Tsr = np.zeros((len(s_arr), len(GVAR.r)))
 
         # reading off the ells corresponding to the multiplets
-        ell1, ell2 = mult1[0][0], mult2[0][0]
+        ell1, ell2 = mult1[0][1], mult2[0][1]
         
         # allowing for different multiplets for mode-coupling purposes
         m1idx = FN.nl_idx_vec(GVAR, mult1)[0]

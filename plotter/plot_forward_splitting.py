@@ -9,13 +9,13 @@ ARGS = FN.create_argparser()
 GVAR = globalvars.globalVars(ARGS)
 
 def plot_solar_splitting(wsr, n=2, ell=10):
-    mult = np.array([[ell,n]])
+    mult = np.array([[n,ell]])
 
     domega_m = forfunc.compute_splitting(GVAR, wsr, mult)
     # converting to nHz
     domega_m *= GVAR.OM * 1e9
 
-    m_arr = np.arange(-mult[0][0], mult[0][0]+1)
+    m_arr = np.arange(-mult[0][1], mult[0][1]+1)
 
     plt.figure()
     
@@ -28,13 +28,13 @@ def plot_solar_splitting(wsr, n=2, ell=10):
     plt.close()
 
 def plot_solarlike_ens_splitting(wsr_ens, n=2, ell=10, sarr=np.array([1,3,5])):
-    mult = np.array([[ell,n]])
+    mult = np.array([[n,ell]])
     
     # total number of stars in the ensemble
     lenN = wsr_ens.shape[-1]
 
     # creating the m array
-    m_arr = np.arange(-mult[0][0], mult[0][0]+1)
+    m_arr = np.arange(-mult[0][1], mult[0][1]+1)
     
     plt.figure()
 
@@ -43,9 +43,10 @@ def plot_solarlike_ens_splitting(wsr_ens, n=2, ell=10, sarr=np.array([1,3,5])):
         
         # converting to nHz                                                                      
         domega_m *= GVAR.OM * 1e9
+        
+        # plotting the freq splitting for a multiplet as a function of m 
+        plt.plot(m_arr, domega_m)
 
-        plt.plot(m_arr, domega_m ,'.')
-    
     plt.xlabel('$m$')
     plt.ylabel('$\delta \omega^{%i,%i}(m)$'%(n,ell))
     plt.grid(True)
