@@ -1,4 +1,4 @@
-enseisro
+Installing ``enseisro``
 ========
 This is a guide to installing and running ``enseisro``, ENsemble asteroSEISmology using numpyRO.
 
@@ -6,13 +6,13 @@ Building the conda environment
 ++++++++++++++++++++++++++++++
 Execute the following set of commands in your terminal to install and activate the ```conda``` environment ```jax-gpu``` (don't worry, it'll work
 even if you do not have access to a gpu device).
-```
+``
 conda create --name jax-gpu python=3.8
 conda activate jax-gpu
 pip install numpyro
 pip install --upgrade pip
 pip install --upgrade jaxlib==0.1.62+cuda110 -f https://storage.googleapis.com/jax-releases/jax_releases.html
-```
+``
 At this point, you should be ready to run the sample code ```sample_NUTS.py``` if the installation was successful.
 
 ## Test environment installation
