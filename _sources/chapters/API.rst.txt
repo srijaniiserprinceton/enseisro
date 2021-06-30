@@ -6,6 +6,6 @@
 Miscellaneous Functions
 +++++++++++++++++++++++
 
-..automodule:: enseisro.misc_functions
+.. automodule:: enseisro.misc_functions
     :members:
     :show-inheritance:	     
