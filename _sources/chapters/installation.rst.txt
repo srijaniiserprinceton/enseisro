@@ -27,7 +27,7 @@ Once you are in, execute the following code snippets
    from jax.lib import xla_bridge
    print(xla_bridge.get_backend().platform)
 
-This should show a warning saying ``WARNING:absl:No GPU/TPU found, falling back to CPU. (Set TF_CPP_MIN_LOG_LEVEL=0 and rerun for more info.)``. This is OK!
+This should show a warning saying "WARNING:absl:No GPU/TPU found, falling back to CPU. (Set TF_CPP_MIN_LOG_LEVEL=0 and rerun for more info.)". This is OK!
 Then run one more check by executing
 ::
    import numpyro
@@ -36,7 +36,7 @@ Then run one more check by executing
 This should return nothing if it is installed correctly. If so, you're all set!
 
 Run the sample code on linear regression
-===========================================
+++++++++++++++++++++++++++++++++++++++++
 At this point, you should be able to run the code ``sample_NUTS.py`` which carries out linear regression using NumPyro.
 ::
    python sample_NUTS.py cpu 1

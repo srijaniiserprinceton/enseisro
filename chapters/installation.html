@@ -93,9 +93,9 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installing <code class="docutils literal notranslate"><span class="pre">enseisro</span></code></a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#building-the-conda-environment">Building the conda environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-environment-installation">Test environment installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-the-sample-code-on-linear-regression">Run the sample code on linear regression</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#run-the-sample-code-on-linear-regression">Run the sample code on linear regression</a></li>
 <li class="toctree-l1"><a class="reference internal" href="API.html"><code class="docutils literal notranslate"><span class="pre">enseisro</span></code> API</a></li>
 </ul>
 
@@ -192,7 +192,7 @@ by typing</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">xla_bridge</span><span class="o">.</span><span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">platform</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>This should show a warning saying <code class="docutils literal notranslate"><span class="pre">WARNING:absl:No</span> <span class="pre">GPU/TPU</span> <span class="pre">found,</span> <span class="pre">falling</span> <span class="pre">back</span> <span class="pre">to</span> <span class="pre">CPU.</span> <span class="pre">(Set</span> <span class="pre">TF_CPP_MIN_LOG_LEVEL=0</span> <span class="pre">and</span> <span class="pre">rerun</span> <span class="pre">for</span> <span class="pre">more</span> <span class="pre">info.)</span></code>. This is OK!
+<p>This should show a warning saying “WARNING:absl:No GPU/TPU found, falling back to CPU. (Set TF_CPP_MIN_LOG_LEVEL=0 and rerun for more info.)”. This is OK!
 Then run one more check by executing</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpyro</span>
 <span class="n">numpyro</span><span class="o">.</span><span class="n">set_platform</span><span class="p">(</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
@@ -200,14 +200,14 @@ Then run one more check by executing</p>
 </div>
 <p>This should return nothing if it is installed correctly. If so, you’re all set!</p>
 </div>
-</div>
 <div class="section" id="run-the-sample-code-on-linear-regression">
-<h1>Run the sample code on linear regression<a class="headerlink" href="#run-the-sample-code-on-linear-regression" title="Permalink to this headline">¶</a></h1>
+<h2>Run the sample code on linear regression<a class="headerlink" href="#run-the-sample-code-on-linear-regression" title="Permalink to this headline">¶</a></h2>
 <p>At this point, you should be able to run the code <code class="docutils literal notranslate"><span class="pre">sample_NUTS.py</span></code> which carries out linear regression using NumPyro.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">sample_NUTS</span><span class="o">.</span><span class="n">py</span> <span class="n">cpu</span> <span class="mi">1</span>
 </pre></div>
 </div>
 <p>This should run the code with a progressbar and end with printing the optimal values of the parameters.</p>
+</div>
 </div>
 
 
