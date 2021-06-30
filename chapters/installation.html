@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>enseisro &mdash; enseisro 0.1 documentation</title>
+  <title>Installing enseisro &mdash; enseisro 0.1 documentation</title>
   
 
   
@@ -90,7 +90,7 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Testing <code class="docutils literal notranslate"><span class="pre">introduction.rst</span></code></a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">enseisro</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installing <code class="docutils literal notranslate"><span class="pre">enseisro</span></code></a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#building-the-conda-environment">Building the conda environment</a></li>
 </ul>
 </li>
@@ -143,7 +143,7 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>enseisro</li>
+      <li>Installing <code class="docutils literal notranslate"><span class="pre">enseisro</span></code></li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -162,20 +162,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="enseisro">
-<h1>enseisro<a class="headerlink" href="#enseisro" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="installing-enseisro">
+<h1>Installing <code class="docutils literal notranslate"><span class="pre">enseisro</span></code><a class="headerlink" href="#installing-enseisro" title="Permalink to this headline">¶</a></h1>
 <p>This is a guide to installing and running <code class="docutils literal notranslate"><span class="pre">enseisro</span></code>, ENsemble asteroSEISmology using numpyRO.</p>
 <div class="section" id="building-the-conda-environment">
 <h2>Building the conda environment<a class="headerlink" href="#building-the-conda-environment" title="Permalink to this headline">¶</a></h2>
 <p>Execute the following set of commands in your terminal to install and activate the <code class="docutils literal notranslate"><span class="pre">`conda`</span></code> environment <code class="docutils literal notranslate"><span class="pre">`jax-gpu`</span></code> (don’t worry, it’ll work
 even if you do not have access to a gpu device).
-<code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">conda</span> <span class="pre">create</span> <span class="pre">--name</span> <span class="pre">jax-gpu</span> <span class="pre">python=3.8</span>
-<span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">jax-gpu</span>
-<span class="pre">pip</span> <span class="pre">install</span> <span class="pre">numpyro</span>
-<span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">pip</span>
-<span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">jaxlib==0.1.62+cuda110</span> <span class="pre">-f</span> <span class="pre">https://storage.googleapis.com/jax-releases/jax_releases.html</span>
-<span class="pre">`</span></code>
+``
+conda create –name jax-gpu python=3.8
+conda activate jax-gpu
+pip install numpyro
+pip install –upgrade pip
+pip install –upgrade jaxlib==0.1.62+cuda110 -f <a class="reference external" href="https://storage.googleapis.com/jax-releases/jax_releases.html">https://storage.googleapis.com/jax-releases/jax_releases.html</a>
+``
 At this point, you should be ready to run the sample code <code class="docutils literal notranslate"><span class="pre">`sample_NUTS.py`</span></code> if the installation was successful.</p>
 <p>## Test environment installation
 Prior to running the basic NumPyro code, we shall test a couple of lines to see if all is well and good. To do this, open the  <code class="docutils literal notranslate"><span class="pre">`python`</span></code> prompt
