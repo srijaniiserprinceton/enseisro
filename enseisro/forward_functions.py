@@ -8,11 +8,11 @@ WFNAME = 'w_s/w.dat'
 
 # {{{ def compute_splitting():
 def compute_splitting(GVAR, wsr, mult):
-        '''Function to compute the frequency splittings
+        """Function to compute the frequency splittings
         under isolated multiplet approximation.
         - GVAR: Dictionary of global parameters
         - mult: Isolated multiplet whose splitting is to be calculated
-        '''
+        """
         n, ell = mult[0][0], mult[0][1]
         m = np.arange(-ell, ell+1)
 
@@ -56,9 +56,9 @@ def compute_splitting(GVAR, wsr, mult):
 
 # {{{ compute_Tsr():
 def compute_Tsr(GVAR, mult1, mult2, s_arr):
-        '''Function to compute the T-kern as in LR92 for coupling
+        """Function to compute the T-kern as in LR92 for coupling
         of two multiplets.
-        '''
+        """
         Tsr = np.zeros((len(s_arr), len(GVAR.r)))
 
         # reading off the ells corresponding to the multiplets
