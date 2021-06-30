@@ -41,4 +41,4 @@ At this point, you should be able to run the code ``sample_NUTS.py`` which carri
 ::
    python sample_NUTS.py cpu 1
 
-This should run the code with a progressbar and end with printing the optimal values of the parameters.
+This should run the code with a progressbar and end with printing the optimal values of the parameters..
