@@ -69,8 +69,8 @@ def compute_Tsr(GVAR, mult1, mult2, s_arr):
         m2idx = FN.nl_idx_vec(GVAR, mult2)[0]
         
         # loading the eigenfunctions
-        U1, V1 = loadfunc.get_eig(m1idx)
-        U2, V2 = loadfunc.get_eig(m2idx)
+        U1, V1 = loadfunc.get_eig(GVAR, m1idx)
+        U2, V2 = loadfunc.get_eig(GVAR, m2idx)
 
         L1sq = ell1*(ell1+1)
         L2sq = ell2*(ell2+1)
