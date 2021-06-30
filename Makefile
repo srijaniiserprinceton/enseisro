@@ -7,7 +7,7 @@ SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = docs/source
 BUILDDIR      = docs/build
-GH_PAGES_SOURCES = source ./enseisro ./plotter ./Makefile
+GH_PAGES_SOURCES = source ./enseisro ./plotter
 
 # Put it first so that "make" without argument is like "make help".
 help:
