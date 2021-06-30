@@ -1,1 +1,1 @@
-Testing ```installation.rest```
+Testing ``installation.rst``
