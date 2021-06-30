@@ -92,8 +92,10 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Testing <code class="docutils literal notranslate"><span class="pre">introduction.rst</span></code></a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installing <code class="docutils literal notranslate"><span class="pre">enseisro</span></code></a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#building-the-conda-environment">Building the conda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-environment-installation">Test environment installation</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="#run-the-sample-code-on-linear-regression">Run the sample code on linear regression</a></li>
 <li class="toctree-l1"><a class="reference internal" href="API.html"><code class="docutils literal notranslate"><span class="pre">enseisro</span></code> API</a></li>
 </ul>
 
@@ -168,17 +170,19 @@
 <div class="section" id="building-the-conda-environment">
 <h2>Building the conda environment<a class="headerlink" href="#building-the-conda-environment" title="Permalink to this headline">¶</a></h2>
 <p>Execute the following set of commands in your terminal to install and activate the <code class="docutils literal notranslate"><span class="pre">`conda`</span></code> environment <code class="docutils literal notranslate"><span class="pre">`jax-gpu`</span></code> (don’t worry, it’ll work
-even if you do not have access to a gpu device).
-``
-conda create –name jax-gpu python=3.8
-conda activate jax-gpu
-pip install numpyro
-pip install –upgrade pip
-pip install –upgrade jaxlib==0.1.62+cuda110 -f <a class="reference external" href="https://storage.googleapis.com/jax-releases/jax_releases.html">https://storage.googleapis.com/jax-releases/jax_releases.html</a>
-``
-At this point, you should be ready to run the sample code <code class="docutils literal notranslate"><span class="pre">`sample_NUTS.py`</span></code> if the installation was successful.</p>
-<p>## Test environment installation
-Prior to running the basic NumPyro code, we shall test a couple of lines to see if all is well and good. To do this, open the  <code class="docutils literal notranslate"><span class="pre">`python`</span></code> prompt
+even if you do not have access to a gpu device).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">--</span><span class="n">name</span> <span class="n">jax</span><span class="o">-</span><span class="n">gpu</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.8</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">jax</span><span class="o">-</span><span class="n">gpu</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">numpyro</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">pip</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">jaxlib</span><span class="o">==</span><span class="mf">0.1.62</span><span class="o">+</span><span class="n">cuda110</span> <span class="o">-</span><span class="n">f</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">storage</span><span class="o">.</span><span class="n">googleapis</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">jax</span><span class="o">-</span><span class="n">releases</span><span class="o">/</span><span class="n">jax_releases</span><span class="o">.</span><span class="n">html</span>
+</pre></div>
+</div>
+<p>At this point, you should be ready to run the sample code <code class="docutils literal notranslate"><span class="pre">`sample_NUTS.py`</span></code> if the installation was successful.</p>
+</div>
+<div class="section" id="test-environment-installation">
+<h2>Test environment installation<a class="headerlink" href="#test-environment-installation" title="Permalink to this headline">¶</a></h2>
+<p>Prior to running the basic NumPyro code, we shall test a couple of lines to see if all is well and good. To do this, open the  <code class="docutils literal notranslate"><span class="pre">`python`</span></code> prompt
 by typing
 <code class="docutils literal notranslate"><span class="pre">`</span>
 <span class="pre">python</span>
@@ -195,13 +199,15 @@ Then run one more check by executing
 <span class="pre">numpyro.set_platform('cpu')</span>
 <span class="pre">`</span></code>
 This should return nothing if it is installed correctly. If so, you’re all set!</p>
-<p>## Run the sample code on linear regression
-At this point, you should be able to run the code <code class="docutils literal notranslate"><span class="pre">`sample_NUTS.py`</span></code> which carries out linear regression using NumPyro.
+</div>
+</div>
+<div class="section" id="run-the-sample-code-on-linear-regression">
+<h1>Run the sample code on linear regression<a class="headerlink" href="#run-the-sample-code-on-linear-regression" title="Permalink to this headline">¶</a></h1>
+<p>At this point, you should be able to run the code <code class="docutils literal notranslate"><span class="pre">`sample_NUTS.py`</span></code> which carries out linear regression using NumPyro.
 <code class="docutils literal notranslate"><span class="pre">`</span>
 <span class="pre">python</span> <span class="pre">sample_NUTS.py</span> <span class="pre">cpu</span> <span class="pre">1</span>
 <span class="pre">`</span></code>
 This should run the code with a progressbar and end with printing the optimal values of the parameters.</p>
-</div>
 </div>
 
 
