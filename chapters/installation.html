@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Testing installation.rst &mdash; enseisro 0.1 documentation</title>
+  <title>enseisro &mdash; enseisro 0.1 documentation</title>
   
 
   
@@ -90,7 +90,10 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Testing <code class="docutils literal notranslate"><span class="pre">introduction.rst</span></code></a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Testing <code class="docutils literal notranslate"><span class="pre">installation.rst</span></code></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">enseisro</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#building-the-conda-environment">Building the conda environment</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="API.html"><code class="docutils literal notranslate"><span class="pre">enseisro</span></code> API</a></li>
 </ul>
 
@@ -140,7 +143,7 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Testing <code class="docutils literal notranslate"><span class="pre">installation.rst</span></code></li>
+      <li>enseisro</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -159,8 +162,46 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="testing-installation-rst">
-<h1>Testing <code class="docutils literal notranslate"><span class="pre">installation.rst</span></code><a class="headerlink" href="#testing-installation-rst" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="enseisro">
+<h1>enseisro<a class="headerlink" href="#enseisro" title="Permalink to this headline">¶</a></h1>
+<p>This is a guide to installing and running <code class="docutils literal notranslate"><span class="pre">enseisro</span></code>, ENsemble asteroSEISmology using numpyRO.</p>
+<div class="section" id="building-the-conda-environment">
+<h2>Building the conda environment<a class="headerlink" href="#building-the-conda-environment" title="Permalink to this headline">¶</a></h2>
+<p>Execute the following set of commands in your terminal to install and activate the <code class="docutils literal notranslate"><span class="pre">`conda`</span></code> environment <code class="docutils literal notranslate"><span class="pre">`jax-gpu`</span></code> (don’t worry, it’ll work
+even if you do not have access to a gpu device).
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">conda</span> <span class="pre">create</span> <span class="pre">--name</span> <span class="pre">jax-gpu</span> <span class="pre">python=3.8</span>
+<span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">jax-gpu</span>
+<span class="pre">pip</span> <span class="pre">install</span> <span class="pre">numpyro</span>
+<span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">pip</span>
+<span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">jaxlib==0.1.62+cuda110</span> <span class="pre">-f</span> <span class="pre">https://storage.googleapis.com/jax-releases/jax_releases.html</span>
+<span class="pre">`</span></code>
+At this point, you should be ready to run the sample code <code class="docutils literal notranslate"><span class="pre">`sample_NUTS.py`</span></code> if the installation was successful.</p>
+<p>## Test environment installation
+Prior to running the basic NumPyro code, we shall test a couple of lines to see if all is well and good. To do this, open the  <code class="docutils literal notranslate"><span class="pre">`python`</span></code> prompt
+by typing
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">python</span>
+<span class="pre">`</span></code>
+Once you are in, execute the following code snippets
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">from</span> <span class="pre">jax.lib</span> <span class="pre">import</span> <span class="pre">xla_bridge</span>
+<span class="pre">print(xla_bridge.get_backend().platform)</span>
+<span class="pre">`</span></code>
+This should show a warning saying “WARNING:absl:No GPU/TPU found, falling back to CPU. (Set TF_CPP_MIN_LOG_LEVEL=0 and rerun for more info.)”. This is OK!
+Then run one more check by executing
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">import</span> <span class="pre">numpyro</span>
+<span class="pre">numpyro.set_platform('cpu')</span>
+<span class="pre">`</span></code>
+This should return nothing if it is installed correctly. If so, you’re all set!</p>
+<p>## Run the sample code on linear regression
+At this point, you should be able to run the code <code class="docutils literal notranslate"><span class="pre">`sample_NUTS.py`</span></code> which carries out linear regression using NumPyro.
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">python</span> <span class="pre">sample_NUTS.py</span> <span class="pre">cpu</span> <span class="pre">1</span>
+<span class="pre">`</span></code>
+This should run the code with a progressbar and end with printing the optimal values of the parameters.</p>
+</div>
 </div>
 
 
