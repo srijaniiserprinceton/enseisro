@@ -1,5 +1,5 @@
 Installing ``enseisro``
-=======================
+========
 This is a guide to installing and running ``enseisro``, ENsemble asteroSEISmology using numpyRO.
 
 Building the conda environment
