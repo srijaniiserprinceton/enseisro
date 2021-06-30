@@ -25,7 +25,7 @@ gh-pages:
 	git checkout master $(GH_PAGES_SOURCES) .gitignore
 	git reset HEAD 
 	make html
-	mv -fv focs/build/html/* ./
+	mv -fv docs/build/html/* ./
 	rm -rf $(GH_PAGES_SOURCE) build
 	git add -A
 	git commit -a -v -m "Generated gh-pages for `git log master -1 --pretty=short  --abbrev-commit`" && git push origin gh-pages; git checkout master
