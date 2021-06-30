@@ -3,10 +3,7 @@ import numpy as np
 import enseisro.misc_functions as FN
 from enseisro import globalvars
 
-ARGS = FN.create_argparser()
-GVAR = globalvars.globalVars(ARGS)
-
-def get_eig(mode_idx):
+def get_eig(GVAR, mode_idx):
     try:
         U = np.loadtxt(f'{GVAR.eigdir}/' +
                        f'U{mode_idx}.dat')[GVAR.rmin_idx:GVAR.rmax_idx]
