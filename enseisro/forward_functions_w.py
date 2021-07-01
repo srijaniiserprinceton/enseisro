@@ -20,8 +20,8 @@ def compute_splitting(GVAR, wsr, mult):
         lens = wsr.shape[0]
         s_arr = np.arange(1, (2*lens - 1) + 1, 2)
 
-        mult_idx = FN.nl_idx(GVAR, n, ell)
-        omeganl = GVAR.omega_list[mult_idx]
+        # mult_idx = FN.nl_idx(GVAR, n, ell)
+        # omeganl = GVAR.omega_list[mult_idx]
 
         wigvals = np.zeros((2*ell+1, len(s_arr)))
         for i in range(len(s_arr)):
@@ -44,10 +44,8 @@ def compute_splitting(GVAR, wsr, mult):
 
         prod_gammas = FN.gamma(ell) * FN.gamma(ell) * FN.gamma(s_arr)
 
-        Cvec = FN.minus1pow_vec(m) * 8*np.pi * omeganl * (wigvals @ (prod_gammas * integral))
-
-        # to get \delta omega_{nlm} instead of 2 \omega_{nl} \delta \omega_{nlm}
-        Cvec = Cvec / (2 * omeganl)
+        # the factor of 2\omeganl has been taken off as compared to LR92 since we want \delta\omega
+        Cvec = FN.minus1pow_vec(m) * 4*np.pi * (wigvals @ (prod_gammas * integral))
         
         return Cvec
 
