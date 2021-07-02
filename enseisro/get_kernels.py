@@ -6,7 +6,7 @@ import sys
 NAX = np.newaxis
 
 # {{{ def compute_kernel():                                                                                                                                                           
-def compute_kernel(GVAR, mult, Nparams = 2, rcz = 0.7, s_arr = np.array([1], dtype='int')):
+def compute_kernel(GVAR, mult, rcz, s_arr, Nparams = 2):
         """Function to compute the frequency splittings                                                                                                                                  
         under isolated multiplet approximation.                                                                                                                                          
         - GVAR: Dictionary of global parameters                                                                                                                                          
@@ -27,11 +27,12 @@ def compute_kernel(GVAR, mult, Nparams = 2, rcz = 0.7, s_arr = np.array([1], dty
 
         prod_gammas = FN.gamma(ell) * FN.gamma(ell)  # * FN.gamma(s_arr), not using for Omega
 
-        Tsr = compute_Tsr(GVAR, mult, mult, s_arr)
+        Tsr = compute_Tsr(GVAR, mult, mult, s_arr)   # shape (s x r)
 
         # summing over the radial grid to do K_{ij} F_{jk}. See notes in Overleaf
         # the idea is that since F_{jk} are step functions going from 0 to 1,
         # it implies a summation of the kernels before and after the rcz
+
         K = np.zeros((len(s_arr), Nparams))    # shape (s x Nparams)
 
         # writing this for just two params for the step function case

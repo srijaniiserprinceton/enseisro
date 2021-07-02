@@ -39,7 +39,7 @@ def compute_splitting(GVAR, Omegasr, mult):
         
         # integrating over radial grid
         # integrand = Tsr * wsr * (self.sup.gvar.rho * self.sup.gvar.r**2)[NAX, :]                                                                                                      
-        integrand = Tsr * Omegasr   # since U and V are scaled by sqrt(rho) * r                                                                                                             
+        integrand = Tsr * Omegasr   # since U and V are scaled by sqrt(rho) * r
         integral = simps(integrand, axis=1, x=GVAR.r)
 
         prod_gammas = FN.gamma(ell) * FN.gamma(ell)  # * FN.gamma(s_arr), not using for Omega

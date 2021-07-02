@@ -25,7 +25,7 @@ class qdParams():
     # (1) the correct normalization
     # (2) a1 = \omega_0 ( 1 - 1/ell ) scaling
     # (Since we are using lmax = 300, 0.45*300 \approx 150)
-    rmin = 0.0
+    rmin = 0.3
     rmax = 1.0
     smax = 5
     fwindow =  150 
