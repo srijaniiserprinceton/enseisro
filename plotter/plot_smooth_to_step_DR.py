@@ -63,7 +63,7 @@ domega_smooth = forfunc_Om.compute_splitting(GVAR, Omegasr[0], mults)
 domega_step = forfunc_Om.compute_splitting(GVAR, Omegasr_step[0], mults)
 
 # creating the cumulative mode arr for plotting.  Summing over (2*ell + 1)
-cumulative_modes = np.arange(0, 2*np.sum(mults[:,1]+len(mults)))
+cumulative_modes = np.arange(0, 2*np.sum(mults[:,1])+len(mults))
 # labels for plotting
 modeind_start, modeind_end = 0,0
 for i, mult in enumerate(mults):

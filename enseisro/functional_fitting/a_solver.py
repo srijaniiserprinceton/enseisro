@@ -8,6 +8,8 @@ def use_numpy_inv(GVAR, modes, sigma_arr, smax, use_synth=True, Omegasr=np.array
     
     A = make_mat.make_A(GVAR, modes, sigma_arr, smax=smax)
     d = make_mat.make_d_synth(GVAR, modes, sigma_arr, Omega_synth=Omegasr)
+
+    print('In d',d*GVAR.OM*1e9)
     
     AT = A.T
 

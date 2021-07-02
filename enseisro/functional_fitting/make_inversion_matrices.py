@@ -63,20 +63,21 @@ def make_d_synth(GVAR, modes, sigma_arr, Omega_synth=np.array([])):
     while(i < Nmodes):
         # extracting the m's from the instantaneous multiplet
         n_inst, ell_inst = modes[0,i], modes[1,i]
-        
+        print(ell_inst)
         # array that contains all the m's for this instantaneous multiplet
         inst_mult_marr = get_inst_mult_marr(n_inst, ell_inst, modes)
-        
+        print(Omega_synth.shape)
         # computing the forward problem to get the mx1 array of frequency splittings
-        domega_m = forfunc_Om.compute_splitting(GVAR, Omega_synth[0], np.array([[n_inst,ell_inst]]))
-
+        domega_m = forfunc_Om.compute_splitting(GVAR, Omega_synth, np.array([[n_inst,ell_inst]]))
+        print(domega_m*GVAR.OM*1e9)
         # appending the necessary entries of m in d
         m_indices = inst_mult_marr + ell_inst
+        
         d = np.append(d, domega_m[m_indices])
         
         # moving onto the next multiplet
         i += len(inst_mult_marr)
-    
+        print(d*GVAR.OM*1e9)
     # scaling by the uncertainty in freq splitting
     d = d / sigma_arr
     
