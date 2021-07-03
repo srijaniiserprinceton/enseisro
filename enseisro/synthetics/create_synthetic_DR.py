@@ -53,25 +53,24 @@ def get_solar_stepfn_params(Omegasr, rcz_ind_arr, Nparams=2):
     Nstars, lens = Omegasr.shape[0], Omegasr.shape[1]
     
     # creating the array to store \Omega_{out} and \Omega_{out} + \Delta \Omega
-    step_param_arr = np.zeros((Nstars, Nparams, lens))   # shape (Nstars x Nparams x s)
+    step_param_arr = np.zeros((Nstars, lens, Nparams))   # shape (Nstars x s x Nparams)
 
     for star_ind in range(Nstars):
-        step_param_arr[star_ind, 0, :] = np.mean(Omegasr[star_ind,:,:rcz_ind_arr[star_ind]], axis=1)
-        step_param_arr[star_ind, 1, :] = np.mean(Omegasr[star_ind,:,rcz_ind_arr[star_ind]:], axis=1)
+        step_param_arr[star_ind, :, 0] = np.mean(Omegasr[star_ind,:,:rcz_ind_arr[star_ind]], axis=1)
+        step_param_arr[star_ind, :, 1] = np.mean(Omegasr[star_ind,:,rcz_ind_arr[star_ind]:], axis=1)
                               
     return step_param_arr
 # }}} def_make_solar_stepfn_params()
 
 def params_to_step(GVAR, step_param_arr, rcz_ind_arr):
-    Nstars, lens = step_param_arr.shape[0], step_param_arr.shape[2]
+    Nstars, lens = step_param_arr.shape[0], step_param_arr.shape[1]
     Omegasr_step = np.zeros((Nstars,lens,len(GVAR.r)))
 
     for s_ind in range(lens):
         for star_ind in range(Nstars):
             rcz_ind = rcz_ind_arr[star_ind]
-            print(star_ind, s_ind, rcz_ind)
-            Omegasr_step[star_ind,s_ind,:rcz_ind] = step_param_arr[star_ind,0,s_ind]
-            Omegasr_step[star_ind,s_ind,rcz_ind:] = step_param_arr[star_ind,1,s_ind]
+            Omegasr_step[star_ind,s_ind,:rcz_ind] = step_param_arr[star_ind,s_ind,0]
+            Omegasr_step[star_ind,s_ind,rcz_ind:] = step_param_arr[star_ind,s_ind,1]
 
     # returning shape (Nstars x s x r)
     return Omegasr_step

@@ -5,6 +5,8 @@ from enseisro import forward_functions_Omega as forfunc_Om
 from enseisro.synthetics import w_omega_functions as w_om_func
 from enseisro.synthetics import create_synthetic_DR as create_synth_DR
 import matplotlib.pyplot as plt
+import sys
+
 
 ARGS = FN.create_argparser()
 GVAR = globalvars.globalVars(ARGS)
@@ -28,8 +30,8 @@ rcz_ind_arr = np.array([rcz_ind])   # contains only one star
 Omegasr = np.reshape(Omegasr, (Nstars, lens, len(GVAR.r)))
 
 # calculating the step function equivalent of this Omegasr
-step_param_arr = create_synth_DR.get_solar_stepfn_params(Omegasr, rcz_ind_arr)   # shape (Nstars x Nparams x s)
-Omegasr_step = create_synth_DR.params_to_step(GVAR, step_param_arr, rcz_ind_arr)
+step_param_arr = create_synth_DR.get_solar_stepfn_params(Omegasr, rcz_ind_arr)   # shape (Nstars x s x Nparams)
+Omegasr_step = create_synth_DR.params_to_step(GVAR, step_param_arr, rcz_ind_arr) # shape (Nstars x s x r)
 
 # converting to nHz
 Omegasr = Omegasr * GVAR.OM * 1e9
@@ -92,10 +94,10 @@ for i, mult in enumerate(mults):
     omeganlm_step *= 1e-6
 
     if(i == 0):
-        #ax_big.plot(cumulative_modes[modeind_start:modeind_end], omeganlm_smooth, '.k', label='Smooth', alpha=1.0)
-        #ax_big.plot(cumulative_modes[modeind_start:modeind_end], omeganlm_step, 'xr', label='Step', alpha=0.7)
-        ax_big.plot(cumulative_modes[modeind_start:modeind_end], omeganlm_smooth-omeganlm_step, '.k', label='Sm\
-ooth', alpha=1.0)
+        ax_big.plot(cumulative_modes[modeind_start:modeind_end], omeganlm_smooth, '.k', label='Smooth', alpha=1.0)
+        ax_big.plot(cumulative_modes[modeind_start:modeind_end], omeganlm_step, 'xr', label='Step', alpha=0.7)
+        #ax_big.plot(cumulative_modes[modeind_start:modeind_end], omeganlm_smooth-omeganlm_step, '.k', label='Sm\
+#ooth', alpha=1.0)
     else:
         ax_big.plot(cumulative_modes[modeind_start:modeind_end], omeganlm_smooth, '.k', alpha=1.0)
         ax_big.plot(cumulative_modes[modeind_start:modeind_end], omeganlm_step, 'xr', alpha=0.7)

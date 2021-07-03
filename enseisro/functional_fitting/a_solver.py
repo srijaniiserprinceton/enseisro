@@ -1,5 +1,6 @@
 # import jax.numpy as np
 import numpy as np
+import scipy as sp
 from enseisro.functional_fitting import make_inversion_matrices as make_mat
 
 def use_numpy_inv(GVAR, modes, sigma_arr, smax, use_synth=True, Omegasr=np.array([])):
@@ -9,12 +10,11 @@ def use_numpy_inv(GVAR, modes, sigma_arr, smax, use_synth=True, Omegasr=np.array
     A = make_mat.make_A(GVAR, modes, sigma_arr, smax=smax)
     d = make_mat.make_d_synth(GVAR, modes, sigma_arr, Omega_synth=Omegasr)
 
-    print('In d',d*GVAR.OM*1e9)
     
     AT = A.T
 
     ATA = AT @ A
     
-    a = np.linalg.inv(ATA) @ (AT @ d)
+    a = sp.linalg.inv(ATA) @ (AT @ d)
 
     return a

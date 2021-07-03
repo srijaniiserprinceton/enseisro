@@ -2,6 +2,7 @@
 import numpy as np
 import enseisro.loading_functions as loadfunc
 import enseisro.misc_functions as FN
+from scipy.integrate import simps
 import sys
 NAX = np.newaxis
 
@@ -20,7 +21,8 @@ def compute_kernel(GVAR, mult, rcz, s_arr, Nparams = 2):
 
         # mult_idx = FN.nl_idx(GVAR, n, ell)
         # omeganl = GVAR.omega_list[mult_idx]
-
+        
+        # shape (m x s)
         wigvals = np.zeros((2*ell+1, len(s_arr)))
         for i in range(len(s_arr)):
             wigvals[:, i] = FN.w3j_vecm(ell, s_arr[i], ell, -m, 0*m, m)
@@ -36,8 +38,8 @@ def compute_kernel(GVAR, mult, rcz, s_arr, Nparams = 2):
         K = np.zeros((len(s_arr), Nparams))    # shape (s x Nparams)
 
         # writing this for just two params for the step function case
-        K[:,0] = np.sum(Tsr[:,:rcz_ind], axis=1)
-        K[:,1] = np.sum(Tsr[:,rcz_ind:], axis=1)
+        K[:,0] = simps(Tsr[:,:rcz_ind], axis=1, x=GVAR.r[:rcz_ind])
+        K[:,1] = simps(Tsr[:,rcz_ind:], axis=1, x=GVAR.r[rcz_ind:])
 
         # constructing the other prefactors. Shape (m x s)
         prefactors = wigvals * (FN.minus1pow_vec(m) * 4*np.pi * prod_gammas)[:,NAX]
