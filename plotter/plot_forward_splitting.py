@@ -1,9 +1,11 @@
 import numpy as np
 from enseisro import globalvars
 import enseisro.misc_functions as FN
-import enseisro.forward_functions as forfunc
+import enseisro.forward_functions_w as forfunc_w
+import enseisro.forward_functions_Omega as forfunc_Om
 import matplotlib.pyplot as plt
 from enseisro.synthetics import create_synthetic_DR as create_syn_DR
+from enseisro.synthetics import w_omega_functions as w_Om_func
 
 ARGS = FN.create_argparser()
 GVAR = globalvars.globalVars(ARGS)
@@ -11,15 +13,21 @@ GVAR = globalvars.globalVars(ARGS)
 def plot_solar_splitting(wsr, n=2, ell=10):
     mult = np.array([[n,ell]])
 
-    domega_m = forfunc.compute_splitting(GVAR, wsr, mult)
+    domega_m = forfunc_w.compute_splitting(GVAR, wsr, mult)
     # converting to nHz
     domega_m *= GVAR.OM * 1e9
+
+    # doing the same for Omega instead of wsr
+    Omega_sr = w_Om_func.w_2_omega(GVAR, wsr)
+    domega_m_Om = forfunc_Om.compute_splitting(GVAR, Omega_sr, mult)
+    domega_m_Om *= GVAR.OM * 1e9
 
     m_arr = np.arange(-mult[0][1], mult[0][1]+1)
 
     plt.figure()
     
     plt.plot(m_arr, domega_m ,'ok')
+    plt.plot(m_arr, (domega_m - domega_m_Om), '-r')
     plt.xlabel('$m$')
     plt.ylabel('$\delta \omega^{%i,%i}(m)$'%(n,ell))
     plt.grid(True)
@@ -39,7 +47,7 @@ def plot_solarlike_ens_splitting(wsr_ens, n=2, ell=10, sarr=np.array([1,3,5])):
     plt.figure()
 
     for i in range(lenN):
-        domega_m = forfunc.compute_splitting(GVAR, wsr_ens[:,:,i], mult)
+        domega_m = forfunc_w.compute_splitting(GVAR, wsr_ens[:,:,i], mult)
         
         # converting to nHz                                                                      
         domega_m *= GVAR.OM * 1e9

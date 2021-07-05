@@ -1,0 +1,65 @@
+import numpy as np
+from enseisro import globalvars
+import enseisro.misc_functions as FN
+from enseisro.synthetics import create_synth_modes as make_modes
+import matplotlib.pyplot as plt
+from enseisro.functional_fitting import make_inversion_matrices as make_inv_mat
+from enseisro.synthetics import create_synthetic_DR as create_synth_DR
+from enseisro.synthetics import w_omega_functions as w_om_func
+from enseisro import get_kernels as get_kerns
+from enseisro import forward_functions_Omega as forfunc_Om
+import matplotlib.pyplot as plt
+
+ARGS = FN.create_argparser()
+GVAR = globalvars.globalVars(ARGS)
+
+NAX = np.newaxis
+
+def test_K_construction(plot=False):
+    # defining the multiplets                                                                                                                                                                
+    mult = np.array([[2,10]], dtype='int')
+    # getting the modes for which we want splitting values                                                                                                                                   
+    modes = make_modes.make_modes(mult)
+    # the smax and s array
+    smax = 1
+    s_arr = np.arange(1,smax+1,2)
+    
+    # finding the rcz index                                                                                                                                                             
+    rcz = 0.7
+    rcz_ind = np.argmin(np.abs(GVAR.r - rcz))
+    rcz_ind_arr = np.array([rcz_ind])   # contains only one star 
+
+    # the uncertainty vector
+    sigma_arr = np.ones(modes.shape[1])
+    
+    # getting constructing the A matrix
+    A = make_inv_mat.make_A(GVAR, modes, sigma_arr, rcz=rcz, smax=smax)    # shape (Nmodes x Nparams)
+
+    # constructing Omegasr to calculate frequency splittings in the next step
+    # extracting the solar DR profile in terms of wsr                                                                                                                                   
+    wsr = create_synth_DR.get_solar_DR(GVAR, smax=smax)
+    # converting this wsr to Omegasr. Shape (s x r)                                                                                                                                     
+    Omegasr = w_om_func.w_2_omega(GVAR, wsr)
+    # making it  in the (Nstars x s x r) shape                                                                                                                                         
+    Omegasr = np.reshape(Omegasr, (1, len(s_arr), len(GVAR.r)))
+     
+    
+    # calculating the step function equivalent of this Omegasr                                                                                                                          
+    step_param_arr = create_synth_DR.get_solar_stepfn_params(Omegasr, rcz_ind_arr)   # shape (Nstars x s x Nparams)                                                                     
+    Omegasr_step = create_synth_DR.params_to_step(GVAR, step_param_arr, rcz_ind_arr) # shape (Nstars x s x r)
+
+    # computing the frequency splittings using the Omegasr profile
+    print(A.shape, step_param_arr.shape)
+    domega_A_test = np.sum(A * step_param_arr[NAX,0,0,:], axis=1) 
+
+    # getting splitting from debug function
+    domega_splitting = forfunc_Om.compute_splitting(GVAR, Omegasr_step[0], mult)
+
+    np.testing.assert_array_almost_equal(domega_A_test, domega_splitting)
+
+    if(plot):
+        plt.plot(np.arange(-mult[0][1],mult[0][1]+1), domega*GVAR.OM*1e9, '.')
+        plt.savefig('../plotter/check_A_matrix.pdf')
+
+# visual confirmation
+# test_K_construction(plot=True)
