@@ -10,6 +10,7 @@ from enseisro import get_kernels as get_kerns
 from enseisro.functional_fitting import a_solver as a_solver
 from enseisro import forward_functions_Omega as forfunc_Om
 import matplotlib.pyplot as plt
+import sys
 
 ARGS = FN.create_argparser()
 GVAR = globalvars.globalVars(ARGS)
@@ -18,6 +19,12 @@ GVAR = globalvars.globalVars(ARGS)
 
 # defining the multiplets
 mults = np.array([[2,10], [2,2], [3,4], [4,5], [5,5]], dtype='int')
+# creating the list of mults
+nmin, nmax = 2, 15
+lmin, lmax = 2, 15
+mults = FN.build_mults(nmin, nmax, lmin, lmax)
+#print(mults,mults.shape)
+#sys.exit()
 
 # getting the modes for which we want splitting values
 modes = make_modes.make_modes(mults)
@@ -25,7 +32,7 @@ modes = make_modes.make_modes(mults)
 # creating the uncertainty of splitting vector                                                                                                                                          
 sigma_arr = np.ones(modes.shape[1])
 
-smax = 1
+smax = 3
 s_arr = np.arange(1,smax+1,2)
 # extracting the solar DR profile in terms of wsr                                                                                                                                       
 wsr = create_synth_DR.get_solar_DR(GVAR, smax=smax)
@@ -45,7 +52,7 @@ step_param_arr = create_synth_DR.get_solar_stepfn_params(Omegasr, rcz_ind_arr)  
 Omegasr_step = create_synth_DR.params_to_step(GVAR, step_param_arr, rcz_ind_arr)
 
 # input synthetic values in nHz
-print('Input synthetic values in nHz:', step_param_arr[0,0,:]*GVAR.OM*1e9)
+print('Input synthetic values in nHz:', step_param_arr[0,:,:]*GVAR.OM*1e9)
 
 # solving for a in A . a = d
 a = a_solver.use_numpy_inv(GVAR, modes, sigma_arr, smax, use_synth=True, Omegasr = Omegasr_step[0])

@@ -108,3 +108,32 @@ def minus1pow_vec(num):
 def gamma(ell):
     return np.sqrt((2*ell + 1)/4/np.pi)
 # }}} gamma()
+
+
+# {{{ def reshape_KF():
+def reshape_KF(KF):
+    """This function reshapes KF adequately to tile the 
+    s dimensions as extra set of columns. So, KF is 
+    converted from shape (Nmodes x Nparams x s) tp the shape
+    (Nmodes x (Nparams*s))
+    """
+    return np.reshape(KF,(KF.shape[0],-1),'F')
+# }}} def reshape_KF()
+
+# {{{ def build_mults():
+def build_mults(nmin, nmax, lmin, lmax):
+    """This function creates the list of multiplets
+    given the nmin, nmax, lmin and lmax
+    """
+    Nmults = (nmax - nmin + 1) * (lmax - lmin + 1)
+    mults = np.zeros((Nmults,2),dtype='int')
+    
+    mult_count = int(0)
+    for n_ind, n in enumerate(range(nmin, nmax+1)):
+        for ell_ind, ell in enumerate(range(lmin, lmax+1)):
+            mults[mult_count,:] = np.array([n,ell],dtype='int')
+            mult_count += 1
+
+    return mults
+
+# }}} def build_mults()

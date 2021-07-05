@@ -2,6 +2,7 @@
 import numpy as np
 import enseisro.forward_functions_Omega as forfunc_Om
 from enseisro import get_kernels as get_kerns
+from enseisro import misc_functions as FN
 
 NAX = np.newaxis
 
@@ -9,13 +10,15 @@ def make_A(GVAR, modes, sigma_arr, rcz=0.7, Nparams=2, smax=1):
     """This function is used to create the A matrix in
     A . a = d for our linear inverse problem
     """
-    # B = K_{ij} F_{jk} as defined in the Overleaf notes
-    Nmodes = modes.shape[1]
-    B_arr = np.zeros((Nmodes, Nparams))
 
     # creating s_arr
     s_arr = np.arange(1, smax+1, 2)
-    
+    lens = len(s_arr)
+
+    # B = K_{ij} F_{jk} as defined in the Overleaf notes
+    Nmodes = modes.shape[1]
+    B_arr = np.zeros((Nmodes, Nparams*lens))    # shape (Nmodes x (Nparams*s))
+
     # indices of where to start and end in mode-labels when filling B_{ik}
     modefill_start_ind, modefill_end_ind = 0, 0
 
@@ -33,8 +36,17 @@ def make_A(GVAR, modes, sigma_arr, rcz=0.7, Nparams=2, smax=1):
         # getting the K_{ij}F_{jk}
         KF = get_kerns.compute_kernel(GVAR, np.array([[n_inst, ell_inst]]), rcz, s_arr)    # shape (m x s x Nparams)
 
+        # changing the shape to (m x Nparams x s)
+        KF = np.swapaxes(KF,1,2)
+
         # for now only one s. So, I am doing this explicitly
-        KF = KF[:,0,:]      # shape (m x Nparams)
+        # KF = KF[:,:,0]      # shape (m x Nparams)
+
+        # tiling appropriately to allow inversion for multiple s. This just means we 
+        # append the s > 1 dimensions to Nparams col. So new shape is (m x (Nparams * s))
+        # reshaping in fortran style so that s-dimensions are added to the cols
+        # KF = np.reshape(KF,(KF.shape[0],-1),'F')
+        KF = FN.reshape_KF(KF)
 
         B_arr[modefill_start_ind:modefill_end_ind,:] = KF[inst_mult_marr + ell_inst,:]
 
