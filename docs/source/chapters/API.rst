@@ -5,7 +5,7 @@
 
 Forward Functions
 +++++++++++++++++
-.. automodule:: enseisro.forward_functions
+.. automodule:: enseisro.forward_functions_Omega
    :members:
    :show-inheritance:
 
