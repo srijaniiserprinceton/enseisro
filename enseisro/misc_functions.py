@@ -137,3 +137,29 @@ def build_mults(nmin, nmax, lmin, lmax):
     return mults
 
 # }}} def build_mults()
+
+# def format_terminal_output():
+def format_terminal_output(synthetic, inverted, error):
+    """This function formats the output to be printed in the terminal
+    """
+    dash = '-' * 95
+    col_headers = np.array(['in nHz', 'Om_in_1', 'Om_out_1', 'Om_in_3', 'Om_out_3'])
+    row_headers = np.array(['Synthetic', 'Inverted', 'Error(+/-)'])
+    
+    for row_ind in range(4):
+        if(row_ind == 0):
+            print(dash)
+            print('{:<20s}{:^20s}{:^20s}{:^20s}{:^20s}'.format(col_headers[0],\
+                col_headers[1],col_headers[2],col_headers[3],col_headers[4]))
+            print(dash)
+        elif(row_ind == 1):
+            print('{:<20s}{:^20f}{:^20f}{:^20f}{:^20f}'.format(row_headers[row_ind-1],\
+                        synthetic[0],synthetic[1],synthetic[2],synthetic[3]))
+        elif(row_ind == 2):
+            print('{:<20s}{:^20f}{:^20f}{:^20f}{:^20f}'.format(row_headers[row_ind-1],\
+                        inverted[0],inverted[1],inverted[2],inverted[3]))
+        else:
+            print('{:<20s}{:^20f}{:^20f}{:^20f}{:^20f}'.format(row_headers[row_ind-1],\
+                        error[0],error[1],error[2],error[3]))
+
+# }}} format_terminal_output()

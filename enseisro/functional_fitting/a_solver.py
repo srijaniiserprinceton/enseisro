@@ -10,13 +10,19 @@ def use_numpy_inv(GVAR, modes, sigma_arr, smax, use_synth=True, Omegasr=np.array
     A = make_mat.make_A(GVAR, modes, sigma_arr, smax=smax)
     d = make_mat.make_d_synth(GVAR, modes, sigma_arr, Omega_synth=Omegasr)
 
-    print(A.shape)
-
     
     AT = A.T
 
     ATA = AT @ A
     
-    a = sp.linalg.inv(ATA) @ (AT @ d)
+    inv_ATA = sp.linalg.inv(ATA) 
 
-    return a
+    # computing solution
+    a = inv_ATA @ (AT @ d)
+
+    # computing the model covariance matrix.
+    # C_M = (A^T A)^{-1} according to Sambridge
+    # Lecture notes. Lecture 2, Slide 23.
+    C_M = inv_ATA
+
+    return a, C_M
