@@ -162,4 +162,23 @@ def format_terminal_output(synthetic, inverted, error):
             print('{:<20s}{:^20f}{:^20f}{:^20f}{:^20f}'.format(row_headers[row_ind-1],\
                         error[0],error[1],error[2],error[3]))
 
-# }}} format_terminal_output()
+# }}} def format_terminal_output()
+
+# {{{ def build_star_labels_and_all_modes():
+def build_star_labels_and_all_modes(Nstars, modes_single_star):
+    Nmodes_single_star = modes_single_star.shape[1]
+    star_label_arr = np.zeros(Nstars * Nmodes_single_star, dtype='int')
+    modes = np.zeros((3, len(star_label_arr)), dtype='int')
+                     
+    # filling in labels and repeating the modes
+    all_mode_fill_start_ind, all_mode_fill_end_ind = 0, Nmodes_single_star
+    for i in range(Nstars):
+        star_label_arr[all_mode_fill_start_ind:all_mode_fill_end_ind] = i 
+        # filling in the same set of modes for all the stars
+        modes[:,all_mode_fill_start_ind:all_mode_fill_end_ind] = modes_single_star
+    
+        # updating the start and end indices
+        all_mode_fill_start_ind += Nmodes_single_star
+        all_mode_fill_end_ind += Nmodes_single_star
+
+    return star_label_arr, modes

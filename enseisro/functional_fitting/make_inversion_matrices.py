@@ -62,7 +62,7 @@ def make_A(GVAR, modes, sigma_arr, rcz=0.7, Nparams=2, smax=1):
     return A   # shape (Nmodes x Nparams)
         
 
-def make_d_synth(GVAR, modes, sigma_arr, Omega_synth):
+def make_d_synth_from_function(GVAR, modes, sigma_arr, Omega_synth):
     """This function is used to build the data vector d  of frequency splittings
     in the forward problem A . a = d
     """
@@ -94,6 +94,47 @@ def make_d_synth(GVAR, modes, sigma_arr, Omega_synth):
     d = d / sigma_arr
     
     return d
+
+
+
+def make_d_synth_from_step_params(GVAR, star_label_arr , modes, sigma_arr, Omega_step_params_arr, rcz_ind_arr):
+    """This function is used to build the data vector d  of frequency splittings
+    in the forward problem A . a = d
+    """
+    d = np.array([])   # creating the empty data (frequency splitting) vector
+    
+    # extracting the number of modes present. This should be all-stars, all modes
+    Nmodes = modes.shape[1]
+    
+    i = 0
+    while(i < Nmodes):
+        # extracting the m's from the instantaneous multiplet
+        n_inst, ell_inst = modes[0,i], modes[1,i]
+        
+        # array that contains all the m's for this instantaneous multiplet
+        inst_mult_marr = get_inst_mult_marr(n_inst, ell_inst, modes)
+        
+        # getting the rcz_ind and the step_params from the particular star
+        rcz_ind = rcz_ind_arr[star_label_arr[i]]
+        Omega_step_params = Omega_step_params_arr[rcz_ind[i]]
+
+        # computing the forward problem to get the mx1 array of frequency splittings
+        domega_m = forfunc_Om.compute_splitting_from_step_params(GVAR, Omega_step_params,\
+                                            np.array([[n_inst,ell_inst]]), rcz_ind)
+        
+        # appending the necessary entries of m in d
+        m_indices = inst_mult_marr + ell_inst
+        
+        d = np.append(d, domega_m[m_indices])
+        
+        # moving onto the next multiplet
+        i += len(inst_mult_marr)
+        
+    # scaling by the uncertainty in freq splitting
+    d = d / sigma_arr
+    
+    return d
+
 
 
 def get_inst_mult_marr(n_inst, ell_inst, modes):
