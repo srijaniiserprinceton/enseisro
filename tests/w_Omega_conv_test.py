@@ -26,6 +26,6 @@ def test_forward_calc():
 
     # getting the respective frequency splittings
     domega_w = forfunc_w.compute_splitting(GVAR, wsr, mult)
-    domega_Om = forfunc_Om.compute_splitting(GVAR, Omegasr, mult)
+    domega_Om = forfunc_Om.compute_splitting_from_function(GVAR, Omegasr, mult)
 
     np.testing.assert_array_almost_equal(domega_w, domega_Om)

@@ -41,7 +41,7 @@ def test_d_construction(plot=False):
     # domega will contain all the splittings for all multiplets                                                                                                                                                  
     domega = np.array([])
     for mult in mults:
-        domega = np.append(domega, forfunc_Om.compute_splitting(GVAR, Omegasr[0], np.array([mult])))
+        domega = np.append(domega, forfunc_Om.compute_splitting_from_function(GVAR, Omegasr[0], np.array([mult])))
         
     # cumulative mode label
     cumulative_modes = np.arange(0, 2*np.sum(mults[:,1])+len(mults))

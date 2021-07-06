@@ -51,6 +51,8 @@ rcz_ind_arr = np.array([rcz_ind])   # contains only one star
 step_param_arr = create_synth_DR.get_solar_stepfn_params(Omegasr, rcz_ind_arr)   # shape (Nstars x s x  Nparams)                                                                         
 Omegasr_step = create_synth_DR.params_to_step(GVAR, step_param_arr, rcz_ind_arr)
 
+domega_from_smooth
+domega_from_step
 
 # solving for a in A . a = d
 

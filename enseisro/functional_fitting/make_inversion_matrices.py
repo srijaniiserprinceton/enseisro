@@ -62,13 +62,13 @@ def make_A(GVAR, modes, sigma_arr, rcz=0.7, Nparams=2, smax=1):
     return A   # shape (Nmodes x Nparams)
         
 
-def make_d_synth(GVAR, modes, sigma_arr, Omega_synth=np.array([])):
+def make_d_synth(GVAR, modes, sigma_arr, Omega_synth):
     """This function is used to build the data vector d  of frequency splittings
     in the forward problem A . a = d
     """
     d = np.array([])   # creating the empty data (frequency splitting) vector
     
-    # extracting the number of modes present
+    # extracting the number of modes present. This should be all-stars, all modes
     Nmodes = modes.shape[1]
     
     i = 0
@@ -80,7 +80,7 @@ def make_d_synth(GVAR, modes, sigma_arr, Omega_synth=np.array([])):
         inst_mult_marr = get_inst_mult_marr(n_inst, ell_inst, modes)
         
         # computing the forward problem to get the mx1 array of frequency splittings
-        domega_m = forfunc_Om.compute_splitting(GVAR, Omega_synth, np.array([[n_inst,ell_inst]]))
+        domega_m = forfunc_Om.compute_splitting_from_function(GVAR, Omega_synth, np.array([[n_inst,ell_inst]]))
         
         # appending the necessary entries of m in d
         m_indices = inst_mult_marr + ell_inst

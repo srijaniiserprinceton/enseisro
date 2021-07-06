@@ -8,7 +8,7 @@ def use_numpy_inv(GVAR, modes, sigma_arr, smax, use_synth=True, Omegasr=np.array
     Numpy solver numpy.linalg.inv()"""
     
     A = make_mat.make_A(GVAR, modes, sigma_arr, smax=smax)
-    d = make_mat.make_d_synth(GVAR, modes, sigma_arr, Omega_synth=Omegasr)
+    d = make_mat.make_d_synth(GVAR, modes, sigma_arr, Omegasr)
 
     
     AT = A.T

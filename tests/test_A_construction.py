@@ -55,7 +55,7 @@ def test_K_construction(plot=False):
     # getting splitting from debug function
     domega_splitting = np.array([])
     for mult in mults:
-        domega_splitting = np.append(domega_splitting, forfunc_Om.compute_splitting(GVAR, Omegasr_step[0], np.array([mult])))
+        domega_splitting = np.append(domega_splitting, forfunc_Om.compute_splitting_from_function(GVAR, Omegasr_step[0], np.array([mult])))
 
     # finding the values that is present in our domega_A_test
     mult_marr = np.array([-2,-1,1,2])
