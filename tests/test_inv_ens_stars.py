@@ -15,12 +15,9 @@ import sys
 ARGS = FN.create_argparser()
 GVAR = globalvars.globalVars(ARGS)
 
-def test_inv_onestar():
-    """This function is used to test if a single star inversion
-    works fine. This could alternatively be used for multiple stars
-    which have the same \Omega_{out} and \Delta \Omega."""
+def test_inv_ens_stars():
     # defining the number of stars in the ensemble
-    Nstars = 1
+    Nstars = 6
     
     # defining the multiplets
     # mults = np.array([[2,10], [2,2], [3,4], [4,5], [5,5]], dtype='int')
@@ -82,20 +79,15 @@ def test_inv_onestar():
     # C_M = (G^T C_d^{-1} G)^{-1}. In our case G^T C_d^{1/2} = A^T
     # C_d^{1/2} = \sigma
     
-    a_Delta, C_M_Detla = a_solver.use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr,\
-                                smax, step_param_arr, rcz_ind_arr, use_diff_Omout=False, use_Delta=True)
-    a, C_M = a_solver.use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr,\
-                            smax, step_param_arr_1, rcz_ind_arr, use_diff_Omout=False, use_Delta=False)
     
+    a_Delta, C_M_Detla = a_solver.use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax, step_param_arr, rcz_ind_arr, use_diff_Omout=True, use_Delta=True)
     
-    np.testing.assert_array_almost_equal(a_Delta.flatten(), step_param_arr[0].flatten())
-    np.testing.assert_array_almost_equal(a.flatten(), step_param_arr_1[0].flatten())
-    
-    '''
-    print('Synthetic:\n',step_param_arr_1[0].flatten() * GVAR.OM * 1e9)
-    print('Inverted:\n', a.flatten() * GVAR.OM * 1e9)
-    print('Synthetic with Delta:\n',step_param_arr[0].flatten() * GVAR.OM * 1e9)
-    print('Inverted with Delta:\n',a_Delta.flatten() * GVAR.OM * 1e9) # , a_1 * GVAR.OM * 1e9)
-    '''
+    # step_param_arr.flatten() makes it in the order [Omout_1^(1),\Delta Omega_1^(1), Omout_1^(3), \Delta Omega_1^(3), ...]
+    # making the input a-profile (the step params) in the same order as the a_Delta
+    a_input = step_param_arr.flatten()[::2]
+    # adding the \Delta \Omega^(s) terms which are supposed to be shared between the stars
+    for i in range(len(s_arr)):
+        a_input = np.append(a_input,step_param_arr.flatten()[1 + 2*i])     # storing the s \Delta \Omega's
 
-# test_inv_onestar()
+    np.testing.assert_array_almost_equal(a_Delta, a_input)
+    

@@ -16,7 +16,7 @@ ARGS = FN.create_argparser()
 GVAR = globalvars.globalVars(ARGS)
 
 # defining the number of stars in the ensemble
-Nstars = 1
+Nstars = 6
 
 # defining the multiplets
 # mults = np.array([[2,10], [2,2], [3,4], [4,5], [5,5]], dtype='int')
@@ -78,13 +78,14 @@ Omegasr_step = create_synth_DR.params_to_step(GVAR, step_param_arr, rcz_ind_arr)
 # C_M = (G^T C_d^{-1} G)^{-1}. In our case G^T C_d^{1/2} = A^T
 # C_d^{1/2} = \sigma
 
-a_Delta, C_M_Detla = a_solver.use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax, step_param_arr, rcz_ind_arr, use_Delta=True)
-a, C_M = a_solver.use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax, step_param_arr_1, rcz_ind_arr, use_Delta=False)
+
+a_Delta, C_M_Detla = a_solver.use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax, step_param_arr, rcz_ind_arr, use_diff_Omout=True, use_Delta=True)
+a, C_M = a_solver.use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax, step_param_arr_1, rcz_ind_arr, use_diff_Omout=False, use_Delta=False)
 # a_1, C_M_1 = a_solver.use_numpy_inv_Omega_function(GVAR, modes, sigma_arr, smax, use_synth=True, Omegasr = Omegasr_step[0])
 
-print('Synthetic:\n',step_param_arr_1[0].flatten() * GVAR.OM * 1e9)
+print('Synthetic:\n',step_param_arr_1.flatten() * GVAR.OM * 1e9)
 print('Inverted:\n', a.flatten() * GVAR.OM * 1e9)
-print('Synthetic with Delta:\n',step_param_arr[0].flatten() * GVAR.OM * 1e9)
+print('Synthetic with Delta:\n',step_param_arr.flatten() * GVAR.OM * 1e9)
 print('Inverted with Delta:\n',a_Delta.flatten() * GVAR.OM * 1e9) # , a_1 * GVAR.OM * 1e9)
 
 sys.exit()
