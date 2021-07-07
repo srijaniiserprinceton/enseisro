@@ -29,7 +29,6 @@ mults = FN.build_mults(nmin, nmax, lmin, lmax)
 # these would later be repeated to make multiple stars
 modes_single_star = make_modes.make_modes(mults)
 
-print(modes_single_star)
 
 # building the star labels. Each star's label is repeated for all the modes
 # that is used from that star. Labelling starts from 0 so that we can use it
@@ -60,8 +59,15 @@ for i in range(Nstars):
     rcz_ind = np.argmin(np.abs(GVAR.r - rcz_arr[i]))
     rcz_ind_arr[i] = rcz_ind              
 
-# calculating the step function equivalent of this Omegasr                                                                                                                              
-step_param_arr = create_synth_DR.get_solar_stepfn_params(Omegasr, rcz_ind_arr)   # shape (Nstars x s x  Nparams)                                                                         
+# calculating the step function equivalent of this Omegasr. (\Omega_{in} + \Omega_{out))                                                                                                                          
+step_param_arr_1 = create_synth_DR.get_solar_stepfn_params(Omegasr, rcz_ind_arr)   # shape (Nstars x s x  Nparams)                                                                         
+# converting it to Omega_{out} and \Delta \Omega
+step_param_arr = np.zeros_like(step_param_arr_1)
+# storing \Omega_{out}
+step_param_arr[:,:,0] = step_param_arr_1[:,:,1]
+# storing \Detla\Omega
+step_param_arr[:,:,1] = step_param_arr_1[:,:,0] - step_param_arr_1[:,:,1]
+
 Omegasr_step = create_synth_DR.params_to_step(GVAR, step_param_arr, rcz_ind_arr) # shape (Nstars x s x r)
 
 # solving for a in A . a = d
@@ -72,11 +78,14 @@ Omegasr_step = create_synth_DR.params_to_step(GVAR, step_param_arr, rcz_ind_arr)
 # C_M = (G^T C_d^{-1} G)^{-1}. In our case G^T C_d^{1/2} = A^T
 # C_d^{1/2} = \sigma
 
-a, C_M = a_solver.use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax, step_param_arr, rcz_ind_arr)
+a_Delta, C_M_Detla = a_solver.use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax, step_param_arr, rcz_ind_arr, use_Delta=True)
+a, C_M = a_solver.use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax, step_param_arr_1, rcz_ind_arr, use_Delta=False)
 # a_1, C_M_1 = a_solver.use_numpy_inv_Omega_function(GVAR, modes, sigma_arr, smax, use_synth=True, Omegasr = Omegasr_step[0])
 
-print(step_param_arr[0] * GVAR.OM * 1e9)
-print(a * GVAR.OM * 1e9) # , a_1 * GVAR.OM * 1e9)
+print('Synthetic:\n',step_param_arr_1[0].flatten() * GVAR.OM * 1e9)
+print('Inverted:\n', a.flatten() * GVAR.OM * 1e9)
+print('Synthetic with Delta:\n',step_param_arr[0].flatten() * GVAR.OM * 1e9)
+print('Inverted with Delta:\n',a_Delta.flatten() * GVAR.OM * 1e9) # , a_1 * GVAR.OM * 1e9)
 
 sys.exit()
 

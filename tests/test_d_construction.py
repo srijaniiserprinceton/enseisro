@@ -36,7 +36,7 @@ def test_d_construction(plot=False):
     
     
     # getting the data matrix                                                                                                                                                                
-    d = make_inv_mat.make_d_synth(GVAR, modes, sigma_arr, Omega_synth = Omegasr[0])  # using a single star for now                                                                          
+    d = make_inv_mat.make_d_synth_from_function(GVAR, modes, sigma_arr, Omega_synth = Omegasr[0])  # using a single star for now                                                                          
     
     # domega will contain all the splittings for all multiplets                                                                                                                                                  
     domega = np.array([])
