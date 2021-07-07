@@ -9,8 +9,6 @@ from enseisro.synthetics import w_omega_functions as w_om_func
 from enseisro import get_kernels as get_kerns 
 from enseisro.functional_fitting import a_solver as a_solver
 from enseisro import forward_functions_Omega as forfunc_Om
-import matplotlib.pyplot as plt
-import sys
 
 ARGS = FN.create_argparser()
 GVAR = globalvars.globalVars(ARGS)

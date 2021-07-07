@@ -10,13 +10,14 @@ from enseisro import get_kernels as get_kerns
 from enseisro.functional_fitting import a_solver as a_solver
 from enseisro import forward_functions_Omega as forfunc_Om
 import matplotlib.pyplot as plt
+from enseisro import printing_functions as print_func
 import sys
 
 ARGS = FN.create_argparser()
 GVAR = globalvars.globalVars(ARGS)
 
 # defining the number of stars in the ensemble
-Nstars = 6
+Nstars = 10
 
 # defining the multiplets
 # mults = np.array([[2,10], [2,2], [3,4], [4,5], [5,5]], dtype='int')
@@ -41,6 +42,7 @@ sigma_arr = 0.01 * np.ones(modes.shape[1])
 
 smax = 3
 s_arr = np.arange(1,smax+1,2)
+lens = len(s_arr)
 # extracting the solar DR profile in terms of wsr                                                                                                                                       
 wsr = create_synth_DR.get_solar_DR(GVAR, smax=smax)
 # converting this wsr to Omegasr                                                                                                                                                     
@@ -83,22 +85,32 @@ a_Delta, C_M_Detla = a_solver.use_numpy_inv_Omega_step_params(GVAR, star_label_a
 a, C_M = a_solver.use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax, step_param_arr_1, rcz_ind_arr, use_diff_Omout=False, use_Delta=False)
 # a_1, C_M_1 = a_solver.use_numpy_inv_Omega_function(GVAR, modes, sigma_arr, smax, use_synth=True, Omegasr = Omegasr_step[0])
 
+'''
 print('Synthetic:\n',step_param_arr_1.flatten() * GVAR.OM * 1e9)
 print('Inverted:\n', a.flatten() * GVAR.OM * 1e9)
 print('Synthetic with Delta:\n',step_param_arr.flatten() * GVAR.OM * 1e9)
 print('Inverted with Delta:\n',a_Delta.flatten() * GVAR.OM * 1e9) # , a_1 * GVAR.OM * 1e9)
+'''
 
-sys.exit()
+# creating the various arrays to be used for printing
+synthetic_out = step_param_arr.flatten()[::2] * GVAR.OM * 1e9
+synthetic_delta = step_param_arr.flatten()[1:2*lens:2] * GVAR.OM * 1e9
+inverted_out = a_Delta[:-lens] * GVAR.OM * 1e9
+inverted_delta = a_Delta[-lens:] * GVAR.OM * 1e9
 
 # printing the outputs
 line_breaks = '\n\n\n'
 print(line_breaks)
-print('Number of modes used: ', modes.shape[1])
-print('Number of inversion parameters: ', len(a))
+print('Number of stars: ', Nstars)
+print('Number of modes per star: ', modes_single_star.shape[1])
 print(line_breaks)
 # printing the formatted output table
-FN.format_terminal_output(step_param_arr[0,:,:].flatten()*GVAR.OM*1e9, a.flatten()*GVAR.OM*1e9, np.sqrt(np.diag(C_M)))
+#print_func.format_terminal_output_onestar(step_param_arr[0,:,:].flatten()*GVAR.OM*1e9, a.flatten()*GVAR.OM*1e9, np.sqrt(np.diag(C_M)))
+print_func.format_terminal_output_ens_star(Nstars, synthetic_out, synthetic_delta, inverted_out, inverted_delta)
 print(line_breaks)
+
+'''
 # the model covariance matrix
 print('Model covariance matrix in nHz^2:\n', C_M)
+'''
 print(line_breaks)
