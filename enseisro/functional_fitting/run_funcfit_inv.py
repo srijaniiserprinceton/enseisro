@@ -16,7 +16,7 @@ ARGS = FN.create_argparser()
 GVAR = globalvars.globalVars(ARGS)
 
 # defining the number of stars in the ensemble
-Nstars = 6
+Nstars = 1
 
 # defining the multiplets
 # mults = np.array([[2,10], [2,2], [3,4], [4,5], [5,5]], dtype='int')
