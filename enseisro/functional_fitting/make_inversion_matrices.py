@@ -97,43 +97,46 @@ def make_d_synth_from_function(GVAR, modes, sigma_arr, Omega_synth):
 
 
 
-def make_d_synth_from_step_params(GVAR, star_label_arr , modes, sigma_arr, Omega_step_params_arr, rcz_ind_arr):
+def make_d_synth_from_step_params(GVAR, modes_star, sigma_arr_star, Omega_step_params_star, rcz_ind_star):
     """This function is used to build the data vector d  of frequency splittings
     in the forward problem A . a = d
     """
-    d = np.array([])   # creating the empty data (frequency splitting) vector
+    d_star = np.array([])   # creating the empty data (frequency splitting) vector
     
-    # extracting the number of modes present. This should be all-stars, all modes
-    Nmodes = modes.shape[1]
+    # extracting the number of modes present in current star
+    Nmodes_star = modes_star.shape[1]
     
     i = 0
-    while(i < Nmodes):
+    while(i < Nmodes_star):
         # extracting the m's from the instantaneous multiplet
-        n_inst, ell_inst = modes[0,i], modes[1,i]
+        n_inst, ell_inst = modes_star[0,i], modes_star[1,i]
         
         # array that contains all the m's for this instantaneous multiplet
-        inst_mult_marr = get_inst_mult_marr(n_inst, ell_inst, modes)
+        inst_mult_marr = get_inst_mult_marr(n_inst, ell_inst, modes_star)
+
+        # getting the star's label
+        # star_label = star_label_arr[i]
         
         # getting the rcz_ind and the step_params from the particular star
-        rcz_ind = rcz_ind_arr[star_label_arr[i]]
-        Omega_step_params = Omega_step_params_arr[rcz_ind[i]]
+        # rcz_ind = rcz_ind_arr[star_label]
+        # Omega_step_params = Omega_step_params_arr[star_label]
 
         # computing the forward problem to get the mx1 array of frequency splittings
-        domega_m = forfunc_Om.compute_splitting_from_step_params(GVAR, Omega_step_params,\
-                                            np.array([[n_inst,ell_inst]]), rcz_ind)
+        domega_m = forfunc_Om.compute_splitting_from_step_params(GVAR, Omega_step_params_star,\
+                                              np.array([[n_inst,ell_inst]]), rcz_ind_star)
         
         # appending the necessary entries of m in d
         m_indices = inst_mult_marr + ell_inst
         
-        d = np.append(d, domega_m[m_indices])
+        d_star = np.append(d_star, domega_m[m_indices])
         
         # moving onto the next multiplet
         i += len(inst_mult_marr)
         
     # scaling by the uncertainty in freq splitting
-    d = d / sigma_arr
+    d_star = d_star / sigma_arr_star
     
-    return d
+    return d_star
 
 
 
