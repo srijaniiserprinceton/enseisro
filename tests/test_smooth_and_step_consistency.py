@@ -5,8 +5,10 @@ import enseisro.misc_functions as FN
 from enseisro.synthetics import create_synthetic_DR as create_synth_DR
 from enseisro.synthetics import w_omega_functions as w_om_func
 
-ARGS = FN.create_argparser()
-GVAR = globalvars.globalVars(ARGS)
+# ARGS = FN.create_argparser()
+# GVAR = globalvars.globalVars(ARGS)
+
+GVAR = globalvars.globalVars()
 
 # {{{ def test_smooth_and_step_consistency():
 def test_smooth_and_step_consistency():

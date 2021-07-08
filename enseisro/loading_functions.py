@@ -1,4 +1,4 @@
-import jax.numpy as jnp
+# import jax.numpy as jnp
 import numpy as np
 import enseisro.misc_functions as FN
 from enseisro import globalvars

@@ -10,8 +10,10 @@ from enseisro import get_kernels as get_kerns
 from enseisro import forward_functions_Omega as forfunc_Om
 import matplotlib.pyplot as plt
 
-ARGS = FN.create_argparser()
-GVAR = globalvars.globalVars(ARGS)
+# ARGS = FN.create_argparser()
+# GVAR = globalvars.globalVars(ARGS)
+
+GVAR = globalvars.globalVars()
 
 NAX = np.newaxis
 

@@ -6,8 +6,10 @@ from enseisro.synthetics import create_synthetic_DR as create_syn_DR
 from enseisro.synthetics import w_omega_functions as w_om_func
 import matplotlib.pyplot as plt
 
-ARGS = FN.create_argparser()
-GVAR = globalvars.globalVars(ARGS)
+# ARGS = FN.create_argparser()
+# GVAR = globalvars.globalVars(ARGS)
+
+GVAR = globalvars.globalVars()
 
 NAX = np.newaxis
 

@@ -10,8 +10,9 @@ from enseisro.synthetics import w_omega_functions as w_om_func
 from enseisro import forward_functions_Omega as forfunc_Om
 import matplotlib.pyplot as plt
 
-ARGS = FN.create_argparser()
-GVAR = globalvars.globalVars(ARGS)
+# ARGS = FN.create_argparser()
+# GVAR = globalvars.globalVars(ARGS)
+GVAR = globalvars.globalVars()
 
 def test_d_construction(plot=False):
 

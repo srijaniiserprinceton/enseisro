@@ -7,8 +7,10 @@ from enseisro.synthetics import w_omega_functions as w_om_func
 from enseisro import globalvars
 import enseisro.misc_functions as FN
 
-ARGS = FN.create_argparser()
-GVAR = globalvars.globalVars(ARGS)
+# ARGS = FN.create_argparser()
+# GVAR = globalvars.globalVars(ARGS)
+
+GVAR = globalvars.globalVars()
 
 def test_forward_calc():
     """This function tests whether for an equivalent wsr or Omegasr profile,

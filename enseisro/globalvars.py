@@ -29,16 +29,19 @@ class qdParams():
     rmax = 1.0
     smax = 5
     fwindow =  150 
-    args = FN.create_argparser()
-    args.n0 = 0
-    args.l0 = 150
+    # args = FN.create_argparser()
+    n0 = 0
+    l0 = 150
 
 
 class globalVars():
-    qdPars = qdParams()
-    def __init__(self, args=qdParams.args, rmin=qdPars.rmin,
-                 rmax=qdPars.rmax, smax=qdPars.smax, fwindow=qdPars.fwindow):
+    # qdPars = qdParams()
+    def __init__(self): #, args=qdParams, rmin=qdPars.rmin,
+                 # rmax=qdPars.rmax, smax=qdPars.smax, fwindow=qdPars.fwindow):
         
+        # getting the global parameters
+        qdPars = qdParams()
+
         self.local_dir = dirnames[0]
         self.scratch_dir = dirnames[1]
         self.snrnmais = dirnames[2]
@@ -48,7 +51,9 @@ class globalVars():
         self.progdir = self.local_dir
         self.hmidata = np.loadtxt(f"{self.snrnmais}/data_files/hmi.6328.36")
 
-        self.args = args
+        # self.args = args
+        self.n0 = qdPars.n0
+        self.l0 = qdPars.l0
 
         # Frequency unit conversion factor (in Hz (cgs))
         #all quantities in cgs
@@ -65,8 +70,8 @@ class globalVars():
         self.omega_list = np.loadtxt(f"{self.datadir}/muhz.dat") * 1e-6 / self.OM
 
         # getting indices for minimum and maximum r
-        self.rmin = rmin
-        self.rmax = rmax
+        self.rmin = qdPars.rmin
+        self.rmax = qdPars.rmax
 
         self.rmin_idx = self.get_idx(self.r, self.rmin)
 
@@ -77,14 +82,14 @@ class globalVars():
         self.rmax_idx = self.get_idx(self.r, self.rmax)
         # print(f"rmin index = {self.rmin_idx}; rmax index = {self.rmax_idx}")
 
-        self.smax = smax
-        self.fwindow = fwindow
+        self.smax = qdPars.smax
+        self.fwindow = qdPars.fwindow
 
         # retaining only region between rmin and rmax
         self.r = self.mask_minmax(self.r)
 
-        self.n0 = args.n0
-        self.l0 = args.l0
+        # self.n0 = args.n0
+        # self.l0 = args.l0
 
     def get_idx(self, arr, val):
         return abs(arr - val).argmin()

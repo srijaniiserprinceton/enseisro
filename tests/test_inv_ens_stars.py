@@ -10,8 +10,10 @@ from enseisro import get_kernels as get_kerns
 from enseisro.functional_fitting import a_solver as a_solver
 from enseisro import forward_functions_Omega as forfunc_Om
 
-ARGS = FN.create_argparser()
-GVAR = globalvars.globalVars(ARGS)
+# ARGS = FN.create_argparser()
+# GVAR = globalvars.globalVars(ARGS)
+
+GVAR = globalvars.globalVars()
 
 def test_inv_ens_stars():
     # defining the number of stars in the ensemble

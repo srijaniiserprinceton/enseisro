@@ -12,8 +12,10 @@ from enseisro import forward_functions_Omega as forfunc_Om
 import matplotlib.pyplot as plt
 import sys
 
-ARGS = FN.create_argparser()
-GVAR = globalvars.globalVars(ARGS)
+# ARGS = FN.create_argparser()
+# GVAR = globalvars.globalVars(ARGS)
+
+GVAR = globalvars.globalVars()
 
 def test_inv_onestar():
     """This function is used to test if a single star inversion
