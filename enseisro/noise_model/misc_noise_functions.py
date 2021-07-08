@@ -6,7 +6,7 @@ import numpy as np
 
 # {{{ def make_N_nu():
 def make_N_nu(nu_arr, tau_arr, A_arr):
-    """This function returns $N(\nu)$ from a given frequency array $\nu$.
+    """This function returns $N(\nu)$ from a given frequency array $\nu$..
     Parameters
     ----------
     nu_arr : float array
