@@ -18,3 +18,5 @@ Miscellaneous Functions
 Noise model
 +++++++++++
 .. automodule:: enseisro.noise_model.misc_noise_functions
+   :members:
+   :show-inheritance:
