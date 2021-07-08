@@ -31,7 +31,7 @@ def format_terminal_output_onestar(synthetic, inverted, error):
 def format_terminal_output_ens_star(Nstars, synthetic_out, synthetic_delta, inverted_out, inverted_delta):
     """This function formats the output to be printed in the terminal                                                                                                                   
     """
-    dash = '-' * 190
+    dash = '-' * 180
     col_headers = np.array(['in nHz', 'Om_out_1 (Input)', 'Om_out_1 (Inverted)', \
                         'Om_out_3 (Input)', 'Om_out_3 (Inverted)', 'Delta_Om_1 (Input)',\
                 'Delta_Om_1 (Inverted)', 'Delta_Om_3 (Input)', 'Delta_Om_3 (inverted)'])
