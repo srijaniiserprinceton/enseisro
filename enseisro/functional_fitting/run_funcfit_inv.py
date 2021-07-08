@@ -17,7 +17,7 @@ ARGS = FN.create_argparser()
 GVAR = globalvars.globalVars(ARGS)
 
 # defining the number of stars in the ensemble
-Nstars = 10
+Nstars = 20
 
 # defining the multiplets
 # mults = np.array([[2,10], [2,2], [3,4], [4,5], [5,5]], dtype='int')
@@ -70,7 +70,16 @@ step_param_arr[:,:,0] = step_param_arr_1[:,:,1]
 # storing \Detla\Omega
 step_param_arr[:,:,1] = step_param_arr_1[:,:,0] - step_param_arr_1[:,:,1]
 
+
+step_param_arr *= (1 + 0.5 * np.random.rand(Nstars))[:,np.newaxis,np.newaxis]
+
+# print(step_param_arr)
+# sys.exit()
+
 Omegasr_step = create_synth_DR.params_to_step(GVAR, step_param_arr, rcz_ind_arr) # shape (Nstars x s x r)
+
+# print(Omegasr_step)
+# sys.exit()
 
 # solving for a in A . a = d
 
