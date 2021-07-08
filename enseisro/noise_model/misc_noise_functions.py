@@ -13,3 +13,5 @@ def make_N_nu(nu_arr, tau_arr, A_arr):
     tau_arr : float array
     A_arr : float array
     """
+
+# }}} def make_N_nu()
