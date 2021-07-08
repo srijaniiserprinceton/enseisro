@@ -13,11 +13,13 @@ import matplotlib.pyplot as plt
 from enseisro import printing_functions as print_func
 import sys
 
-ARGS = FN.create_argparser()
-GVAR = globalvars.globalVars(ARGS)
+# ARGS = FN.create_argparser()
+# GVAR = globalvars.globalVars(ARGS)
+
+GVAR = globalvars.globalVars()
 
 # defining the number of stars in the ensemble
-Nstars = 20
+Nstars = 2
 
 # defining the multiplets
 # mults = np.array([[2,10], [2,2], [3,4], [4,5], [5,5]], dtype='int')
