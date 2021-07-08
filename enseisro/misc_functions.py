@@ -108,3 +108,51 @@ def minus1pow_vec(num):
 def gamma(ell):
     return np.sqrt((2*ell + 1)/4/np.pi)
 # }}} gamma()
+
+
+# {{{ def reshape_KF():
+def reshape_KF(KF):
+    """This function reshapes KF adequately to tile the 
+    s dimensions as extra set of columns. So, KF is 
+    converted from shape (Nmodes x Nparams x s) tp the shape
+    (Nmodes x (Nparams*s))
+    """
+    return np.reshape(KF,(KF.shape[0],-1),'F')
+# }}} def reshape_KF()
+
+# {{{ def build_mults():
+def build_mults(nmin, nmax, lmin, lmax):
+    """This function creates the list of multiplets
+    given the nmin, nmax, lmin and lmax
+    """
+    Nmults = (nmax - nmin + 1) * (lmax - lmin + 1)
+    mults = np.zeros((Nmults,2),dtype='int')
+    
+    mult_count = int(0)
+    for n_ind, n in enumerate(range(nmin, nmax+1)):
+        for ell_ind, ell in enumerate(range(lmin, lmax+1)):
+            mults[mult_count,:] = np.array([n,ell],dtype='int')
+            mult_count += 1
+
+    return mults
+
+# }}} def build_mults()
+
+# {{{ def build_star_labels_and_all_modes():
+def build_star_labels_and_all_modes(Nstars, modes_single_star):
+    Nmodes_single_star = modes_single_star.shape[1]
+    star_label_arr = np.zeros(Nstars * Nmodes_single_star, dtype='int')
+    modes = np.zeros((3, len(star_label_arr)), dtype='int')
+                     
+    # filling in labels and repeating the modes
+    all_mode_fill_start_ind, all_mode_fill_end_ind = 0, Nmodes_single_star
+    for i in range(Nstars):
+        star_label_arr[all_mode_fill_start_ind:all_mode_fill_end_ind] = i 
+        # filling in the same set of modes for all the stars
+        modes[:,all_mode_fill_start_ind:all_mode_fill_end_ind] = modes_single_star
+    
+        # updating the start and end indices
+        all_mode_fill_start_ind += Nmodes_single_star
+        all_mode_fill_end_ind += Nmodes_single_star
+
+    return star_label_arr, modes

@@ -266,6 +266,54 @@
 <span class="k">def</span> <span class="nf">gamma</span><span class="p">(</span><span class="n">ell</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="mi">2</span><span class="o">*</span><span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">4</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
 <span class="c1"># }}} gamma()</span>
+
+
+<span class="c1"># {{{ def reshape_KF():</span>
+<div class="viewcode-block" id="reshape_KF"><a class="viewcode-back" href="../../chapters/API.html#enseisro.misc_functions.reshape_KF">[docs]</a><span class="k">def</span> <span class="nf">reshape_KF</span><span class="p">(</span><span class="n">KF</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function reshapes KF adequately to tile the </span>
+<span class="sd">    s dimensions as extra set of columns. So, KF is </span>
+<span class="sd">    converted from shape (Nmodes x Nparams x s) tp the shape</span>
+<span class="sd">    (Nmodes x (Nparams*s))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">KF</span><span class="p">,(</span><span class="n">KF</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="s1">&#39;F&#39;</span><span class="p">)</span></div>
+<span class="c1"># }}} def reshape_KF()</span>
+
+<span class="c1"># {{{ def build_mults():</span>
+<div class="viewcode-block" id="build_mults"><a class="viewcode-back" href="../../chapters/API.html#enseisro.misc_functions.build_mults">[docs]</a><span class="k">def</span> <span class="nf">build_mults</span><span class="p">(</span><span class="n">nmin</span><span class="p">,</span> <span class="n">nmax</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function creates the list of multiplets</span>
+<span class="sd">    given the nmin, nmax, lmin and lmax</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">Nmults</span> <span class="o">=</span> <span class="p">(</span><span class="n">nmax</span> <span class="o">-</span> <span class="n">nmin</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">lmax</span> <span class="o">-</span> <span class="n">lmin</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">mults</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Nmults</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+    
+    <span class="n">mult_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">n_ind</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nmin</span><span class="p">,</span> <span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">ell_ind</span><span class="p">,</span> <span class="n">ell</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)):</span>
+            <span class="n">mults</span><span class="p">[</span><span class="n">mult_count</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">n</span><span class="p">,</span><span class="n">ell</span><span class="p">],</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+            <span class="n">mult_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">mults</span></div>
+
+<span class="c1"># }}} def build_mults()</span>
+
+<span class="c1"># {{{ def build_star_labels_and_all_modes():</span>
+<span class="k">def</span> <span class="nf">build_star_labels_and_all_modes</span><span class="p">(</span><span class="n">Nstars</span><span class="p">,</span> <span class="n">modes_single_star</span><span class="p">):</span>
+    <span class="n">Nmodes_single_star</span> <span class="o">=</span> <span class="n">modes_single_star</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">star_label_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nstars</span> <span class="o">*</span> <span class="n">Nmodes_single_star</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+    <span class="n">modes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">star_label_arr</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+                     
+    <span class="c1"># filling in labels and repeating the modes</span>
+    <span class="n">all_mode_fill_start_ind</span><span class="p">,</span> <span class="n">all_mode_fill_end_ind</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Nmodes_single_star</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nstars</span><span class="p">):</span>
+        <span class="n">star_label_arr</span><span class="p">[</span><span class="n">all_mode_fill_start_ind</span><span class="p">:</span><span class="n">all_mode_fill_end_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> 
+        <span class="c1"># filling in the same set of modes for all the stars</span>
+        <span class="n">modes</span><span class="p">[:,</span><span class="n">all_mode_fill_start_ind</span><span class="p">:</span><span class="n">all_mode_fill_end_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">modes_single_star</span>
+    
+        <span class="c1"># updating the start and end indices</span>
+        <span class="n">all_mode_fill_start_ind</span> <span class="o">+=</span> <span class="n">Nmodes_single_star</span>
+        <span class="n">all_mode_fill_end_ind</span> <span class="o">+=</span> <span class="n">Nmodes_single_star</span>
+
+    <span class="k">return</span> <span class="n">star_label_arr</span><span class="p">,</span> <span class="n">modes</span>
 </pre></div>
 
            </div>
