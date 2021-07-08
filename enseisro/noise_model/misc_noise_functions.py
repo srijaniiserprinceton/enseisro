@@ -10,12 +10,12 @@ def make_N_nu(nu_arr, tau_arr, A_arr):
 
     Parameters
     ----------
-    nu_arr : numpy.ndarray
-             frequency array          
+    nu_arr : numpy.ndarray    
+        frequency array          
     tau_arr : numpy.ndarray
-              tau array
+        tau array
     A_arr : numpy.ndarray
-            amplitude array
+        amplitude array
 
     """
 
