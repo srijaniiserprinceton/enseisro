@@ -1,0 +1,405 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>enseisro.forward_functions_Omega &mdash; enseisro 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> enseisro
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../chapters/introduction.html">Testing <code class="docutils literal notranslate"><span class="pre">introduction.rst</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chapters/installation.html">Installing <code class="docutils literal notranslate"><span class="pre">enseisro</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chapters/API.html"><code class="docutils literal notranslate"><span class="pre">enseisro</span></code> API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">enseisro</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>enseisro.forward_functions_Omega</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for enseisro.forward_functions_Omega</h1><div class="highlight"><pre>
+<span></span><span class="c1"># import jax.numpy as np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">loading_functions</span> <span class="k">as</span> <span class="n">loadfunc</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">misc_functions</span> <span class="k">as</span> <span class="n">FN</span>
+<span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">simps</span>
+
+<span class="n">WFNAME</span> <span class="o">=</span> <span class="s1">&#39;w_s/w.dat&#39;</span>
+
+
+<span class="c1"># {{{ def compute_splitting_from_function():</span>
+<div class="viewcode-block" id="compute_splitting_from_function"><a class="viewcode-back" href="../../chapters/API.html#enseisro.forward_functions_Omega.compute_splitting_from_function">[docs]</a><span class="k">def</span> <span class="nf">compute_splitting_from_function</span><span class="p">(</span><span class="n">GVAR</span><span class="p">,</span> <span class="n">Omegasr</span><span class="p">,</span> <span class="n">mult</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to compute the frequency splittings</span>
+<span class="sd">        under isolated multiplet approximation from the smooth profile.</span>
+<span class="sd">        - GVAR: Dictionary of global parameters</span>
+<span class="sd">        - mult: Isolated multiplet whose splitting is to be calculated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span><span class="p">,</span> <span class="n">ell</span> <span class="o">=</span> <span class="n">mult</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">mult</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">ell</span><span class="p">,</span> <span class="n">ell</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># calculating the s_arr from w_s(r) shape</span>
+        <span class="n">lens</span> <span class="o">=</span> <span class="n">Omegasr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">s_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">lens</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># mult_idx = FN.nl_idx(GVAR, n, ell)</span>
+        <span class="c1"># omeganl = GVAR.omega_list[mult_idx]</span>
+
+        <span class="n">wigvals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="o">*</span><span class="n">ell</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">s_arr</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s_arr</span><span class="p">)):</span>
+            <span class="n">wigvals</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">FN</span><span class="o">.</span><span class="n">w3j_vecm</span><span class="p">(</span><span class="n">ell</span><span class="p">,</span> <span class="n">s_arr</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ell</span><span class="p">,</span> <span class="o">-</span><span class="n">m</span><span class="p">,</span> <span class="mi">0</span><span class="o">*</span><span class="n">m</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+
+        <span class="n">Tsr</span> <span class="o">=</span> <span class="n">compute_Tsr</span><span class="p">(</span><span class="n">GVAR</span><span class="p">,</span> <span class="n">mult</span><span class="p">,</span> <span class="n">mult</span><span class="p">,</span> <span class="n">s_arr</span><span class="p">)</span>
+        
+        <span class="c1"># Loading the synthetic flow profile</span>
+        <span class="c1"># -1 factor from definition of toroidal field                                                                                                                                   </span>
+
+        <span class="c1"># wsr[0, :] *= 0.0 # setting w1 = 0                                                                                                                                            </span>
+ 
+        <span class="c1"># wsr[1, :] *= 0.0 # setting w3 = 0                                                                                                                                              </span>
+        <span class="c1"># wsr[2, :] *= 0.0 # setting w5 = 0                                                                                                                                              </span>
+        
+        <span class="c1"># integrating over radial grid</span>
+        <span class="c1"># integrand = Tsr * wsr * (self.sup.gvar.rho * self.sup.gvar.r**2)[NAX, :]                                                                                                      </span>
+        <span class="n">integrand</span> <span class="o">=</span> <span class="n">Tsr</span> <span class="o">*</span> <span class="n">Omegasr</span>   <span class="c1"># since U and V are scaled by sqrt(rho) * r</span>
+
+        <span class="n">integral</span> <span class="o">=</span> <span class="n">simps</span><span class="p">(</span><span class="n">integrand</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">GVAR</span><span class="o">.</span><span class="n">r</span><span class="p">)</span>
+
+        <span class="n">prod_gammas</span> <span class="o">=</span> <span class="n">FN</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span><span class="n">ell</span><span class="p">)</span> <span class="o">*</span> <span class="n">FN</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span><span class="n">ell</span><span class="p">)</span>  <span class="c1"># * FN.gamma(s_arr), not using for Omega</span>
+
+        <span class="c1"># the factor of 2\omeganl has been taken off as compared to LR92 since we want \delta\omega</span>
+        <span class="n">Cvec</span> <span class="o">=</span> <span class="n">FN</span><span class="o">.</span><span class="n">minus1pow_vec</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">wigvals</span> <span class="o">@</span> <span class="p">(</span><span class="n">prod_gammas</span> <span class="o">*</span> <span class="n">integral</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">Cvec</span></div>
+
+<span class="c1"># }}} compute_splitting_from_function()</span>
+
+<span class="c1"># {{{ def compute_splitting_from_step_params():</span>
+<div class="viewcode-block" id="compute_splitting_from_step_params"><a class="viewcode-back" href="../../chapters/API.html#enseisro.forward_functions_Omega.compute_splitting_from_step_params">[docs]</a><span class="k">def</span> <span class="nf">compute_splitting_from_step_params</span><span class="p">(</span><span class="n">GVAR</span><span class="p">,</span> <span class="n">Omegas_step_params</span><span class="p">,</span> <span class="n">mult</span><span class="p">,</span> <span class="n">rcz_ind</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to compute the frequency splittings</span>
+<span class="sd">        under isolated multiplet approximation from the step params.</span>
+<span class="sd">        - GVAR: Dictionary of global parameters</span>
+<span class="sd">        - mult: Isolated multiplet whose splitting is to be calculated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span><span class="p">,</span> <span class="n">ell</span> <span class="o">=</span> <span class="n">mult</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">mult</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">ell</span><span class="p">,</span> <span class="n">ell</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># calculating the s_arr from w_s(r) shape</span>
+        <span class="n">lens</span> <span class="o">=</span> <span class="n">Omegas_step_params</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">Nparams</span> <span class="o">=</span> <span class="n">Omegas_step_params</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">s_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">lens</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># mult_idx = FN.nl_idx(GVAR, n, ell)</span>
+        <span class="c1"># omeganl = GVAR.omega_list[mult_idx]</span>
+
+        <span class="n">wigvals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="o">*</span><span class="n">ell</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">s_arr</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s_arr</span><span class="p">)):</span>
+            <span class="n">wigvals</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">FN</span><span class="o">.</span><span class="n">w3j_vecm</span><span class="p">(</span><span class="n">ell</span><span class="p">,</span> <span class="n">s_arr</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ell</span><span class="p">,</span> <span class="o">-</span><span class="n">m</span><span class="p">,</span> <span class="mi">0</span><span class="o">*</span><span class="n">m</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+
+        <span class="n">Tsr</span> <span class="o">=</span> <span class="n">compute_Tsr</span><span class="p">(</span><span class="n">GVAR</span><span class="p">,</span> <span class="n">mult</span><span class="p">,</span> <span class="n">mult</span><span class="p">,</span> <span class="n">s_arr</span><span class="p">)</span>
+        
+        <span class="c1"># Loading the synthetic flow profile</span>
+        <span class="c1"># -1 factor from definition of toroidal field                                                                                                                                   </span>
+
+        <span class="c1"># wsr[0, :] *= 0.0 # setting w1 = 0                                                                                                                                            </span>
+ 
+        <span class="c1"># wsr[1, :] *= 0.0 # setting w3 = 0                                                                                                                                              </span>
+        <span class="c1"># wsr[2, :] *= 0.0 # setting w5 = 0                                                                                                                                              </span>
+        
+        <span class="c1"># integrating over radial grid</span>
+        <span class="c1"># integrand = Tsr * wsr * (self.sup.gvar.rho * self.sup.gvar.r**2)[NAX, :]                                                                                                      </span>
+        <span class="c1"># since U and V are scaled by sqrt(rho) * r</span>
+
+        <span class="c1"># Ts_params has shape (s x Nparams). Here, just integrating over the radius axis</span>
+        <span class="n">Ts_params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">lens</span><span class="p">,</span> <span class="n">Nparams</span><span class="p">))</span>
+
+        <span class="c1"># \Omega_j = \Omega_{in} F_{j1} + \Omega_{out} F_{j2}</span>
+        <span class="n">Ts_params</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">simps</span><span class="p">(</span><span class="n">Tsr</span><span class="p">[:,:</span><span class="n">rcz_ind</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">GVAR</span><span class="o">.</span><span class="n">r</span><span class="p">[:</span><span class="n">rcz_ind</span><span class="p">])</span> 
+        <span class="n">Ts_params</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">simps</span><span class="p">(</span><span class="n">Tsr</span><span class="p">[:,</span><span class="n">rcz_ind</span><span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">GVAR</span><span class="o">.</span><span class="n">r</span><span class="p">[</span><span class="n">rcz_ind</span><span class="p">:])</span>
+
+        <span class="c1"># multiplying and adding the Omegasr_step_params of shape (s x Nparams)</span>
+        <span class="n">Ts_params_Omegas_params</span> <span class="o">=</span> <span class="n">Ts_params</span> <span class="o">*</span> <span class="n">Omegas_step_params</span>    <span class="c1"># shape (s x Nparams)</span>
+
+        <span class="n">Ts_Omegas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Ts_params_Omegas_params</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># summing over Nparams axis</span>
+
+        <span class="n">prod_gammas</span> <span class="o">=</span> <span class="n">FN</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span><span class="n">ell</span><span class="p">)</span> <span class="o">*</span> <span class="n">FN</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span><span class="n">ell</span><span class="p">)</span>  <span class="c1"># * FN.gamma(s_arr), not using for Omega</span>
+
+        <span class="c1"># the factor of 2\omeganl has been taken off as compared to LR92 since we want \delta\omega</span>
+        <span class="n">Cvec</span> <span class="o">=</span> <span class="n">FN</span><span class="o">.</span><span class="n">minus1pow_vec</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">wigvals</span> <span class="o">@</span> <span class="p">(</span><span class="n">prod_gammas</span> <span class="o">*</span> <span class="n">Ts_Omegas</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">Cvec</span></div>
+
+<span class="c1"># {{{ def compute_splitting_from_step_params_for_Delta_Omega():</span>
+<div class="viewcode-block" id="compute_splitting_from_step_params_for_Delta_Omega"><a class="viewcode-back" href="../../chapters/API.html#enseisro.forward_functions_Omega.compute_splitting_from_step_params_for_Delta_Omega">[docs]</a><span class="k">def</span> <span class="nf">compute_splitting_from_step_params_for_Delta_Omega</span><span class="p">(</span><span class="n">GVAR</span><span class="p">,</span> <span class="n">Omegas_step_params</span><span class="p">,</span> <span class="n">mult</span><span class="p">,</span> <span class="n">rcz_ind</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to compute the frequency splittings</span>
+<span class="sd">        under isolated multiplet approximation from the step params.</span>
+<span class="sd">        - GVAR: Dictionary of global parameters</span>
+<span class="sd">        - mult: Isolated multiplet whose splitting is to be calculated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span><span class="p">,</span> <span class="n">ell</span> <span class="o">=</span> <span class="n">mult</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">mult</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">ell</span><span class="p">,</span> <span class="n">ell</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># calculating the s_arr from w_s(r) shape</span>
+        <span class="n">lens</span> <span class="o">=</span> <span class="n">Omegas_step_params</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">Nparams</span> <span class="o">=</span> <span class="n">Omegas_step_params</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">s_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">lens</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># mult_idx = FN.nl_idx(GVAR, n, ell)</span>
+        <span class="c1"># omeganl = GVAR.omega_list[mult_idx]</span>
+
+        <span class="n">wigvals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="o">*</span><span class="n">ell</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">s_arr</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s_arr</span><span class="p">)):</span>
+            <span class="n">wigvals</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">FN</span><span class="o">.</span><span class="n">w3j_vecm</span><span class="p">(</span><span class="n">ell</span><span class="p">,</span> <span class="n">s_arr</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ell</span><span class="p">,</span> <span class="o">-</span><span class="n">m</span><span class="p">,</span> <span class="mi">0</span><span class="o">*</span><span class="n">m</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+
+        <span class="n">Tsr</span> <span class="o">=</span> <span class="n">compute_Tsr</span><span class="p">(</span><span class="n">GVAR</span><span class="p">,</span> <span class="n">mult</span><span class="p">,</span> <span class="n">mult</span><span class="p">,</span> <span class="n">s_arr</span><span class="p">)</span>
+        
+        <span class="c1"># Loading the synthetic flow profile</span>
+        <span class="c1"># -1 factor from definition of toroidal field                                                                                                                                   </span>
+
+        <span class="c1"># wsr[0, :] *= 0.0 # setting w1 = 0                                                                                                                                            </span>
+ 
+        <span class="c1"># wsr[1, :] *= 0.0 # setting w3 = 0                                                                                                                                              </span>
+        <span class="c1"># wsr[2, :] *= 0.0 # setting w5 = 0                                                                                                                                              </span>
+        
+        <span class="c1"># integrating over radial grid</span>
+        <span class="c1"># integrand = Tsr * wsr * (self.sup.gvar.rho * self.sup.gvar.r**2)[NAX, :]                                                                                                      </span>
+        <span class="c1"># since U and V are scaled by sqrt(rho) * r</span>
+
+        <span class="c1"># Ts_params has shape (s x Nparams). Here, just integrating over the radius axis</span>
+        <span class="n">Ts_params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">lens</span><span class="p">,</span> <span class="n">Nparams</span><span class="p">))</span>
+
+        <span class="c1"># the \Omega_j = \Omega_{out} (F_{j1} + F_{j2}) + \Delta \Omega F_{j1)</span>
+        <span class="n">Ts_params</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">simps</span><span class="p">(</span><span class="n">Tsr</span><span class="p">[:,:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">GVAR</span><span class="o">.</span><span class="n">r</span><span class="p">[:])</span> 
+        <span class="n">Ts_params</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">simps</span><span class="p">(</span><span class="n">Tsr</span><span class="p">[:,:</span><span class="n">rcz_ind</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">GVAR</span><span class="o">.</span><span class="n">r</span><span class="p">[:</span><span class="n">rcz_ind</span><span class="p">])</span>
+
+        <span class="c1"># multiplying and adding the Omegasr_step_params of shape (s x Nparams)</span>
+        <span class="n">Ts_params_Omegas_params</span> <span class="o">=</span> <span class="n">Ts_params</span> <span class="o">*</span> <span class="n">Omegas_step_params</span>    <span class="c1"># shape (s x Nparams)</span>
+
+        <span class="n">Ts_Omegas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Ts_params_Omegas_params</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># summing over Nparams axis</span>
+
+        <span class="n">prod_gammas</span> <span class="o">=</span> <span class="n">FN</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span><span class="n">ell</span><span class="p">)</span> <span class="o">*</span> <span class="n">FN</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span><span class="n">ell</span><span class="p">)</span>  <span class="c1"># * FN.gamma(s_arr), not using for Omega</span>
+
+        <span class="c1"># the factor of 2\omeganl has been taken off as compared to LR92 since we want \delta\omega</span>
+        <span class="n">Cvec</span> <span class="o">=</span> <span class="n">FN</span><span class="o">.</span><span class="n">minus1pow_vec</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">wigvals</span> <span class="o">@</span> <span class="p">(</span><span class="n">prod_gammas</span> <span class="o">*</span> <span class="n">Ts_Omegas</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">Cvec</span></div>
+<span class="c1"># }}} def compute_splitting_from_step_params_for_Delta_Omega</span>
+
+<span class="c1"># {{{ compute_Tsr():</span>
+<div class="viewcode-block" id="compute_Tsr"><a class="viewcode-back" href="../../chapters/API.html#enseisro.forward_functions_Omega.compute_Tsr">[docs]</a><span class="k">def</span> <span class="nf">compute_Tsr</span><span class="p">(</span><span class="n">GVAR</span><span class="p">,</span> <span class="n">mult1</span><span class="p">,</span> <span class="n">mult2</span><span class="p">,</span> <span class="n">s_arr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to compute the T-kern as in LR92 for coupling</span>
+<span class="sd">        of two multiplets.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Tsr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">s_arr</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">GVAR</span><span class="o">.</span><span class="n">r</span><span class="p">)))</span>
+
+        <span class="c1"># reading off the ells corresponding to the multiplets</span>
+        <span class="n">ell1</span><span class="p">,</span> <span class="n">ell2</span> <span class="o">=</span> <span class="n">mult1</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">mult2</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="c1"># allowing for different multiplets for mode-coupling purposes</span>
+        <span class="n">m1idx</span> <span class="o">=</span> <span class="n">FN</span><span class="o">.</span><span class="n">nl_idx_vec</span><span class="p">(</span><span class="n">GVAR</span><span class="p">,</span> <span class="n">mult1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">m2idx</span> <span class="o">=</span> <span class="n">FN</span><span class="o">.</span><span class="n">nl_idx_vec</span><span class="p">(</span><span class="n">GVAR</span><span class="p">,</span> <span class="n">mult2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="c1"># loading the eigenfunctions</span>
+        <span class="n">U1</span><span class="p">,</span> <span class="n">V1</span> <span class="o">=</span> <span class="n">loadfunc</span><span class="o">.</span><span class="n">get_eig</span><span class="p">(</span><span class="n">GVAR</span><span class="p">,</span> <span class="n">m1idx</span><span class="p">)</span>
+        <span class="n">U2</span><span class="p">,</span> <span class="n">V2</span> <span class="o">=</span> <span class="n">loadfunc</span><span class="o">.</span><span class="n">get_eig</span><span class="p">(</span><span class="n">GVAR</span><span class="p">,</span> <span class="n">m2idx</span><span class="p">)</span>
+
+        <span class="n">L1sq</span> <span class="o">=</span> <span class="n">ell1</span><span class="o">*</span><span class="p">(</span><span class="n">ell1</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">L2sq</span> <span class="o">=</span> <span class="n">ell2</span><span class="o">*</span><span class="p">(</span><span class="n">ell2</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">Om1</span> <span class="o">=</span> <span class="n">FN</span><span class="o">.</span><span class="n">Omega</span><span class="p">(</span><span class="n">ell1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">Om2</span> <span class="o">=</span> <span class="n">FN</span><span class="o">.</span><span class="n">Omega</span><span class="p">(</span><span class="n">ell2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s_arr</span><span class="p">)):</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">s_arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">ls2fac</span> <span class="o">=</span> <span class="n">L1sq</span> <span class="o">+</span> <span class="n">L2sq</span> <span class="o">-</span> <span class="n">s</span><span class="o">*</span><span class="p">(</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">eigfac</span> <span class="o">=</span> <span class="n">U2</span><span class="o">*</span><span class="n">V1</span> <span class="o">+</span> <span class="n">V2</span><span class="o">*</span><span class="n">U1</span> <span class="o">-</span> <span class="n">U1</span><span class="o">*</span><span class="n">U2</span> <span class="o">-</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">V1</span><span class="o">*</span><span class="n">V2</span><span class="o">*</span><span class="n">ls2fac</span>
+            <span class="n">wigval</span> <span class="o">=</span> <span class="n">FN</span><span class="o">.</span><span class="n">w3j</span><span class="p">(</span><span class="n">ell1</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">ell2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">Tsr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">FN</span><span class="o">.</span><span class="n">minus1pow</span><span class="p">(</span><span class="n">ell1</span> <span class="o">+</span> <span class="n">ell2</span> <span class="o">+</span> <span class="n">s</span><span class="p">))</span> <span class="o">*</span> \
+                <span class="n">Om1</span> <span class="o">*</span> <span class="n">Om2</span> <span class="o">*</span> <span class="n">wigval</span> <span class="o">*</span> <span class="n">eigfac</span>   <span class="c1"># / GVAR.r, not using for Omega</span>
+
+        <span class="k">return</span> <span class="n">Tsr</span></div>
+<span class="c1"># }}} compute_Tsr()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Srijan Bharati Das, Yoshiki Hatta, Hannah Schunker.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

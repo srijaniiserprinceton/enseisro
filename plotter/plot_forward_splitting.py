@@ -7,8 +7,10 @@ import matplotlib.pyplot as plt
 from enseisro.synthetics import create_synthetic_DR as create_syn_DR
 from enseisro.synthetics import w_omega_functions as w_Om_func
 
-ARGS = FN.create_argparser()
-GVAR = globalvars.globalVars(ARGS)
+# ARGS = FN.create_argparser()
+# GVAR = globalvars.globalVars(ARGS)
+
+GVAR = globalvars.globalVars()
 
 def plot_solar_splitting(wsr, n=2, ell=10):
     mult = np.array([[n,ell]])
@@ -19,7 +21,7 @@ def plot_solar_splitting(wsr, n=2, ell=10):
 
     # doing the same for Omega instead of wsr
     Omega_sr = w_Om_func.w_2_omega(GVAR, wsr)
-    domega_m_Om = forfunc_Om.compute_splitting(GVAR, Omega_sr, mult)
+    domega_m_Om = forfunc_Om.compute_splitting_from_function(GVAR, Omega_sr, mult)
     domega_m_Om *= GVAR.OM * 1e9
 
     m_arr = np.arange(-mult[0][1], mult[0][1]+1)

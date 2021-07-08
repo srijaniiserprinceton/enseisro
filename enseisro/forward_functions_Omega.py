@@ -1,10 +1,11 @@
 # import jax.numpy as np
 import numpy as np
-import enseisro.loading_functions as loadfunc
-import enseisro.misc_functions as FN
+from . import loading_functions as loadfunc
+from . import misc_functions as FN
 from scipy.integrate import simps
 
 WFNAME = 'w_s/w.dat'
+
 
 # {{{ def compute_splitting_from_function():
 def compute_splitting_from_function(GVAR, Omegasr, mult):

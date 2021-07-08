@@ -91,7 +91,7 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Testing <code class="docutils literal notranslate"><span class="pre">introduction.rst</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installing <code class="docutils literal notranslate"><span class="pre">enseisro</span></code></a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">enseisro</span></code> API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#forward-functions">Forward Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-enseisro.forward_functions_Omega">Forward Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-enseisro.misc_functions">Miscellaneous Functions</a></li>
 </ul>
 </li>
@@ -164,8 +164,42 @@
             
   <div class="section" id="enseisro-api">
 <span id="api-label"></span><h1><code class="docutils literal notranslate"><span class="pre">enseisro</span></code> API<a class="headerlink" href="#enseisro-api" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="forward-functions">
-<h2>Forward Functions<a class="headerlink" href="#forward-functions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-enseisro.forward_functions_Omega">
+<span id="forward-functions"></span><h2>Forward Functions<a class="headerlink" href="#module-enseisro.forward_functions_Omega" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="enseisro.forward_functions_Omega.compute_Tsr">
+<span class="sig-prename descclassname"><span class="pre">enseisro.forward_functions_Omega.</span></span><span class="sig-name descname"><span class="pre">compute_Tsr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">GVAR</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mult1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mult2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_arr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/forward_functions_Omega.html#compute_Tsr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.forward_functions_Omega.compute_Tsr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to compute the T-kern as in LR92 for coupling
+of two multiplets.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enseisro.forward_functions_Omega.compute_splitting_from_function">
+<span class="sig-prename descclassname"><span class="pre">enseisro.forward_functions_Omega.</span></span><span class="sig-name descname"><span class="pre">compute_splitting_from_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">GVAR</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Omegasr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mult</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/forward_functions_Omega.html#compute_splitting_from_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.forward_functions_Omega.compute_splitting_from_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to compute the frequency splittings
+under isolated multiplet approximation from the smooth profile.
+- GVAR: Dictionary of global parameters
+- mult: Isolated multiplet whose splitting is to be calculated</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enseisro.forward_functions_Omega.compute_splitting_from_step_params">
+<span class="sig-prename descclassname"><span class="pre">enseisro.forward_functions_Omega.</span></span><span class="sig-name descname"><span class="pre">compute_splitting_from_step_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">GVAR</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Omegas_step_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mult</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcz_ind</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/forward_functions_Omega.html#compute_splitting_from_step_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.forward_functions_Omega.compute_splitting_from_step_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to compute the frequency splittings
+under isolated multiplet approximation from the step params.
+- GVAR: Dictionary of global parameters
+- mult: Isolated multiplet whose splitting is to be calculated</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enseisro.forward_functions_Omega.compute_splitting_from_step_params_for_Delta_Omega">
+<span class="sig-prename descclassname"><span class="pre">enseisro.forward_functions_Omega.</span></span><span class="sig-name descname"><span class="pre">compute_splitting_from_step_params_for_Delta_Omega</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">GVAR</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Omegas_step_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mult</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcz_ind</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/forward_functions_Omega.html#compute_splitting_from_step_params_for_Delta_Omega"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.forward_functions_Omega.compute_splitting_from_step_params_for_Delta_Omega" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to compute the frequency splittings
+under isolated multiplet approximation from the step params.
+- GVAR: Dictionary of global parameters
+- mult: Isolated multiplet whose splitting is to be calculated</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-enseisro.misc_functions">
 <span id="miscellaneous-functions"></span><h2>Miscellaneous Functions<a class="headerlink" href="#module-enseisro.misc_functions" title="Permalink to this headline">¶</a></h2>

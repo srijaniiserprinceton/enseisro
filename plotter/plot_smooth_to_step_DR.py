@@ -8,8 +8,10 @@ import matplotlib.pyplot as plt
 import sys
 
 
-ARGS = FN.create_argparser()
-GVAR = globalvars.globalVars(ARGS)
+# ARGS = FN.create_argparser()
+# GVAR = globalvars.globalVars(ARGS)
+
+GVAR = globalvars.globalVars()
 
 # extracting the solar DR profile in terms of wsr                                                                                                                                  
 wsr = create_synth_DR.get_solar_DR(GVAR, smax=3)
@@ -61,8 +63,8 @@ ax[1].set_xlabel('$r$ in $R_{\odot}$')
 
 # getting the frequency splitting induced by the smooth and step-function
 mults = np.array([[2,10]]) # ,[3,2],[3,6],[2,8]])
-domega_smooth = forfunc_Om.compute_splitting(GVAR, Omegasr[0], mults)
-domega_step = forfunc_Om.compute_splitting(GVAR, Omegasr_step[0], mults)
+domega_smooth = forfunc_Om.compute_splitting_from_function(GVAR, Omegasr[0], mults)
+domega_step = forfunc_Om.compute_splitting_from_function(GVAR, Omegasr_step[0], mults)
 
 # creating the cumulative mode arr for plotting.  Summing over (2*ell + 1)
 cumulative_modes = np.arange(0, 2*np.sum(mults[:,1])+len(mults))
@@ -70,8 +72,8 @@ cumulative_modes = np.arange(0, 2*np.sum(mults[:,1])+len(mults))
 modeind_start, modeind_end = 0,0
 for i, mult in enumerate(mults):
     # getting the frequency splitting induced by the smooth and step-function                                                                                                           
-    domega_smooth = forfunc_Om.compute_splitting(GVAR, Omegasr[0], np.array([mult]))
-    domega_step = forfunc_Om.compute_splitting(GVAR, Omegasr_step[0], np.array([mult]))
+    domega_smooth = forfunc_Om.compute_splitting_from_function(GVAR, Omegasr[0], np.array([mult]))
+    domega_step = forfunc_Om.compute_splitting_from_function(GVAR, Omegasr_step[0], np.array([mult]))
     
     # converting to nHz. Does not need GVAR.OM*1e9 since the Omegasr and Omegasr_step are 
     # already converted to nHz before computing the splittings
