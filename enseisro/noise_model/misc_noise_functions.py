@@ -85,7 +85,7 @@ def envelope_function(mode_freq, cen_freq, sigma_1, sigma_2):
     Parameters
     ----------
     mode_freq : float, array_like
-        The mode frequencies \nu_{n,\ell,m}
+        The mode frequencies nu_{n,\ell,m}
     cen_freq : float
         The frequency of the center of the amplitude envelope.
     sigma_1 : float
