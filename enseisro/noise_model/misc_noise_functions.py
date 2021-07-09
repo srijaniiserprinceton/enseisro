@@ -58,9 +58,9 @@ def mode_visibility(abs_m_arr, ell_arr, inc_angle_arr):
     Parameters
     ----------
     abs_m_arr : int, array_like
-        Array containing |m|.
+        Array containing absolute value of the azimuthal degree.
     ell_arr : int, array_like
-        Array containing \ell.
+        Array containing angular degree.
     inc_angle_arr : float, array_like
         Array contiaining the inclination angle of the rotation axis 
         of the star with respect to the line of sight. Array has the 
