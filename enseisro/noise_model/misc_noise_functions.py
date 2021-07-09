@@ -8,7 +8,7 @@ from math import factorial
 
 # {{{ def make_N_nu():
 def make_N_nu(nu_arr, tau_arr, A_arr, P_wn, return_harveys=False):
-    """This function returns $N(\nu)$ from a given frequency array ``nu``.
+    """This function returns $N(\nu)$ from a given frequency array ``$\nu$``.
 
     Parameters
     ----------
