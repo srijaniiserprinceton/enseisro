@@ -7,20 +7,22 @@ import get_Gamma as get_Gamma
 def compute_freq_uncertainties(modes, mode_freq_arr):
     """Returns the uncertainty in frequency for each mode
     according to Eqn.~(2.19) in Stahn's thesis.
-    modes : int, numpy.ndarray                                                                                                                                                           
-        Array of modes of shape (3, Nmodes).                                                                                                                                             
-    mode_freq_arr : float, array_like                                                                                                                                                    
+
+    Parameters
+    ----------
+    modes : int, numpy.ndarray                                                                                                                                                          
+        Array of modes of shape (3, Nmodes).                                                                                                                                            
+    mode_freq_arr : float, array_like                                                                                                                                                   
         Array of mode frequencies corresponding to ```modes```. 
     """
    
-    # values of the parameters taken from Table 2.1 in Stahn's thesis.                                                                                                                                       
-    A_arr = np.array([1.607, 0.542])       # amplitude array in ppm^2 \muHz^{-1}                                                                                                                                  
-    A_err_arr = np.array([0.082, 0.030])   # error in amplitude array in ppm^2 \muHz^{-1}                                                                                                                         
-
-    tau_arr = np.array([1390.0, 455.0])    # time-scale array in seconds                                                                                                                                          
-    tau_arr_err = np.array([30, 10])       # error in time-scale array in seconds                                                                                                                                
+    # values of the parameters taken from Table 2.1 in Stahn's thesis.                                                                                                                  
+    A_arr = np.array([1.607, 0.542])       # amplitude array in ppm^2 \muHz^{-1}                                                                                               
+    A_err_arr = np.array([0.082, 0.030])   # error in amplitude array in ppm^2 \muHz^{-1}                                                                                               
+    tau_arr = np.array([1390.0, 455.0])    # time-scale array in seconds                                                                                                         
+    tau_arr_err = np.array([30, 10])       # error in time-scale array in seconds                                                                                                       
  
-    # photon white noise in ppm^2 \muHz^{-1}                                                                                                                                                                      
+    # photon white noise in ppm^2 \muHz^{-1}                                                                                                                                            
     P_wn = 0.00065    # this is approx value Stahn's Fig 2.4 has. But he says that P_wn < 0.004. 
     
     # getting the background noise profile B(\nu)
