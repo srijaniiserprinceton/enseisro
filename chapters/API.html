@@ -93,7 +93,11 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">enseisro</span></code> API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-enseisro.forward_functions_Omega">Forward Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-enseisro.misc_functions">Miscellaneous Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-enseisro.noise_model.misc_noise_functions">Noise model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#noise-model">Noise model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#miscellaneous-noise-functions">Miscellaneous Noise Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#libbrecht-noise-model">Libbrecht Noise Model</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -229,21 +233,42 @@ converted from shape (Nmodes x Nparams x s) tp the shape
 </dd></dl>
 
 </div>
-<div class="section" id="module-enseisro.noise_model.misc_noise_functions">
-<span id="noise-model"></span><h2>Noise model<a class="headerlink" href="#module-enseisro.noise_model.misc_noise_functions" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
+<div class="section" id="noise-model">
+<h2>Noise model<a class="headerlink" href="#noise-model" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="miscellaneous-noise-functions">
+<h3>Miscellaneous Noise Functions<a class="headerlink" href="#miscellaneous-noise-functions" title="Permalink to this headline">¶</a></h3>
+<p>List of functions used to construct the noise model</p>
+<span class="target" id="module-enseisro.noise_model.misc_noise_functions"></span><dl class="py function">
 <dt class="sig sig-object py" id="enseisro.noise_model.misc_noise_functions.envelope_function">
-<span class="sig-prename descclassname"><span class="pre">enseisro.noise_model.misc_noise_functions.</span></span><span class="sig-name descname"><span class="pre">envelope_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode_freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cen_freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/noise_model/misc_noise_functions.html#envelope_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.noise_model.misc_noise_functions.envelope_function" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">enseisro.noise_model.misc_noise_functions.</span></span><span class="sig-name descname"><span class="pre">envelope_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode_freq_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cen_freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/noise_model/misc_noise_functions.html#envelope_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.noise_model.misc_noise_functions.envelope_function" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculating the envelope function as given by Eqn.~(2.6) 
 in Stahn’s thesis.</p>
 <dl class="simple">
-<dt>mode_freq<span class="classifier">float, array_like</span></dt><dd><p>The mode frequencies nu_{n,ell,m}</p>
+<dt>mode_freq_arr<span class="classifier">float, array_like</span></dt><dd><p>The mode frequencies nu_{n,ell,m}</p>
 </dd>
 <dt>cen_freq<span class="classifier">float</span></dt><dd><p>The frequency of the center of the amplitude envelope.</p>
 </dd>
 <dt>sigma_1<span class="classifier">float</span></dt><dd><p>Width of the envelope below cen_freq.</p>
 </dd>
 <dt>sigma_2<span class="classifier">float</span></dt><dd><p>Width of the envelope above cen_freq.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enseisro.noise_model.misc_noise_functions.make_Hnlm">
+<span class="sig-prename descclassname"><span class="pre">enseisro.noise_model.misc_noise_functions.</span></span><span class="sig-name descname"><span class="pre">make_Hnlm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode_freq_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Gamma_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc_angle_arr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/noise_model/misc_noise_functions.html#make_Hnlm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.noise_model.misc_noise_functions.make_Hnlm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns H_nlm computed according to Eqn.~(2.14)                                                                                           
+in Stahn’s thesis.</p>
+<dl class="simple">
+<dt>modes<span class="classifier">int, numpy.ndarray</span></dt><dd><p>Array of modes of shape (3, Nmodes).</p>
+</dd>
+<dt>mode_freq_arr<span class="classifier">float, array_like</span></dt><dd><p>Array of mode frequencies corresponding to <code class="docutils literal notranslate"><span class="pre">`modes`</span></code>.</p>
+</dd>
+<dt>Gamma_arr<span class="classifier">float, array_like</span></dt><dd><p>Array of linewidths of the <code class="docutils literal notranslate"><span class="pre">`modes`</span></code>.</p>
+</dd>
+<dt>inc_angle_arr<span class="classifier">float, optional</span></dt><dd><p>Array of inclination angles of the stellar rotation axis with respect
+to the line of sight. This may vary across stars. Default is set to 90 degrees.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -289,6 +314,12 @@ same length as the length of the abs_m_arr or ell_arr.</p>
 </dl>
 </dd></dl>
 
+</div>
+<div class="section" id="libbrecht-noise-model">
+<h3>Libbrecht Noise Model<a class="headerlink" href="#libbrecht-noise-model" title="Permalink to this headline">¶</a></h3>
+<p>Constructs the uncertainties of mode frequencies according to
+Libbrecht, 1992.</p>
+</div>
 </div>
 </div>
 

@@ -236,13 +236,13 @@
 <span class="c1"># }}} def mode_visibility()</span>
 
 <span class="c1"># {{{ def envelope_function():</span>
-<div class="viewcode-block" id="envelope_function"><a class="viewcode-back" href="../../../chapters/API.html#enseisro.noise_model.misc_noise_functions.envelope_function">[docs]</a><span class="k">def</span> <span class="nf">envelope_function</span><span class="p">(</span><span class="n">mode_freq</span><span class="p">,</span> <span class="n">cen_freq</span><span class="p">,</span> <span class="n">sigma_1</span><span class="p">,</span> <span class="n">sigma_2</span><span class="p">):</span>
+<div class="viewcode-block" id="envelope_function"><a class="viewcode-back" href="../../../chapters/API.html#enseisro.noise_model.misc_noise_functions.envelope_function">[docs]</a><span class="k">def</span> <span class="nf">envelope_function</span><span class="p">(</span><span class="n">mode_freq_arr</span><span class="p">,</span> <span class="n">cen_freq</span><span class="p">,</span> <span class="n">sigma_1</span><span class="p">,</span> <span class="n">sigma_2</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Calculating the envelope function as given by Eqn.~(2.6) </span>
 <span class="sd">    in Stahn&#39;s thesis.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    mode_freq : float, array_like</span>
+<span class="sd">    mode_freq_arr : float, array_like</span>
 <span class="sd">        The mode frequencies nu_{n,\ell,m}</span>
 <span class="sd">    cen_freq : float</span>
 <span class="sd">        The frequency of the center of the amplitude envelope.</span>
@@ -255,14 +255,80 @@
     <span class="c1"># mode_freq and cen_freq</span>
     <span class="n">sigma_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">mode_freq</span><span class="p">)</span>
 
-    <span class="n">ind_where_modefreq_leq_cenfreq</span> <span class="o">=</span> <span class="n">mode_freq</span> <span class="o">&lt;</span> <span class="n">cen_freq</span>
+    <span class="n">ind_where_modefreq_leq_cenfreq</span> <span class="o">=</span> <span class="n">mode_freq_arr</span> <span class="o">&lt;</span> <span class="n">cen_freq</span>
     <span class="n">sigma_arr</span><span class="p">[</span><span class="n">ind_where_modefreq_leq_cenfreq</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma_1</span>
     <span class="n">sigma_arr</span><span class="p">[</span><span class="o">~</span><span class="n">ind_where_modefreq_leq_cenfreq</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma_2</span>
     
     <span class="c1"># has the same shape as the mode_freq</span>
-    <span class="n">F</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">((</span><span class="n">mode_freq</span> <span class="o">-</span> <span class="n">cen_freq</span><span class="p">)</span><span class="o">/</span><span class="n">sigma_arr</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">((</span><span class="n">mode_freq_arr</span> <span class="o">-</span> <span class="n">cen_freq</span><span class="p">)</span><span class="o">/</span><span class="n">sigma_arr</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">F</span></div>
+
+
+<span class="c1"># {{{ def make_Hnlm():                                                                                                                                                                </span>
+<div class="viewcode-block" id="make_Hnlm"><a class="viewcode-back" href="../../../chapters/API.html#enseisro.noise_model.misc_noise_functions.make_Hnlm">[docs]</a><span class="k">def</span> <span class="nf">make_Hnlm</span><span class="p">(</span><span class="n">modes</span><span class="p">,</span> <span class="n">mode_freq_arr</span><span class="p">,</span> <span class="n">Gamma_arr</span><span class="p">,</span> <span class="n">inc_angle_arr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns H_nlm computed according to Eqn.~(2.14)                                                                                           </span>
+<span class="sd">    in Stahn&#39;s thesis.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    modes : int, numpy.ndarray</span>
+<span class="sd">        Array of modes of shape (3, Nmodes).</span>
+<span class="sd">    mode_freq_arr : float, array_like</span>
+<span class="sd">        Array of mode frequencies corresponding to ```modes```.</span>
+<span class="sd">    Gamma_arr : float, array_like</span>
+<span class="sd">        Array of linewidths of the ```modes```.</span>
+<span class="sd">    inc_angle_arr : float, optional</span>
+<span class="sd">        Array of inclination angles of the stellar rotation axis with respect</span>
+<span class="sd">        to the line of sight. This may vary across stars. Default is set to 90 degrees.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># the inclination array. Elements of this array may vary across stars                                                                                                      </span>
+    <span class="c1"># as a simple case, we may choose it to be 90 degrees                                                                                                                               </span>
+    <span class="k">if</span><span class="p">(</span><span class="n">inc_angle_arr</span> <span class="o">==</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">inc_angle_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">mode_freq_arr</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">2.0</span>
+
+    <span class="c1"># the maximum of the amplitude envelope for modes                                                                                                                                   </span>
+    <span class="c1"># with a particular angular degree ell                                                                                                                                </span>
+    <span class="n">A_ell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">4.64</span><span class="p">,</span> <span class="mf">6.08</span><span class="p">,</span> <span class="mf">3.69</span><span class="p">])</span>    <span class="c1"># values in ppm taken from Table 2.3 in Stahn&#39;s thesis                                                                                      </span>
+    <span class="n">A_ell_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.13</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.11</span><span class="p">])</span>
+
+    <span class="c1"># the widths on either side of cen_freq. Values are in ppm                                                                                                                          </span>
+    <span class="n">sigma_1</span><span class="p">,</span> <span class="n">sigma_2</span> <span class="o">=</span> <span class="mi">564</span><span class="p">,</span> <span class="mi">678</span>
+    <span class="n">sigma_1_err</span><span class="p">,</span> <span class="n">sigma_2_err</span> <span class="o">=</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">28</span>
+
+    <span class="c1"># central mode of amplitude envelope in muHz                                                                                                                                        </span>
+    <span class="n">cen_freq</span> <span class="o">=</span> <span class="mi">3067</span>
+    <span class="n">cen_freq_err</span> <span class="o">=</span> <span class="mi">26</span>
+
+    <span class="c1"># getting the array for n, ell and abs_m                                                                                                                                            </span>
+    <span class="n">n_arr</span> <span class="o">=</span> <span class="n">modes</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span>
+    <span class="n">ell_arr</span> <span class="o">=</span> <span class="n">modes</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span>
+    <span class="n">abs_m_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">modes</span><span class="p">[</span><span class="mi">2</span><span class="p">,:])</span>
+
+    <span class="c1"># the mode visibility. Same length as the mode_freq_arr or the number of modes                                                                                                      </span>
+    <span class="n">E_lm_i</span> <span class="o">=</span> <span class="n">Noise_FN</span><span class="o">.</span><span class="n">mode_visibility</span><span class="p">(</span><span class="n">abs_m_arr</span><span class="p">,</span> <span class="n">ell_arr</span><span class="p">,</span> <span class="n">inc_angle_arr</span><span class="p">)</span>
+
+    <span class="c1"># the envelope function. Same length as the mode_freq_arr or the number of modes                                                                                                    </span>
+    <span class="n">F_nlm</span> <span class="o">=</span> <span class="n">Noise_FN</span><span class="o">.</span><span class="n">envelope_function</span><span class="p">(</span><span class="n">mode_freq_arr</span><span class="p">,</span> <span class="n">cen_freq</span><span class="p">,</span> <span class="n">sigma_1</span><span class="p">,</span> <span class="n">sigma_2</span><span class="p">)</span>
+
+    <span class="c1"># making the A_ell_arr for the modes. We essentially store the A_ell values in                                                                                                     </span>
+    <span class="c1"># corresponding modes                                                                                                                                                               </span>
+    <span class="n">A_ell_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">mode_freq_arr</span><span class="p">)</span>
+    <span class="n">A_ell_arr</span><span class="p">[</span><span class="n">ell_arr</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">A_ell</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">A_ell_arr</span><span class="p">[</span><span class="n">ell_arr</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">A_ell</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">A_ell_arr</span><span class="p">[</span><span class="n">ell_arr</span> <span class="o">==</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">A_ell</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="c1"># Hnlm array                                                                                                                                                                        </span>
+    <span class="n">Hnlm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">mode_freq_arr</span><span class="p">)</span>
+
+    <span class="c1"># computing the Hnlm                                                                                                                                                                </span>
+    <span class="n">Hnlm</span> <span class="o">=</span> <span class="p">(</span><span class="n">A_ell_arr</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">Gamma_arr</span><span class="p">))</span> <span class="o">*</span> <span class="n">E_lm_i</span> <span class="o">*</span> <span class="n">F_nlm</span>
+
+    <span class="c1"># Same length as the mode_freq_arr or the number of modes                                                                                                             </span>
+    <span class="k">return</span> <span class="n">Hnlm</span></div>
+
+<span class="c1"># }}} def make_Hnlm() </span>
 </pre></div>
 
            </div>
