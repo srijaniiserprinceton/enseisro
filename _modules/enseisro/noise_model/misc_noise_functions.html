@@ -158,25 +158,111 @@
   <h1>Source code for enseisro.noise_model.misc_noise_functions</h1><div class="highlight"><pre>
 <span></span><span class="c1"># import jax.numpy as np</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">lpmv</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">factorial</span>
 
 <span class="c1"># this file contains miscellaneous functions to construct the Noise model.</span>
 <span class="c1"># the nomenclature is adopted from Thorsten Stahn&#39;s PhD thesis.</span>
 
 <span class="c1"># {{{ def make_N_nu():</span>
-<div class="viewcode-block" id="make_N_nu"><a class="viewcode-back" href="../../../chapters/API.html#enseisro.noise_model.misc_noise_functions.make_N_nu">[docs]</a><span class="k">def</span> <span class="nf">make_N_nu</span><span class="p">(</span><span class="n">nu_arr</span><span class="p">,</span> <span class="n">tau_arr</span><span class="p">,</span> <span class="n">A_arr</span><span class="p">):</span>
+<div class="viewcode-block" id="make_N_nu"><a class="viewcode-back" href="../../../chapters/API.html#enseisro.noise_model.misc_noise_functions.make_N_nu">[docs]</a><span class="k">def</span> <span class="nf">make_N_nu</span><span class="p">(</span><span class="n">nu_arr</span><span class="p">,</span> <span class="n">tau_arr</span><span class="p">,</span> <span class="n">A_arr</span><span class="p">,</span> <span class="n">P_wn</span><span class="p">,</span> <span class="n">return_harveys</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;This function returns $N(\nu)$ from a given frequency array $\nu$.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    nu_arr : numpy.ndarray    </span>
-<span class="sd">        Frequency array.          </span>
+<span class="sd">        Frequency array in micro Hertz.</span>
 <span class="sd">    tau_arr : numpy.ndarray</span>
-<span class="sd">        Time-scale array.</span>
+<span class="sd">        Time-scale array in seconds.</span>
 <span class="sd">    A_arr : numpy.ndarray</span>
-<span class="sd">        Amplitude array.</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
+<span class="sd">        Amplitude array in ppm^2 muHz^{-1}</span>
+<span class="sd">    P_wn : scalar</span>
+<span class="sd">        Photon white noise in ppm^2 muHz^{-1}</span>
+<span class="sd">    return_harveys : boolean, optional</span>
+<span class="sd">        True or False depending on whether or not we want to </span>
+<span class="sd">        return the Harvey models separately. This is mainly used for </span>
+<span class="sd">        plotting them separately when tallying with Stahn&#39;s Figure 2.4.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ncomponents</span> <span class="o">=</span> <span class="mi">2</span>      <span class="c1"># since there are two components</span>
+    
+    <span class="c1"># converting the nu_arr to Hz since that is what we will use</span>
+    <span class="c1"># in the equation, the denominator is 1 + (\tau_i * \nu)**4</span>
+    <span class="c1"># so, \tau and \nu dimnensions must be consistent</span>
+    <span class="n">nu_arr</span> <span class="o">=</span> <span class="mf">1e-6</span> <span class="o">*</span> <span class="n">nu_arr</span>    <span class="c1"># converting muHz to Hz</span>
+
+    <span class="c1"># array to store the functions N(\nu)</span>
+    <span class="n">N_nu_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">nu_arr</span><span class="p">)</span>
+    <span class="n">harvey_models</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">nu_arr</span><span class="p">)))</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncomponents</span><span class="p">):</span>
+        <span class="n">harvey_models</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">A_arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">tau_arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">nu_arr</span><span class="p">)</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">N_nu_arr</span> <span class="o">+=</span> <span class="n">harvey_models</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="c1"># adding the photon white noise</span>
+    <span class="n">N_nu_arr</span> <span class="o">+=</span> <span class="n">P_wn</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">return_harveys</span><span class="p">):</span> <span class="k">return</span> <span class="n">N_nu_arr</span><span class="p">,</span> <span class="n">harvey_models</span>
+    <span class="k">else</span><span class="p">:</span> <span class="k">return</span> <span class="n">N_nu_arr</span></div>
 
 <span class="c1"># }}} def make_N_nu()</span>
+
+
+<span class="c1"># {{{ def mode_visibility():</span>
+<div class="viewcode-block" id="mode_visibility"><a class="viewcode-back" href="../../../chapters/API.html#enseisro.noise_model.misc_noise_functions.mode_visibility">[docs]</a><span class="k">def</span> <span class="nf">mode_visibility</span><span class="p">(</span><span class="n">abs_m_arr</span><span class="p">,</span> <span class="n">ell_arr</span><span class="p">,</span> <span class="n">inc_angle_arr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This computes the visibility of individual m-components</span>
+<span class="sd">    depending on the inclination angle i, of the rotation axis</span>
+<span class="sd">    with respect to the line of sight.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    abs_m_arr : int, array_like</span>
+<span class="sd">        Array containing absolute value of the azimuthal degree.</span>
+<span class="sd">    ell_arr : int, array_like</span>
+<span class="sd">        Array containing angular degree.</span>
+<span class="sd">    inc_angle_arr : float, array_like</span>
+<span class="sd">        Array contiaining the inclination angle of the rotation axis </span>
+<span class="sd">        of the star with respect to the line of sight. Array has the </span>
+<span class="sd">        same length as the length of the abs_m_arr or ell_arr.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># vectorizing the math.factorial function</span>
+    <span class="n">fac_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">factorial</span><span class="p">)</span>
+    <span class="n">prefac</span> <span class="o">=</span> <span class="n">fac_vec</span><span class="p">(</span><span class="n">ell_arr</span> <span class="o">-</span> <span class="n">abs_m_arr</span><span class="p">)</span><span class="o">/</span><span class="n">fac_vec</span><span class="p">(</span><span class="n">ell_arr</span> <span class="o">+</span> <span class="n">abs_m_arr</span><span class="p">)</span> 
+
+    <span class="n">eps_ell_m</span> <span class="o">=</span> <span class="n">prefac</span> <span class="o">*</span> <span class="n">lpmv</span><span class="p">(</span><span class="n">abs_m_arr</span><span class="p">,</span> <span class="n">ell_arr</span><span class="p">,</span> <span class="n">inc_angle_arr</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="c1"># should have the same length as the ell_arr or abs_m_arr</span>
+    <span class="k">return</span> <span class="n">eps_ell_m</span></div>
+<span class="c1"># }}} def mode_visibility()</span>
+
+<span class="c1"># {{{ def envelope_function():</span>
+<div class="viewcode-block" id="envelope_function"><a class="viewcode-back" href="../../../chapters/API.html#enseisro.noise_model.misc_noise_functions.envelope_function">[docs]</a><span class="k">def</span> <span class="nf">envelope_function</span><span class="p">(</span><span class="n">mode_freq</span><span class="p">,</span> <span class="n">cen_freq</span><span class="p">,</span> <span class="n">sigma_1</span><span class="p">,</span> <span class="n">sigma_2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculating the envelope function as given by Eqn.~(2.6) </span>
+<span class="sd">    in Stahn&#39;s thesis.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mode_freq : float, array_like</span>
+<span class="sd">        The mode frequencies \nu_{n,\ell,m}</span>
+<span class="sd">    cen_freq : float</span>
+<span class="sd">        The frequency of the center of the amplitude envelope.</span>
+<span class="sd">    sigma_1 : float</span>
+<span class="sd">        Width of the envelope below cen_freq.</span>
+<span class="sd">    sigma_2 : float</span>
+<span class="sd">        Width of the envelope above cen_freq.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># creating a sigma array depending on relative value of</span>
+    <span class="c1"># mode_freq and cen_freq</span>
+    <span class="n">sigma_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">mode_freq</span><span class="p">)</span>
+
+    <span class="n">ind_where_modefreq_leq_cenfreq</span> <span class="o">=</span> <span class="n">mode_freq</span> <span class="o">&lt;</span> <span class="n">cen_freq</span>
+    <span class="n">sigma_arr</span><span class="p">[</span><span class="n">ind_where_modefreq_leq_cenfreq</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma_1</span>
+    <span class="n">sigma_arr</span><span class="p">[</span><span class="o">~</span><span class="n">ind_where_modefreq_leq_cenfreq</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma_2</span>
+    
+    <span class="c1"># has the same shape as the mode_freq</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">((</span><span class="n">mode_freq</span> <span class="o">-</span> <span class="n">cen_freq</span><span class="p">)</span><span class="o">/</span><span class="n">sigma_arr</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">F</span></div>
 </pre></div>
 
            </div>

@@ -232,21 +232,67 @@ converted from shape (Nmodes x Nparams x s) tp the shape
 <div class="section" id="module-enseisro.noise_model.misc_noise_functions">
 <span id="noise-model"></span><h2>Noise model<a class="headerlink" href="#module-enseisro.noise_model.misc_noise_functions" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
+<dt class="sig sig-object py" id="enseisro.noise_model.misc_noise_functions.envelope_function">
+<span class="sig-prename descclassname"><span class="pre">enseisro.noise_model.misc_noise_functions.</span></span><span class="sig-name descname"><span class="pre">envelope_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode_freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cen_freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/noise_model/misc_noise_functions.html#envelope_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.noise_model.misc_noise_functions.envelope_function" title="Permalink to this definition">¶</a></dt>
+<dd><dl>
+<dt>Calculating the envelope function as given by Eqn.~(2.6) </dt><dd><p>in Stahn’s thesis.</p>
+<dl class="simple">
+<dt>mode_freq<span class="classifier">float, array_like</span></dt><dd><p>The mode frequencies</p>
+</dd>
+</dl>
+</dd>
+<dt>u_{n,ell,m}</dt><dd><dl class="simple">
+<dt>cen_freq<span class="classifier">float</span></dt><dd><p>The frequency of the center of the amplitude envelope.</p>
+</dd>
+<dt>sigma_1<span class="classifier">float</span></dt><dd><p>Width of the envelope below cen_freq.</p>
+</dd>
+<dt>sigma_2<span class="classifier">float</span></dt><dd><p>Width of the envelope above cen_freq.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="enseisro.noise_model.misc_noise_functions.make_N_nu">
-<span class="sig-prename descclassname"><span class="pre">enseisro.noise_model.misc_noise_functions.</span></span><span class="sig-name descname"><span class="pre">make_N_nu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nu_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A_arr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/noise_model/misc_noise_functions.html#make_N_nu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.noise_model.misc_noise_functions.make_N_nu" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">enseisro.noise_model.misc_noise_functions.</span></span><span class="sig-name descname"><span class="pre">make_N_nu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nu_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P_wn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_harveys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/noise_model/misc_noise_functions.html#make_N_nu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.noise_model.misc_noise_functions.make_N_nu" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function returns $N(
 u)$ from a given frequency array $
 u$.</p>
 <blockquote>
 <div><dl class="simple">
-<dt>nu_arr<span class="classifier">numpy.ndarray    </span></dt><dd><p>Frequency array.</p>
+<dt>nu_arr<span class="classifier">numpy.ndarray    </span></dt><dd><p>Frequency array in micro Hertz.</p>
 </dd>
-<dt>tau_arr<span class="classifier">numpy.ndarray</span></dt><dd><p>Time-scale array.</p>
+<dt>tau_arr<span class="classifier">numpy.ndarray</span></dt><dd><p>Time-scale array in seconds.</p>
 </dd>
-<dt>A_arr<span class="classifier">numpy.ndarray</span></dt><dd><p>Amplitude array.</p>
+<dt>A_arr<span class="classifier">numpy.ndarray</span></dt><dd><p>Amplitude array in ppm^2 muHz^{-1}</p>
+</dd>
+<dt>P_wn<span class="classifier">scalar</span></dt><dd><p>Photon white noise in ppm^2 muHz^{-1}</p>
+</dd>
+<dt>return_harveys<span class="classifier">boolean, optional</span></dt><dd><p>True or False depending on whether or not we want to 
+return the Harvey models separately. This is mainly used for 
+plotting them separately when tallying with Stahn’s Figure 2.4.</p>
 </dd>
 </dl>
 </div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enseisro.noise_model.misc_noise_functions.mode_visibility">
+<span class="sig-prename descclassname"><span class="pre">enseisro.noise_model.misc_noise_functions.</span></span><span class="sig-name descname"><span class="pre">mode_visibility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">abs_m_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ell_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc_angle_arr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/noise_model/misc_noise_functions.html#mode_visibility"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.noise_model.misc_noise_functions.mode_visibility" title="Permalink to this definition">¶</a></dt>
+<dd><p>This computes the visibility of individual m-components
+depending on the inclination angle i, of the rotation axis
+with respect to the line of sight.</p>
+<dl class="simple">
+<dt>abs_m_arr<span class="classifier">int, array_like</span></dt><dd><p>Array containing absolute value of the azimuthal degree.</p>
+</dd>
+<dt>ell_arr<span class="classifier">int, array_like</span></dt><dd><p>Array containing angular degree.</p>
+</dd>
+<dt>inc_angle_arr<span class="classifier">float, array_like</span></dt><dd><p>Array contiaining the inclination angle of the rotation axis 
+of the star with respect to the line of sight. Array has the 
+same length as the length of the abs_m_arr or ell_arr.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
