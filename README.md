@@ -1,5 +1,5 @@
 # enseisro
-ENsemble asteroSEISmology using numpyRO
+ENsemble asteroSEISmology for ROtation
 
 ## Building the conda environment
 Execute the following set of commands in your terminal to install and activate the ```conda``` environment ```jax-gpu``` (don't worry, it'll work
