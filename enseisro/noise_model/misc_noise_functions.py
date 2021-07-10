@@ -119,7 +119,7 @@ def make_Hnlm(modes, mode_freq_arr, Gamma_arr, inc_angle_arr=None):
     mode_freq_arr : float, array_like
         Array of mode frequencies corresponding to ```modes``` in muHz.
     Gamma_arr : float, array_like
-        Array of linewidths of the ```modes``` in muHz.
+        Array of linewidths of the ``modes`` in muHz.
     inc_angle_arr : float, optional
         Array of inclination angles of the stellar rotation axis with respect
         to the line of sight. This may vary across stars. Default is set to 90 degrees.

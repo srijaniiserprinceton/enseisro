@@ -13,7 +13,7 @@ def compute_freq_uncertainties(modes, mode_freq_arr):
     modes : int, numpy.ndarray                                                                                                                                                          
         Array of modes of shape (3, Nmodes).                                                                                                                                            
     mode_freq_arr : float, array_like                                                                                                                                                   
-        Array of mode frequencies corresponding to ```modes``` in muHz. 
+        Array of mode frequencies corresponding to ``modes`` in muHz. 
     """
    
     # values of the parameters taken from Table 2.1 in Stahn's thesis.                                                                                                                  
