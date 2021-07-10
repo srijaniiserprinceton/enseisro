@@ -94,12 +94,12 @@ def test_noise_model():
     # we need to pass the mode_freq_arr in muHz
     mode_freq_arr *= (GVAR.OM * 1e6)
     
-    # using the Libbrecht noise model to get \sigma(\omega_nlm) in nHz
-    sigma_omega_nlm = gen_libnoise.compute_freq_uncertainties(modes, mode_freq_arr)
+    # using the Libbrecht noise model to get \sigma(\delta \omega_nlm) in nHz
+    sigma_del_omega_nlm = gen_libnoise.compute_freq_uncertainties(modes, mode_freq_arr)
 
     # printing the modes
     print('Modes:\n',modes)
     # in nHz
-    print('Sigma_omega_nlm in nHz:\n', sigma_omega_nlm)
+    print('Sigma_omega_nlm in nHz:\n', sigma_del_omega_nlm)
 
 test_noise_model()

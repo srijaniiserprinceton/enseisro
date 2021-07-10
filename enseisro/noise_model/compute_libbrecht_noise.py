@@ -32,7 +32,7 @@ def compute_freq_uncertainties(modes, mode_freq_arr):
 
     
     # getting the linewidths for the modes
-    n_arr, ell_arr = modes[0,:], modes[1,:]
+    n_arr, ell_arr, m_arr = modes[0,:], modes[1,:], modes[2,:]
 
     # getting linewidths in muHz
     Gamma_arr = get_Gamma.get_Gamma(n_arr, ell_arr)
@@ -54,11 +54,16 @@ def compute_freq_uncertainties(modes, mode_freq_arr):
 
     
 
-    # sigma for mode nlm. In muHz^2 units.
-    sigma_sq_mode = fbeta * Gamma_arr / (4 * np.pi * T)
-    sigma_mode = np.sqrt(sigma_sq_mode) * 1e3           # in nHz
+    # sigma^2 for mode nlm. In muHz^2 units.
+    sigma_sq_omega_nlm = fbeta * Gamma_arr / (4 * np.pi * T)
+    
+    # sigma in nHz
+    sigma_omega_nlm = np.sqrt(sigma_sq_omega_nlm) * 1e3
 
-    return sigma_mode
+    # creating the sigma for frequency splitting (\delta \omega)
+    sigma_del_omega_nlm = sigma_omega_nlm / np.abs(m_arr)
+
+    return sigma_del_omega_nlm
 
 # }}} def compute_freq_uncertainties()
     
