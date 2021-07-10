@@ -1,0 +1,273 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>enseisro.noise_model.compute_libbrecht_noise &mdash; enseisro 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> enseisro
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/introduction.html">Testing <code class="docutils literal notranslate"><span class="pre">introduction.rst</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/installation.html">Installing <code class="docutils literal notranslate"><span class="pre">enseisro</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/API.html"><code class="docutils literal notranslate"><span class="pre">enseisro</span></code> API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">enseisro</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>enseisro.noise_model.compute_libbrecht_noise</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for enseisro.noise_model.compute_libbrecht_noise</h1><div class="highlight"><pre>
+<span></span><span class="c1"># import jax.numpy as np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">enseisro.noise_model</span> <span class="kn">import</span> <span class="n">misc_noise_functions</span> <span class="k">as</span> <span class="n">Noise_FN</span>
+<span class="kn">from</span> <span class="nn">enseisro.noise_model</span> <span class="kn">import</span> <span class="n">get_Gamma</span> <span class="k">as</span> <span class="n">get_Gamma</span>
+
+<span class="c1"># {{{ def compute_freq_uncertainties():</span>
+<div class="viewcode-block" id="compute_freq_uncertainties"><a class="viewcode-back" href="../../../chapters/API.html#enseisro.noise_model.compute_libbrecht_noise.compute_freq_uncertainties">[docs]</a><span class="k">def</span> <span class="nf">compute_freq_uncertainties</span><span class="p">(</span><span class="n">modes</span><span class="p">,</span> <span class="n">mode_freq_arr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the uncertainty in frequency for each mode</span>
+<span class="sd">    according to Eqn.~(2.19) in Stahn&#39;s thesis.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    modes : int, numpy.ndarray                                                                                                                                                          </span>
+<span class="sd">        Array of modes of shape (3, Nmodes).                                                                                                                                            </span>
+<span class="sd">    mode_freq_arr : float, array_like                                                                                                                                                   </span>
+<span class="sd">        Array of mode frequencies corresponding to ``modes`` in muHz. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+   
+    <span class="c1"># values of the parameters taken from Table 2.1 in Stahn&#39;s thesis.                                                                                                                  </span>
+    <span class="n">A_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.607</span><span class="p">,</span> <span class="mf">0.542</span><span class="p">])</span>       <span class="c1"># amplitude array in ppm^2 \muHz^{-1}                                                                                               </span>
+    <span class="n">A_err_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.082</span><span class="p">,</span> <span class="mf">0.030</span><span class="p">])</span>   <span class="c1"># error in amplitude array in ppm^2 \muHz^{-1}                                                                                               </span>
+    <span class="n">tau_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1390.0</span><span class="p">,</span> <span class="mf">455.0</span><span class="p">])</span>    <span class="c1"># time-scale array in seconds                                                                                                         </span>
+    <span class="n">tau_arr_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">30</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>       <span class="c1"># error in time-scale array in seconds                                                                                                       </span>
+ 
+    <span class="c1"># photon white noise in ppm^2 \muHz^{-1}                                                                                                                                            </span>
+    <span class="n">P_wn</span> <span class="o">=</span> <span class="mf">0.00065</span>    <span class="c1"># this is approx value Stahn&#39;s Fig 2.4 has. But he says that P_wn &lt; 0.004. </span>
+    
+    <span class="c1"># getting the background noise profile B(\nu) in ppm^2/muHz</span>
+    <span class="n">N_nu</span> <span class="o">=</span> <span class="n">Noise_FN</span><span class="o">.</span><span class="n">make_N_nu</span><span class="p">(</span><span class="n">mode_freq_arr</span><span class="p">,</span> <span class="n">tau_arr</span><span class="p">,</span> <span class="n">A_arr</span><span class="p">,</span> <span class="n">P_wn</span><span class="p">,</span> <span class="n">return_harveys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">c_bg</span> <span class="o">=</span> <span class="mi">1</span>    <span class="c1"># what is this value?? Not clear from Stahn&#39;s thesis</span>
+    <span class="n">B_nu</span> <span class="o">=</span> <span class="n">c_bg</span> <span class="o">*</span> <span class="n">N_nu</span>
+
+    
+    <span class="c1"># getting the linewidths for the modes</span>
+    <span class="n">n_arr</span><span class="p">,</span> <span class="n">ell_arr</span><span class="p">,</span> <span class="n">m_arr</span> <span class="o">=</span> <span class="n">modes</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span> <span class="n">modes</span><span class="p">[</span><span class="mi">1</span><span class="p">,:],</span> <span class="n">modes</span><span class="p">[</span><span class="mi">2</span><span class="p">,:]</span>
+
+    <span class="c1"># getting linewidths in muHz</span>
+    <span class="n">Gamma_arr</span> <span class="o">=</span> <span class="n">get_Gamma</span><span class="o">.</span><span class="n">get_Gamma</span><span class="p">(</span><span class="n">n_arr</span><span class="p">,</span> <span class="n">ell_arr</span><span class="p">)</span>
+    
+    
+    <span class="c1"># computing the mode heights</span>
+    <span class="n">Hnlm</span> <span class="o">=</span> <span class="n">Noise_FN</span><span class="o">.</span><span class="n">make_Hnlm</span><span class="p">(</span><span class="n">modes</span><span class="p">,</span> <span class="n">mode_freq_arr</span><span class="p">,</span> <span class="n">Gamma_arr</span><span class="p">)</span>
+
+    <span class="c1"># \beta or the inverse signal-to-noise ratio</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">B_nu</span> <span class="o">/</span> <span class="n">Hnlm</span>
+
+    <span class="c1"># f(\beta)</span>
+    <span class="n">one_plus_beta_sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">beta</span><span class="p">)</span>
+    <span class="n">beta_sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
+    <span class="n">fbeta</span> <span class="o">=</span> <span class="n">one_plus_beta_sqrt</span> <span class="o">*</span> <span class="p">(</span><span class="n">one_plus_beta_sqrt</span> <span class="o">+</span> <span class="n">beta_sqrt</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span>
+
+    <span class="c1"># time T in micro sec. Considering 3 years</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="mi">365</span> <span class="o">*</span> <span class="mi">24</span> <span class="o">*</span> <span class="mi">3600</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-6</span>   <span class="c1"># the 1e-6 since we want 1/T in muHz</span>
+
+    
+
+    <span class="c1"># sigma^2 for mode nlm. In muHz^2 units.</span>
+    <span class="n">sigma_sq_omega_nlm</span> <span class="o">=</span> <span class="n">fbeta</span> <span class="o">*</span> <span class="n">Gamma_arr</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">T</span><span class="p">)</span>
+    
+    <span class="c1"># sigma in nHz</span>
+    <span class="n">sigma_omega_nlm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma_sq_omega_nlm</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e3</span>
+
+    <span class="c1"># creating the sigma for frequency splitting (\delta \omega)</span>
+    <span class="n">sigma_del_omega_nlm</span> <span class="o">=</span> <span class="n">sigma_omega_nlm</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">m_arr</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">sigma_del_omega_nlm</span></div>
+
+<span class="c1"># }}} def compute_freq_uncertainties()</span>
+    
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Srijan Bharati Das, Yoshiki Hatta, Hannah Schunker.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

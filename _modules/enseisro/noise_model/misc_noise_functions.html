@@ -229,7 +229,7 @@
     <span class="n">fac_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">factorial</span><span class="p">)</span>
     <span class="n">prefac</span> <span class="o">=</span> <span class="n">fac_vec</span><span class="p">(</span><span class="n">ell_arr</span> <span class="o">-</span> <span class="n">abs_m_arr</span><span class="p">)</span><span class="o">/</span><span class="n">fac_vec</span><span class="p">(</span><span class="n">ell_arr</span> <span class="o">+</span> <span class="n">abs_m_arr</span><span class="p">)</span> 
 
-    <span class="n">eps_ell_m</span> <span class="o">=</span> <span class="n">prefac</span> <span class="o">*</span> <span class="n">lpmv</span><span class="p">(</span><span class="n">abs_m_arr</span><span class="p">,</span> <span class="n">ell_arr</span><span class="p">,</span> <span class="n">inc_angle_arr</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+    <span class="n">eps_ell_m</span> <span class="o">=</span> <span class="n">prefac</span> <span class="o">*</span> <span class="n">lpmv</span><span class="p">(</span><span class="n">abs_m_arr</span><span class="p">,</span> <span class="n">ell_arr</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">inc_angle_arr</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
 
     <span class="c1"># should have the same length as the ell_arr or abs_m_arr</span>
     <span class="k">return</span> <span class="n">eps_ell_m</span></div>
@@ -243,17 +243,17 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    mode_freq_arr : float, array_like</span>
-<span class="sd">        The mode frequencies nu_{n,\ell,m}</span>
+<span class="sd">        The mode frequencies nu_{n,\ell,m} in muHz.</span>
 <span class="sd">    cen_freq : float</span>
-<span class="sd">        The frequency of the center of the amplitude envelope.</span>
+<span class="sd">        The frequency of the center of the amplitude envelope in muHz.</span>
 <span class="sd">    sigma_1 : float</span>
-<span class="sd">        Width of the envelope below cen_freq.</span>
+<span class="sd">        Width of the envelope below cen_freq in muHz.</span>
 <span class="sd">    sigma_2 : float</span>
-<span class="sd">        Width of the envelope above cen_freq.</span>
+<span class="sd">        Width of the envelope above cen_freq in muHz.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># creating a sigma array depending on relative value of</span>
     <span class="c1"># mode_freq and cen_freq</span>
-    <span class="n">sigma_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">mode_freq</span><span class="p">)</span>
+    <span class="n">sigma_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">mode_freq_arr</span><span class="p">)</span>
 
     <span class="n">ind_where_modefreq_leq_cenfreq</span> <span class="o">=</span> <span class="n">mode_freq_arr</span> <span class="o">&lt;</span> <span class="n">cen_freq</span>
     <span class="n">sigma_arr</span><span class="p">[</span><span class="n">ind_where_modefreq_leq_cenfreq</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma_1</span>
@@ -275,16 +275,16 @@
 <span class="sd">    modes : int, numpy.ndarray</span>
 <span class="sd">        Array of modes of shape (3, Nmodes).</span>
 <span class="sd">    mode_freq_arr : float, array_like</span>
-<span class="sd">        Array of mode frequencies corresponding to ```modes```.</span>
+<span class="sd">        Array of mode frequencies corresponding to ```modes``` in muHz.</span>
 <span class="sd">    Gamma_arr : float, array_like</span>
-<span class="sd">        Array of linewidths of the ```modes```.</span>
+<span class="sd">        Array of linewidths of the ``modes`` in muHz.</span>
 <span class="sd">    inc_angle_arr : float, optional</span>
 <span class="sd">        Array of inclination angles of the stellar rotation axis with respect</span>
 <span class="sd">        to the line of sight. This may vary across stars. Default is set to 90 degrees.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># the inclination array. Elements of this array may vary across stars                                                                                                      </span>
-    <span class="c1"># as a simple case, we may choose it to be 90 degrees                                                                                                                               </span>
+    <span class="c1"># as a simple case, we may choose it to be 0 degrees                                                                                                                               </span>
     <span class="k">if</span><span class="p">(</span><span class="n">inc_angle_arr</span> <span class="o">==</span> <span class="kc">None</span><span class="p">):</span>
         <span class="n">inc_angle_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">mode_freq_arr</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">2.0</span>
 
@@ -293,7 +293,7 @@
     <span class="n">A_ell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">4.64</span><span class="p">,</span> <span class="mf">6.08</span><span class="p">,</span> <span class="mf">3.69</span><span class="p">])</span>    <span class="c1"># values in ppm taken from Table 2.3 in Stahn&#39;s thesis                                                                                      </span>
     <span class="n">A_ell_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.13</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.11</span><span class="p">])</span>
 
-    <span class="c1"># the widths on either side of cen_freq. Values are in ppm                                                                                                                          </span>
+    <span class="c1"># the widths on either side of cen_freq. Values are in muHz                                                                                                                         </span>
     <span class="n">sigma_1</span><span class="p">,</span> <span class="n">sigma_2</span> <span class="o">=</span> <span class="mi">564</span><span class="p">,</span> <span class="mi">678</span>
     <span class="n">sigma_1_err</span><span class="p">,</span> <span class="n">sigma_2_err</span> <span class="o">=</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">28</span>
 
@@ -306,11 +306,14 @@
     <span class="n">ell_arr</span> <span class="o">=</span> <span class="n">modes</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span>
     <span class="n">abs_m_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">modes</span><span class="p">[</span><span class="mi">2</span><span class="p">,:])</span>
 
+
     <span class="c1"># the mode visibility. Same length as the mode_freq_arr or the number of modes                                                                                                      </span>
-    <span class="n">E_lm_i</span> <span class="o">=</span> <span class="n">Noise_FN</span><span class="o">.</span><span class="n">mode_visibility</span><span class="p">(</span><span class="n">abs_m_arr</span><span class="p">,</span> <span class="n">ell_arr</span><span class="p">,</span> <span class="n">inc_angle_arr</span><span class="p">)</span>
+    <span class="c1"># E_lm_i = mode_visibility(abs_m_arr, ell_arr, inc_angle_arr)</span>
+    <span class="n">E_lm_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">mode_freq_arr</span><span class="p">)</span>
+    
 
     <span class="c1"># the envelope function. Same length as the mode_freq_arr or the number of modes                                                                                                    </span>
-    <span class="n">F_nlm</span> <span class="o">=</span> <span class="n">Noise_FN</span><span class="o">.</span><span class="n">envelope_function</span><span class="p">(</span><span class="n">mode_freq_arr</span><span class="p">,</span> <span class="n">cen_freq</span><span class="p">,</span> <span class="n">sigma_1</span><span class="p">,</span> <span class="n">sigma_2</span><span class="p">)</span>
+    <span class="n">F_nlm</span> <span class="o">=</span> <span class="n">envelope_function</span><span class="p">(</span><span class="n">mode_freq_arr</span><span class="p">,</span> <span class="n">cen_freq</span><span class="p">,</span> <span class="n">sigma_1</span><span class="p">,</span> <span class="n">sigma_2</span><span class="p">)</span>
 
     <span class="c1"># making the A_ell_arr for the modes. We essentially store the A_ell values in                                                                                                     </span>
     <span class="c1"># corresponding modes                                                                                                                                                               </span>

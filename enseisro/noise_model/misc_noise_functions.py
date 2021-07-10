@@ -71,7 +71,7 @@ def mode_visibility(abs_m_arr, ell_arr, inc_angle_arr):
     fac_vec = np.vectorize(factorial)
     prefac = fac_vec(ell_arr - abs_m_arr)/fac_vec(ell_arr + abs_m_arr) 
 
-    eps_ell_m = prefac * lpmv(abs_m_arr, ell_arr, inc_angle_arr)**2
+    eps_ell_m = prefac * lpmv(abs_m_arr, ell_arr, np.cos(inc_angle_arr))**2
 
     # should have the same length as the ell_arr or abs_m_arr
     return eps_ell_m
@@ -85,17 +85,17 @@ def envelope_function(mode_freq_arr, cen_freq, sigma_1, sigma_2):
     Parameters
     ----------
     mode_freq_arr : float, array_like
-        The mode frequencies nu_{n,\ell,m}
+        The mode frequencies nu_{n,\ell,m} in muHz.
     cen_freq : float
-        The frequency of the center of the amplitude envelope.
+        The frequency of the center of the amplitude envelope in muHz.
     sigma_1 : float
-        Width of the envelope below cen_freq.
+        Width of the envelope below cen_freq in muHz.
     sigma_2 : float
-        Width of the envelope above cen_freq.
+        Width of the envelope above cen_freq in muHz.
     """
     # creating a sigma array depending on relative value of
     # mode_freq and cen_freq
-    sigma_arr = np.zeros_like(mode_freq)
+    sigma_arr = np.zeros_like(mode_freq_arr)
 
     ind_where_modefreq_leq_cenfreq = mode_freq_arr < cen_freq
     sigma_arr[ind_where_modefreq_leq_cenfreq] = sigma_1
@@ -117,16 +117,16 @@ def make_Hnlm(modes, mode_freq_arr, Gamma_arr, inc_angle_arr=None):
     modes : int, numpy.ndarray
         Array of modes of shape (3, Nmodes).
     mode_freq_arr : float, array_like
-        Array of mode frequencies corresponding to ```modes```.
+        Array of mode frequencies corresponding to ```modes``` in muHz.
     Gamma_arr : float, array_like
-        Array of linewidths of the ```modes```.
+        Array of linewidths of the ``modes`` in muHz.
     inc_angle_arr : float, optional
         Array of inclination angles of the stellar rotation axis with respect
         to the line of sight. This may vary across stars. Default is set to 90 degrees.
     """
 
     # the inclination array. Elements of this array may vary across stars                                                                                                      
-    # as a simple case, we may choose it to be 90 degrees                                                                                                                               
+    # as a simple case, we may choose it to be 0 degrees                                                                                                                               
     if(inc_angle_arr == None):
         inc_angle_arr = np.zeros_like(mode_freq_arr) + np.pi/2.0
 
@@ -135,7 +135,7 @@ def make_Hnlm(modes, mode_freq_arr, Gamma_arr, inc_angle_arr=None):
     A_ell = np.array([4.64, 6.08, 3.69])    # values in ppm taken from Table 2.3 in Stahn's thesis                                                                                      
     A_ell_err = np.array([0.13, 0.15, 0.11])
 
-    # the widths on either side of cen_freq. Values are in ppm                                                                                                                          
+    # the widths on either side of cen_freq. Values are in muHz                                                                                                                         
     sigma_1, sigma_2 = 564, 678
     sigma_1_err, sigma_2_err = 36, 28
 
@@ -148,11 +148,14 @@ def make_Hnlm(modes, mode_freq_arr, Gamma_arr, inc_angle_arr=None):
     ell_arr = modes[1,:]
     abs_m_arr = np.abs(modes[2,:])
 
+
     # the mode visibility. Same length as the mode_freq_arr or the number of modes                                                                                                      
-    E_lm_i = Noise_FN.mode_visibility(abs_m_arr, ell_arr, inc_angle_arr)
+    # E_lm_i = mode_visibility(abs_m_arr, ell_arr, inc_angle_arr)
+    E_lm_i = np.ones_like(mode_freq_arr)
+    
 
     # the envelope function. Same length as the mode_freq_arr or the number of modes                                                                                                    
-    F_nlm = Noise_FN.envelope_function(mode_freq_arr, cen_freq, sigma_1, sigma_2)
+    F_nlm = envelope_function(mode_freq_arr, cen_freq, sigma_1, sigma_2)
 
     # making the A_ell_arr for the modes. We essentially store the A_ell values in                                                                                                     
     # corresponding modes                                                                                                                                                               
