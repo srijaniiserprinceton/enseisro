@@ -117,7 +117,7 @@ def make_Hnlm(modes, mode_freq_arr, Gamma_arr, inc_angle_arr=None):
     modes : int, numpy.ndarray
         Array of modes of shape (3, Nmodes).
     mode_freq_arr : float, array_like
-        Array of mode frequencies corresponding to ```modes``` in muHz.
+        Array of mode frequencies corresponding to ``modes`` in muHz.
     Gamma_arr : float, array_like
         Array of linewidths of the ``modes`` in muHz.
     inc_angle_arr : float, optional
