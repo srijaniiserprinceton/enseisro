@@ -4,7 +4,8 @@ import scipy as sp
 from enseisro.functional_fitting import make_inversion_matrices as make_mat
 from enseisro import forward_functions_Omega as forfunc_Om
 
-def use_numpy_inv_Omega_function(GVAR, modes, sigma_arr, smax, use_synth=True, Omegasr=np.array([])):
+def use_numpy_inv_Omega_function(GVAR, modes, sigma_arr, smax, use_synth=True, Omegasr=np.array([]),
+                                 ret_res_mat=False):
     """This is to calculate a in the equation A . a = d, using the
     Numpy solver numpy.linalg.inv(). This uses Omega function of r"""
     
@@ -18,21 +19,34 @@ def use_numpy_inv_Omega_function(GVAR, modes, sigma_arr, smax, use_synth=True, O
     
     inv_ATA = sp.linalg.inv(ATA) 
 
+    # computing the generalized inverse G^{-g}
+    gen_inv = inv_ATA @ AT
+
     # computing solution
-    a = inv_ATA @ (AT @ d)
+    a = gen_inv @ d
 
     # computing the model covariance matrix.
     # C_M = (A^T A)^{-1} according to Sambridge
     # Lecture notes. Lecture 2, Slide 23.
     C_M = inv_ATA
 
-    return a, C_M
+        
+    # is resolution matrices are also requested
+    if(ret_res_mat):
+        # data resolution matrix 
+        data_res_mat = A @ gen_inv 
 
+        # model resolution matrix
+        model_res_mat = gen_inv @ A
+
+        return a, C_M, data_res_mat, model_res_mat
+
+    else: a, C_M
 
 
 
 def use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax, Omegas_step_params, rcz_ind_arr,\
-                                    use_diff_Omout=True, use_Delta=True):
+                                    use_diff_Omout=True, use_Delta=True, ret_res_mat=False):
     """This is to calculate a in the equation A . a = d, using the
     Numpy solver numpy.linalg.inv(). This uses Omega step params"""
     
@@ -51,26 +65,42 @@ def use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax
         
     # getting the complete A matrix
     A = build_A_function(GVAR, Nstars, star_label_arr, modes, sigma_arr, Nparams, use_Delta, smax=smax)     # shape (Nmodes x Nparams)
-    # getting the complete d vector
-    d = build_d_all_stars(GVAR, Nstars, modes, sigma_arr, Omegas_step_params, \
-                          rcz_ind_arr, use_Delta)       # shape (Nmodes)
 
-
+    
     AT = A.T
 
     ATA = AT @ A
     
     inv_ATA = sp.linalg.inv(ATA) 
 
+    # generalized inverse matrix. Usually written as G^{-g}
+    gen_inv = inv_ATA @ AT
+    
+    # getting the complete d vector using the forward problem
+    d = build_d_all_stars(GVAR, Nstars, modes, sigma_arr, Omegas_step_params, \
+                          rcz_ind_arr, use_Delta)       # shape (Nmodes)
+
+    
     # computing solution
-    a = inv_ATA @ (AT @ d)
+    a = gen_inv @ d
 
     # computing the model covariance matrix.
     # C_M = (A^T A)^{-1} according to Sambridge
     # Lecture notes. Lecture 2, Slide 23.
     C_M = inv_ATA
+    
+    
+    # is resolution matrices are also requested
+    if(ret_res_mat):
+        # data resolution matrix 
+        data_res_mat = A @ gen_inv 
 
-    return a, C_M
+        # model resolution matrix
+        model_res_mat = gen_inv @ A
+
+        return a, C_M, data_res_mat, model_res_mat
+
+    else: a, C_M
 
 
 def build_A_all_stars_same_Omout(GVAR, Nstars, star_label_arr, all_modes, sigma_arr,\
@@ -182,6 +212,7 @@ def build_d_all_stars(GVAR, Nstars, all_modes, sigma_arr, Omegas_step_params, rc
         d_star = make_mat.make_d_synth_from_step_params(GVAR, modes_star, sigma_arr_star,\
                          Omegas_step_params_star, rcz_ind_star, compute_freq_splitting_fn)   # shape (Nmodes x Nparams)
         
+
         # filling in the correct rows of the large data vector
         d[all_modes_label_start_ind: all_modes_label_end_ind] = d_star
 
