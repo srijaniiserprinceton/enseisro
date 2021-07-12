@@ -24,7 +24,7 @@ Nstars = 10
 # defining the multiplets
 # mults = np.array([[2,10], [2,2], [3,4], [4,5], [5,5]], dtype='int')
 # creating the list of mults
-nmin, nmax = 2, 4
+nmin, nmax = 2, 3
 lmin, lmax = 2, 2
 mults = FN.build_mults(nmin, nmax, lmin, lmax)
 
@@ -65,6 +65,10 @@ for i in range(Nstars):
 
 # calculating the step function equivalent of this Omegasr. (\Omega_{in} + \Omega_{out))                                                                                                                          
 step_param_arr_1 = create_synth_DR.get_solar_stepfn_params(Omegasr, rcz_ind_arr)   # shape (Nstars x s x  Nparams)                                                                         
+# adding constant random terms to each star's rotation profiles keeping \Delta \Omega_s constant 
+step_param_arr_1 = create_synth_DR.randomize_DR_step_params(step_param_arr_1, p=10)
+
+
 # converting it to Omega_{out} and \Delta \Omega
 step_param_arr = np.zeros_like(step_param_arr_1)
 # storing \Omega_{out}
@@ -73,15 +77,7 @@ step_param_arr[:,:,0] = step_param_arr_1[:,:,1]
 step_param_arr[:,:,1] = step_param_arr_1[:,:,0] - step_param_arr_1[:,:,1]
 
 
-step_param_arr *= (1 + 0.1 * np.random.rand(Nstars))[:,np.newaxis,np.newaxis]
-
-# print(step_param_arr)
-# sys.exit()
-
 Omegasr_step = create_synth_DR.params_to_step(GVAR, step_param_arr, rcz_ind_arr) # shape (Nstars x s x r)
-
-# print(Omegasr_step)
-# sys.exit()
 
 # solving for a in A . a = d
 
@@ -91,49 +87,8 @@ Omegasr_step = create_synth_DR.params_to_step(GVAR, step_param_arr, rcz_ind_arr)
 # C_M = (G^T C_d^{-1} G)^{-1}. In our case G^T C_d^{1/2} = A^T
 # C_d^{1/2} = \sigma
 
-
-a_Delta, C_M_Detla, d_res_mat, m_res_mat = a_solver.use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr,\
-                                    smax, step_param_arr, rcz_ind_arr, use_diff_Omout=True, use_Delta=True, ret_res_mat=True)
-# a, C_M = a_solver.use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax, step_param_arr_1, rcz_ind_arr, use_diff_Omout=False, use_Delta=False)
-# a_1, C_M_1 = a_solver.use_numpy_inv_Omega_function(GVAR, modes, sigma_arr, smax, use_synth=True, Omegasr = Omegasr_step[0])
-
-'''
-# performing the resolution matrix test
-a_true = np.array([])
-for i in range(Nstars):
-    a_true = np.append(a_true, step_param_arr[i,:,0])  # storing the Omega_out
-
-
-# storing the \Delta \Omega
-a_true = np.append(a_true, step_param_arr[0,:,1])
-print('True model vector:\n',a_true * GVAR.OM * 1e9)
-
-# model resolution matrix
-print('Model resolution matrix:\n', m_res_mat)
-
-# data resolution matrix
-print('Data resolution matrix:\n', d_res_mat)
-
-# m_est = m_res_mat @ m_true
-a_est = m_res_mat @ a_true
-
-# d_est = d_res_mat @ d_true
-# d_est = d_res_mat @ d_true
-
-print('Estimated model parameters:\n', a_est * GVAR.OM * 1e9)
-print('a_true - a_est:\n', (a_true - a_est) * GVAR.OM * 1e9)
-
-print('Estimated data vector:\n', d_est * GVAR.OM * 1e9)
-print('d_true - d_est:\n', (d_true - d_est) * GVAR.OM * 1e9)
-# sys.exit()
-
-
-
-print('Synthetic:\n',step_param_arr_1.flatten() * GVAR.OM * 1e9)
-print('Inverted:\n', a.flatten() * GVAR.OM * 1e9)
-print('Synthetic with Delta:\n',step_param_arr.flatten() * GVAR.OM * 1e9)
-print('Inverted with Delta:\n',a_Delta.flatten() * GVAR.OM * 1e9) # , a_1 * GVAR.OM * 1e9)
-'''
+a_Delta, C_M_Detla = a_solver.use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr,\
+                     smax, step_param_arr, rcz_ind_arr, use_diff_Omout=True, use_Delta=True, ret_res_mat=False)
 
 # creating the various arrays to be used for printing
 synthetic_out = step_param_arr.flatten()[::2] * GVAR.OM * 1e9

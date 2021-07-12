@@ -94,8 +94,26 @@ def test_noise_model():
     # we need to pass the mode_freq_arr in muHz
     mode_freq_arr *= (GVAR.OM * 1e6)
     
+    # getting the Teff, surface gravity and numax for other stars
+    Teff_stars = np.zeros(Nstars) + GVAR.Teff_sun 
+    g_stars = np.zeros(Nstars) + GVAR.g_sun
+    numax_stars = np.zeros(Nstars) + GVAR.numax_sun
+
+    Teff_arr = np.zeros(modes.shape[1])
+    g_arr = np.zeros(modes.shape[1])
+    numax_arr = np.zeros(modes.shape[1])
+
+    # filling in the arrays for these parameters for each star
+    index_counter = 0
+    Nmodes_per_star = modes_single_star.shape[1]
+    for i in range(Nstars):
+        Teff_arr[index_counter:index_counter+Nmodes_per_star] = Teff_stars[i]
+        g_arr[index_counter:index_counter+Nmodes_per_star] = g_stars[i]
+        numax_arr[index_counter:index_counter+Nmodes_per_star] = numax_stars[i]
+
     # using the Libbrecht noise model to get \sigma(\delta \omega_nlm) in nHz
-    sigma_del_omega_nlm = gen_libnoise.compute_freq_uncertainties(modes, mode_freq_arr)
+    sigma_del_omega_nlm = gen_libnoise.compute_freq_uncertainties(modes, mode_freq_arr,\
+                                                              Teff_arr, g_arr, numax_arr)
 
     # printing the modes
     print('Modes:\n',modes)

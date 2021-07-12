@@ -41,7 +41,7 @@ def use_numpy_inv_Omega_function(GVAR, modes, sigma_arr, smax, use_synth=True, O
 
         return a, C_M, data_res_mat, model_res_mat
 
-    else: a, C_M
+    else: return a, C_M
 
 
 
@@ -65,7 +65,6 @@ def use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax
         
     # getting the complete A matrix
     A = build_A_function(GVAR, Nstars, star_label_arr, modes, sigma_arr, Nparams, use_Delta, smax=smax)     # shape (Nmodes x Nparams)
-
     
     AT = A.T
 
@@ -100,7 +99,7 @@ def use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax
 
         return a, C_M, data_res_mat, model_res_mat
 
-    else: a, C_M
+    else: return a, C_M
 
 
 def build_A_all_stars_same_Omout(GVAR, Nstars, star_label_arr, all_modes, sigma_arr,\

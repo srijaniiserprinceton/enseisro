@@ -62,6 +62,9 @@ class globalVars():
         self.B_0 = 10e5 #G
         self.OM = np.sqrt(4*np.pi*self.R_sol*self.B_0**2/self.M_sol) 
         # should be 2.096367060263202423e-05 for above numbers
+        self.Teff_sun = 5780.0     # in Kelvin
+        self.numax_sun = 3067.0    # in muHz
+        self.g_sun = 274.0         # in SI units
 
         # self.rho = np.loadtxt(f"{self.datadir}/rho.dat")
         self.r = np.loadtxt(f"{self.datadir}/r.dat")

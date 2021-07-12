@@ -106,8 +106,8 @@ def plot_resolution_matrices(Nstars, smax, nmin, nmax, lmin, lmax):
 
 # some properties defining the number of modes
 Nstars = 2
-nmin, nmax = 2, 4
-lmin, lmax = 2, 4
+nmin, nmax = 2, 3
+lmin, lmax = 2, 2
 
 # properties defining the number of model parameters
 smax = 3

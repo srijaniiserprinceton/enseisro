@@ -4,7 +4,7 @@ from enseisro.noise_model import misc_noise_functions as Noise_FN
 from enseisro.noise_model import get_Gamma as get_Gamma
 
 # {{{ def compute_freq_uncertainties():
-def compute_freq_uncertainties(modes, mode_freq_arr):
+def compute_freq_uncertainties(modes, mode_freq_arr, Teff_arr, g_arr, numax_arr):
     """Returns the uncertainty in frequency for each mode
     according to Eqn.~(2.19) in Stahn's thesis.
 
@@ -28,18 +28,31 @@ def compute_freq_uncertainties(modes, mode_freq_arr):
     # getting the background noise profile B(\nu) in ppm^2/muHz
     N_nu = Noise_FN.make_N_nu(mode_freq_arr, tau_arr, A_arr, P_wn, return_harveys=False)
     c_bg = 1    # what is this value?? Not clear from Stahn's thesis
-    B_nu = c_bg * N_nu
+    B_nu_sun = c_bg * N_nu
 
     
     # getting the linewidths for the modes
     n_arr, ell_arr, m_arr = modes[0,:], modes[1,:], modes[2,:]
 
     # getting linewidths in muHz
-    Gamma_arr = get_Gamma.get_Gamma(n_arr, ell_arr)
+    Gamma_arr_sun = get_Gamma.get_Gamma(n_arr, ell_arr)
     
     
     # computing the mode heights
-    Hnlm = Noise_FN.make_Hnlm(modes, mode_freq_arr, Gamma_arr)
+    Hnlm_sun = Noise_FN.make_Hnlm(modes, mode_freq_arr, Gamma_arr)
+
+
+    # uptil now we got the various params for the Sun. Now we convert
+    # to other stars depending on scaling relations with T_eff, nu_max
+    # and surface gravity
+
+    rel_gravity_arr = g_arr / GVAR.g_sun
+    rel_Teff_arr = Teff_arr / GVAR.Teff_sun
+    rel_numax_arr = numax_arr / GVAR.numax_sun
+
+    Hnlm = conv_star_params.convert_Hnlm(Hnlm_sun, rel_gravity_arr)
+    Gamma_arr = conv_star_params.convert_Gamma_arr(Gamma_arr_sun, rel_Teff_arr)
+    B_nu = conv_star_params.convert_B_nu(B_nu_sun, rel_numax_arr)
 
     # \beta or the inverse signal-to-noise ratio
     beta = B_nu / Hnlm

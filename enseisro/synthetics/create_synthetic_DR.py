@@ -74,3 +74,27 @@ def params_to_step(GVAR, step_param_arr, rcz_ind_arr):
 
     # returning shape (Nstars x s x r)
     return Omegasr_step
+
+
+# {{{ def randomize_DR_step_params():
+def randomize_DR_step_params(step_param_arr_1, p=10):
+    """This functions takes a set of stars with
+    the same rotation profile in terms of Omega_in
+    and Omega_out and returns a set of stars with
+    rotation profile slightly perturbed about the original
+    profile.
+    
+    Parameters
+    ----------
+    step_params_arr_1 : numpy.ndarray, float
+        Array of shape (Nstars x s x Nparams) containing 
+        Omega_in and Omega_out for Nstars.
+    p : float, optional
+        Maximum percentage differnce from the original
+        rotation profile.
+    """
+    Nstars, lens, __ = step_param_arr_1.shape
+    step_param_arr_rand = step_param_arr_1 + \
+                          (step_param_arr_1[:,:,0] * 0.01 * p * np.random.rand(Nstars, lens))[:,:,np.newaxis]
+    
+    return step_param_arr_rand
