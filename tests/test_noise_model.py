@@ -112,7 +112,7 @@ def test_noise_model():
         numax_arr[index_counter:index_counter+Nmodes_per_star] = numax_stars[i]
 
     # using the Libbrecht noise model to get \sigma(\delta \omega_nlm) in nHz
-    sigma_del_omega_nlm = gen_libnoise.compute_freq_uncertainties(modes, mode_freq_arr,\
+    sigma_del_omega_nlm = gen_libnoise.compute_freq_uncertainties(GVAR, modes, mode_freq_arr,\
                                                               Teff_arr, g_arr, numax_arr)
 
     # printing the modes

@@ -2,9 +2,11 @@
 import numpy as np
 from enseisro.noise_model import misc_noise_functions as Noise_FN
 from enseisro.noise_model import get_Gamma as get_Gamma
+from enseisro.noise_model import convert_star_params as conv_star_params
+
 
 # {{{ def compute_freq_uncertainties():
-def compute_freq_uncertainties(modes, mode_freq_arr, Teff_arr, g_arr, numax_arr):
+def compute_freq_uncertainties(GVAR, modes, mode_freq_arr, Teff_arr, g_arr, numax_arr):
     """Returns the uncertainty in frequency for each mode
     according to Eqn.~(2.19) in Stahn's thesis.
 
@@ -39,7 +41,7 @@ def compute_freq_uncertainties(modes, mode_freq_arr, Teff_arr, g_arr, numax_arr)
     
     
     # computing the mode heights
-    Hnlm_sun = Noise_FN.make_Hnlm(modes, mode_freq_arr, Gamma_arr)
+    Hnlm_sun = Noise_FN.make_Hnlm(modes, mode_freq_arr, Gamma_arr_sun)
 
 
     # uptil now we got the various params for the Sun. Now we convert
@@ -51,7 +53,7 @@ def compute_freq_uncertainties(modes, mode_freq_arr, Teff_arr, g_arr, numax_arr)
     rel_numax_arr = numax_arr / GVAR.numax_sun
 
     Hnlm = conv_star_params.convert_Hnlm(Hnlm_sun, rel_gravity_arr)
-    Gamma_arr = conv_star_params.convert_Gamma_arr(Gamma_arr_sun, rel_Teff_arr)
+    Gamma_arr = conv_star_params.convert_Gamma(Gamma_arr_sun, rel_Teff_arr)
     B_nu = conv_star_params.convert_B_nu(B_nu_sun, rel_numax_arr)
 
     # \beta or the inverse signal-to-noise ratio
