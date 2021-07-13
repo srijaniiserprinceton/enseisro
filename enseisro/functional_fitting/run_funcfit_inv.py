@@ -19,13 +19,18 @@ import sys
 
 GVAR = globalvars.globalVars()
 
+# some other global parameters
+add_noise = True
+
 # defining the number of stars in the ensemble
 Nstars = 10
+
+################### CREATING MULTIPLETS, MODES AND STAR LABELS ##########################
 
 # defining the multiplets
 # mults = np.array([[2,10], [2,2], [3,4], [4,5], [5,5]], dtype='int')
 # creating the list of mults
-nmin, nmax = 16, 18
+nmin, nmax = 16, 23
 lmin, lmax = 2, 2
 mults_single_star = FN.build_mults_single_star(nmin, nmax, lmin, lmax)
 
@@ -33,12 +38,12 @@ mults_single_star = FN.build_mults_single_star(nmin, nmax, lmin, lmax)
 # these would later be repeated to make multiple stars
 modes_single_star = make_modes.make_modes(mults_single_star)
 
-
 # building the star labels. Each star's label is repeated for all the modes
 # that is used from that star. Labelling starts from 0 so that we can use it
 # as array index later for getting rcz_ind and Omega_step_params, etc.
 star_multlabel_arr, mults, star_modelabel_arr, modes = FN.build_star_labels_and_mults_modes(Nstars, mults_single_star, modes_single_star)
 
+########################### CREATING ROTATION PROFILES ###################################
 
 smax = 1
 s_arr = np.arange(1,smax+1,2)
@@ -62,75 +67,53 @@ for i in range(Nstars):
     rcz_ind_arr[i] = rcz_ind              
 
 # calculating the step function equivalent of this Omegasr. (\Omega_{in} + \Omega_{out))                                                                                                                          
-step_param_arr_1 = create_synth_DR.get_solar_stepfn_params(Omegasr, rcz_ind_arr)   # shape (Nstars x s x  Nparams)                                                                         
+step_param_arr_in_out = create_synth_DR.get_solar_stepfn_params(Omegasr, rcz_ind_arr)   # shape (Nstars x s x  Nparams)                                                                         
 # adding constant random terms to each star's rotation profiles keeping \Delta \Omega_s constant 
-step_param_arr_1 = create_synth_DR.randomize_DR_step_params(step_param_arr_1, p=10)
+step_param_arr_in_out = create_synth_DR.randomize_DR_step_params(step_param_arr_in_out, p=10)
 
 
 # converting it to Omega_{out} and \Delta \Omega
-step_param_arr = np.zeros_like(step_param_arr_1)
+step_param_arr = np.zeros_like(step_param_arr_in_out)
 # storing \Omega_{out}
-step_param_arr[:,:,0] = step_param_arr_1[:,:,1]
+step_param_arr[:,:,0] = step_param_arr_in_out[:,:,1]
 # storing \Detla\Omega
-step_param_arr[:,:,1] = step_param_arr_1[:,:,0] - step_param_arr_1[:,:,1]
+step_param_arr[:,:,1] = step_param_arr_in_out[:,:,0] - step_param_arr_in_out[:,:,1]
 
+
+##################### CREATING SYNTHETIC NOISE FOR FREQUENCY SPLITTINGS ##################
 
 # getting the frequencies corresponding to the modes without noise
 sigma_arr_no_noise = np.ones(modes.shape[1])                                                                                                     
 # getting the complete mode frequencies which is the d vector
 use_Delta = True                                                                                                                           
-delta_mode_freq_arr = a_solver.build_d_all_stars(GVAR, Nstars, modes, sigma_arr_no_noise, step_param_arr, \
+delta_omega_nlm_arr = a_solver.build_d_all_stars(GVAR, Nstars, modes, sigma_arr_no_noise, step_param_arr, \
                                                  rcz_ind_arr, use_Delta)       # shape (Nmodes)                                                                                   
 
-# getting the absolute frequencies from delta omega_nlm                                                                                                                       
-mult_idx = FN.nl_idx_vec(GVAR, mults)
-omeganl = GVAR.omega_list[mult_idx]
+# getting the absolute frequencies from delta omega_nlm
+omega_nlm_arr = FN.get_omega_nlm_from_delta_omega_nlm(GVAR, delta_omega_nlm_arr, Nstars, mults, modes,\
+                                                      star_multlabel_arr, star_modelabel_arr)
 
+# creating the synthetic sigma for frequency splitting measurements
+sigma_arr_nhz = get_noise.get_noise_for_ens(GVAR, Nstars, modes, omega_nlm_arr, Nmodes_single_star=modes_single_star.shape[1])
 
-# to store the omega_nl for all modes                                                                                                                                     
-omeganl_arr = np.zeros(modes.shape[1])
+# converting to non-dimensional units
+sigma_arr = sigma_arr_nhz / (GVAR.OM * 1e9)
+# print('Sigma array:\n', sigma_arr * GVAR.OM * 1e9)
+# sigma_arr = np.ones_like(sigma_arr) / (GVAR.OM * 1e9)
 
-# looping over the multiplets and storing                                                                                                                                              
-current_index  = 0  # keeping a counter on index position                                                                                                                                                      
-
-for i in range(Nstars):
-    mult_star_ind = (star_multlabel_arr == i)
-    mult_star = mults[mult_star_ind]
-    for mult_ind, mult in enumerate(mult_star):
-        n_inst, ell_inst = mult[0], mult[1]
-        modes_current_star = modes[:,star_modelabel_arr==i]
-        inst_mult_marr = FN.get_inst_mult_marr(n_inst, ell_inst, modes_current_star)
-        Nmodes_in_mult = len(inst_mult_marr)
-        omeganl_arr[current_index:current_index + Nmodes_in_mult] = omeganl[mult_ind]
-        current_index += Nmodes_in_mult
-
-
-# total freq = omeganl + delta omega_nlm                                                                                                                                        
-mode_freq_arr = omeganl_arr + delta_mode_freq_arr
-
-# we need to pass the mode_freq_arr in muHz                                                                                                                                
-mode_freq_arr *= (GVAR.OM * 1e6)
-
-
-
-sigma_arr = get_noise.get_noise_for_ens(GVAR, Nstars, modes, mode_freq_arr, Nmodes_single_star=modes_single_star.shape[1])
-
-print('Sigma array:\n', sigma_arr)
-
-sigma_arr = np.ones_like(sigma_arr)
-
-# sys.exit()
+################################################# INVERSIONS ##########################################################
 
 # solving for a in A . a = d
-
 # Also calculating the uncertainty in the inverted model paramters
 # computing the model covariance matrix C_M
 # from Sambridge Lecture notes (Lecture 2, Slide 23)
 # C_M = (G^T C_d^{-1} G)^{-1}. In our case G^T C_d^{1/2} = A^T
 # C_d^{1/2} = \sigma
 
-a_Delta, C_M_Delta = a_solver.use_numpy_inv_Omega_step_params(GVAR, modes, sigma_arr,\
-                     smax, step_param_arr, rcz_ind_arr, use_diff_Omout=True, use_Delta=True, ret_res_mat=False)
+a_Delta, C_M_Delta = a_solver.use_numpy_inv_Omega_step_params(GVAR, modes, sigma_arr, smax, step_param_arr, rcz_ind_arr,\
+                                                              use_diff_Omout=True, use_Delta=True, ret_res_mat=False, add_noise=add_noise)
+
+##################################################### PRINTING OUTPUT ##################################################
 
 # creating the various arrays to be used for printing
 synthetic_out = step_param_arr.flatten()[::2] * GVAR.OM * 1e9
@@ -143,6 +126,7 @@ line_breaks = '\n\n\n'
 print(line_breaks)
 print('Number of stars: ', Nstars)
 print('Number of modes per star: ', modes_single_star.shape[1])
+print('Synthetic noise added: ', add_noise)
 print(line_breaks)
 # printing the formatted output table
 print_func.format_terminal_output_ens_star(Nstars, synthetic_out, synthetic_delta, inverted_out, inverted_delta, smax)
@@ -150,5 +134,5 @@ print(line_breaks)
 
 
 # the model covariance matrix
-print('Model covariance matrix in nHz:\n', np.sqrt(np.diag(C_M_Delta)))
+print('Model covariance matrix in nHz:\n', np.sqrt(np.diag(C_M_Delta)) * GVAR.OM * 1e9)
 print(line_breaks)

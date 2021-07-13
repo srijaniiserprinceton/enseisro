@@ -186,3 +186,77 @@ def get_inst_mult_marr(n_inst, ell_inst, modes):
     inst_mult_marr = modes[:,mask_inst_mult][2,:]
 
     return inst_mult_marr
+
+
+
+# {{{ def get_omega_nlm_from_delta_omega_nlm():
+def get_omega_nlm_from_delta_omega_nlm(GVAR, delta_omega_nlm_arr, Nstars, mults, modes, 
+                                       star_multlabel_arr, star_modelabel_arr):
+    """Converts the frequency splittings detla omega_nlm of respective modes to the 
+    total frequency omega_nlm.
+    
+    Parameters
+    ----------
+    delta_omega_nlm_arr : array_like, float
+        Frequency splittings arranged according to the global modes array in non-dimensional units.
+    Nstars : int
+        Total number of stars in the ensemble.
+    mults : numpy.ndarray, int
+        Array containing the multiplets used  across all stars.
+    modes : numpy.ndarray, int
+        Array containing the modes used across all the stars.
+    star_multlabel_arr : array_like, int
+        Labelling the multiplets according to which star it belongs to.
+    star_modelabel_arr : array_like, int
+        Labelling the modes according to which star it belongs to.
+    """
+
+    mult_idx = nl_idx_vec(GVAR, mults)
+    omeganl = GVAR.omega_list[mult_idx]
+    
+    
+    # to store the omega_nl for all modes                                                                                                                         
+    omeganl_arr = np.zeros(modes.shape[1])
+    
+    # looping over the multiplets and storing                                                                                            
+    current_index  = 0  # keeping a counter on index position                                                                                                                    
+    
+    for i in range(Nstars):
+        mult_star_ind = (star_multlabel_arr == i)
+        mult_star = mults[mult_star_ind]
+        for mult_ind, mult in enumerate(mult_star):
+            n_inst, ell_inst = mult[0], mult[1]
+            modes_current_star = modes[:,star_modelabel_arr==i]
+            inst_mult_marr = get_inst_mult_marr(n_inst, ell_inst, modes_current_star)
+            Nmodes_in_mult = len(inst_mult_marr)
+            omeganl_arr[current_index:current_index + Nmodes_in_mult] = omeganl[mult_ind]
+            current_index += Nmodes_in_mult
+            
+            
+    # total freq = omeganl + delta omega_nlm                                                                                                                      
+    omega_nlm_arr = omeganl_arr + delta_omega_nlm_arr
+
+    # we need to pass the mode_freq_arr in muHz                                                                                                                                 
+    omega_nlm_arr *= (GVAR.OM * 1e6)
+    
+    return omega_nlm_arr
+
+# }}} def get_omega_nlm_from_delta_omega_nlm()
+
+
+# {{{ def gen_freq_splitting_noise():
+def gen_freq_splitting_noise(sigma_arr):
+    """Generates gaussian noise centered at zero
+    with standard deviation given by sigma_arr.
+
+    Parameters
+    ----------
+    sigma_arr : array_like, float
+        Array of standard deviations.
+    """
+    mean = np.zeros_like(sigma_arr)
+    delta_omega_nlm_noise = np.random.normal(loc=mean, scale=sigma_arr)
+    
+    return delta_omega_nlm_noise
+
+# }}} def gen_freq_splitting_noise()

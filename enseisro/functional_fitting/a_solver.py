@@ -3,14 +3,21 @@ import numpy as np
 import scipy as sp
 from enseisro.functional_fitting import make_inversion_matrices as make_mat
 from enseisro import forward_functions_Omega as forfunc_Om
+from enseisro import misc_functions as FN
+import copy
 
 def use_numpy_inv_Omega_function(GVAR, modes, sigma_arr, smax, use_synth=True, Omegasr=np.array([]),
-                                 ret_res_mat=False):
+                                 ret_res_mat=False, add_noise=False):
     """This is to calculate a in the equation A . a = d, using the
     Numpy solver numpy.linalg.inv(). This uses Omega function of r"""
     
     A = make_mat.make_A(GVAR, modes, sigma_arr, smax=smax)   # shape (Nmodes x Nparams)
     d = make_mat.make_d_synth_from_function(GVAR, modes, sigma_arr, Omegasr)   # shape (Nmodes)
+
+    
+    # adding noise is necessary
+    if(add_noise):
+        d += FN.gen_freq_splitting_noise(sigma_arr)
 
     
     AT = A.T
@@ -46,7 +53,7 @@ def use_numpy_inv_Omega_function(GVAR, modes, sigma_arr, smax, use_synth=True, O
 
 
 def use_numpy_inv_Omega_step_params(GVAR, modes, sigma_arr, smax, Omegas_step_params, rcz_ind_arr,\
-                                    use_diff_Omout=True, use_Delta=True, ret_res_mat=False):
+                                    use_diff_Omout=True, use_Delta=True, ret_res_mat=False, add_noise=False):
     """This is to calculate a in the equation A . a = d, using the
     Numpy solver numpy.linalg.inv(). This uses Omega step params"""
     
@@ -79,7 +86,11 @@ def use_numpy_inv_Omega_step_params(GVAR, modes, sigma_arr, smax, Omegas_step_pa
     d = build_d_all_stars(GVAR, Nstars, modes, sigma_arr, Omegas_step_params, \
                           rcz_ind_arr, use_Delta)       # shape (Nmodes)
 
+    # adding noise is necessary
+    if(add_noise):
+        d += FN.gen_freq_splitting_noise(sigma_arr)
     
+
     # computing solution
     a = gen_inv @ d
 
