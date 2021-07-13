@@ -120,8 +120,8 @@ def reshape_KF(KF):
     return np.reshape(KF,(KF.shape[0],-1),'F')
 # }}} def reshape_KF()
 
-# {{{ def build_mults():
-def build_mults(nmin, nmax, lmin, lmax):
+# {{{ def build_mults_single_star():
+def build_mults_single_star(nmin, nmax, lmin, lmax):
     """This function creates the list of multiplets
     given the nmin, nmax, lmin and lmax
     """
@@ -136,23 +136,53 @@ def build_mults(nmin, nmax, lmin, lmax):
 
     return mults
 
-# }}} def build_mults()
+# }}} def build_mults_single_star()
 
-# {{{ def build_star_labels_and_all_modes():
-def build_star_labels_and_all_modes(Nstars, modes_single_star):
+# {{{ def build_star_labels_and_mults_modes():
+def build_star_labels_and_mults_modes(Nstars, mults_single_star, modes_single_star):
     Nmodes_single_star = modes_single_star.shape[1]
-    star_label_arr = np.zeros(Nstars * Nmodes_single_star, dtype='int')
-    modes = np.zeros((3, len(star_label_arr)), dtype='int')
+    star_modelabel_arr = np.zeros(Nstars * Nmodes_single_star, dtype='int')
+    
+    # choosing some dummy multiplet since this is for synthetics only
+    Nmults_single_star = mults_single_star.shape[0]
+    star_multlabel_arr = np.zeros(Nstars * Nmults_single_star, dtype='int')
+
+    modes = np.zeros((3, len(star_modelabel_arr)), dtype='int')
+    mults = np.zeros((len(star_multlabel_arr), 2), dtype='int')
                      
     # filling in labels and repeating the modes
     all_mode_fill_start_ind, all_mode_fill_end_ind = 0, Nmodes_single_star
+    all_mult_fill_start_ind, all_mult_fill_end_ind = 0, Nmults_single_star
+
     for i in range(Nstars):
-        star_label_arr[all_mode_fill_start_ind:all_mode_fill_end_ind] = i 
+        star_modelabel_arr[all_mode_fill_start_ind:all_mode_fill_end_ind] = i 
+        star_multlabel_arr[all_mult_fill_start_ind:all_mult_fill_end_ind] = i
+
         # filling in the same set of modes for all the stars
         modes[:,all_mode_fill_start_ind:all_mode_fill_end_ind] = modes_single_star
-    
+        mults[all_mult_fill_start_ind:all_mult_fill_end_ind,:] = mults_single_star
+
         # updating the start and end indices
         all_mode_fill_start_ind += Nmodes_single_star
         all_mode_fill_end_ind += Nmodes_single_star
 
-    return star_label_arr, modes
+        # updating the start and end indices                                                                                                                                                     
+        all_mult_fill_start_ind += Nmults_single_star
+        all_mult_fill_end_ind += Nmults_single_star
+
+    return star_multlabel_arr, mults, star_modelabel_arr, modes
+
+# }}} def build_star_labels_and_mults_modes()
+
+def get_inst_mult_marr(n_inst, ell_inst, modes):
+    """This function takes the instantaneous n and ell for a mode in the                                                                                                                        
+    list of all observed modes and returns the m's corresponding to that                                                                                                                         
+    (n_inst, ell_inst) multiplet. This is to avoid repeated kernel computation for                                                                                                               
+    each m which is clearly unnecessary."""
+
+    # extracting all the available m's for this multiplet                                                                                                                                      
+    mask_inst_mult = (modes[0,:]==n_inst)*(modes[1,:]==ell_inst)
+    # array that contains all the m's for this instantaneous multiplet                                                                                                                         
+    inst_mult_marr = modes[:,mask_inst_mult][2,:]
+
+    return inst_mult_marr

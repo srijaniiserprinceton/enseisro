@@ -19,12 +19,12 @@ def test_noise_model():
     # defining the multiplets                                                                                                                                                          
     nmin, nmax = 16, 18
     lmin, lmax = 2, 2
-    mults = FN.build_mults(nmin, nmax, lmin, lmax)
+    mults_single_star = FN.build_mults_single_star(nmin, nmax, lmin, lmax)
 
     # modes for a single star
-    modes_single_star = make_modes.make_modes(mults)
+    modes_single_star = make_modes.make_modes(mults_single_star)
     # getting all modes across all stars
-    star_label_arr, modes = FN.build_star_labels_and_all_modes(Nstars, modes_single_star)
+    star_multlabel_arr, mults, star_modelabel_arr, modes = FN.build_star_labels_and_mults_modes(Nstars, mults_single_star, modes_single_star)
 
 
     # making the rotation profile
@@ -83,7 +83,7 @@ def test_noise_model():
     current_index  = 0  # keeping a counter on index position
     for mult_ind, mult in enumerate(mults):
         n_inst, ell_inst = mult[0], mult[1]
-        inst_mult_marr = make_inv_mat.get_inst_mult_marr(n_inst, ell_inst, modes)
+        inst_mult_marr = FN.get_inst_mult_marr(n_inst, ell_inst, modes)
         Nmodes_in_mult = len(inst_mult_marr)
         omeganl_arr[current_index:current_index + Nmodes_in_mult] = omeganl[mult_ind]
         current_index += Nmodes_in_mult

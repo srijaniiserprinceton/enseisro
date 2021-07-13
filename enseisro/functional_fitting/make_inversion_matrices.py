@@ -28,7 +28,7 @@ def make_A(GVAR, modes, sigma_arr, rcz=0.7, Nparams=2, smax=1):
         n_inst, ell_inst = modes[0,i], modes[1,i]
         
         # array that contains all the m's for this instantaneous multiplet                                                                                                              
-        inst_mult_marr = get_inst_mult_marr(n_inst, ell_inst, modes)
+        inst_mult_marr = FN.get_inst_mult_marr(n_inst, ell_inst, modes)
         
         # creating the mode end index                                                                                                                                                   
         modefill_end_ind = modefill_start_ind + len(inst_mult_marr)
@@ -85,7 +85,7 @@ def make_A_for_Delta_Omega(GVAR, modes, sigma_arr, rcz=0.7, Nparams=2, smax=1):
         n_inst, ell_inst = modes[0,i], modes[1,i]
         
         # array that contains all the m's for this instantaneous multiplet                                                                                                              
-        inst_mult_marr = get_inst_mult_marr(n_inst, ell_inst, modes)
+        inst_mult_marr = FN.get_inst_mult_marr(n_inst, ell_inst, modes)
         
         # creating the mode end index                                                                                                                                                   
         modefill_end_ind = modefill_start_ind + len(inst_mult_marr)
@@ -136,7 +136,7 @@ def make_d_synth_from_function(GVAR, modes, sigma_arr, Omega_synth):
         n_inst, ell_inst = modes[0,i], modes[1,i]
         
         # array that contains all the m's for this instantaneous multiplet
-        inst_mult_marr = get_inst_mult_marr(n_inst, ell_inst, modes)
+        inst_mult_marr = FN.get_inst_mult_marr(n_inst, ell_inst, modes)
         
         # computing the forward problem to get the mx1 array of frequency splittings
         domega_m = forfunc_Om.compute_splitting_from_function(GVAR, Omega_synth, np.array([[n_inst,ell_inst]]))
@@ -172,7 +172,7 @@ def make_d_synth_from_step_params(GVAR, modes_star, sigma_arr_star, Omega_step_p
         n_inst, ell_inst = modes_star[0,i], modes_star[1,i]
         
         # array that contains all the m's for this instantaneous multiplet
-        inst_mult_marr = get_inst_mult_marr(n_inst, ell_inst, modes_star)
+        inst_mult_marr = FN.get_inst_mult_marr(n_inst, ell_inst, modes_star)
 
         # getting the star's label
         # star_label = star_label_arr[i]
@@ -197,19 +197,3 @@ def make_d_synth_from_step_params(GVAR, modes_star, sigma_arr_star, Omega_step_p
     d_star = d_star / sigma_arr_star
     
     return d_star
-
-
-
-def get_inst_mult_marr(n_inst, ell_inst, modes):
-    """This function takes the instantaneous n and ell for a mode in the 
-    list of all observed modes and returns the m's corresponding to that 
-    (n_inst, ell_inst) multiplet. This is to avoid repeated kernel computation for 
-    each m which is clearly unnecessary."""
-
-    # extracting all the available m's for this multiplet                                                                                                                            
-    mask_inst_mult = (modes[0,:]==n_inst)*(modes[1,:]==ell_inst)
-    
-    # array that contains all the m's for this instantaneous multiplet                                                                                                               
-    inst_mult_marr = modes[:,mask_inst_mult][2,:]
-
-    return inst_mult_marr

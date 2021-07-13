@@ -45,12 +45,12 @@ def use_numpy_inv_Omega_function(GVAR, modes, sigma_arr, smax, use_synth=True, O
 
 
 
-def use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax, Omegas_step_params, rcz_ind_arr,\
+def use_numpy_inv_Omega_step_params(GVAR, modes, sigma_arr, smax, Omegas_step_params, rcz_ind_arr,\
                                     use_diff_Omout=True, use_Delta=True, ret_res_mat=False):
     """This is to calculate a in the equation A . a = d, using the
     Numpy solver numpy.linalg.inv(). This uses Omega step params"""
     
-    Nstars = len(np.unique(star_label_arr))    # number of unique entries in the star label array
+    Nstars = Omegas_step_params.shape[0]    # Omegas_step_params has the shape (Nstars x s x Nparams_per_star)
     lens = Omegas_step_params.shape[1]
     
     # this is the shape if we want to infer internal rotation separately for each star but \Delta Omega is shared
@@ -64,7 +64,7 @@ def use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax
         build_A_function = build_A_all_stars_same_Omout
         
     # getting the complete A matrix
-    A = build_A_function(GVAR, Nstars, star_label_arr, modes, sigma_arr, Nparams, use_Delta, smax=smax)     # shape (Nmodes x Nparams)
+    A = build_A_function(GVAR, Nstars, modes, sigma_arr, Nparams, use_Delta, smax=smax)     # shape (Nmodes x Nparams)
     
     AT = A.T
 
@@ -102,8 +102,8 @@ def use_numpy_inv_Omega_step_params(GVAR, star_label_arr, modes, sigma_arr, smax
     else: return a, C_M
 
 
-def build_A_all_stars_same_Omout(GVAR, Nstars, star_label_arr, all_modes, sigma_arr,\
-                                             Nparams, use_Delta, smax=np.array([1])):
+def build_A_all_stars_same_Omout(GVAR, Nstars, all_modes, sigma_arr,\
+                                 Nparams, use_Delta, smax=np.array([1])):
     """This function creates the A matrix accounting for multiple stars in the 
     ensemble when they have the same properties, i.e., \Omega_{out} and \Delta \Omega"""
     Nmodes = all_modes.shape[1]
@@ -137,8 +137,8 @@ def build_A_all_stars_same_Omout(GVAR, Nstars, star_label_arr, all_modes, sigma_
 
 
 
-def build_A_all_stars_diff_Omout(GVAR, Nstars, star_label_arr, all_modes, sigma_arr,\
-                                             Nparams, use_Delta, smax=np.array([1])):
+def build_A_all_stars_diff_Omout(GVAR, Nstars, all_modes, sigma_arr,\
+                                 Nparams, use_Delta, smax=np.array([1])):
     """This function creates the A matrix accounting for multiple stars in the 
     ensemble when they share the same \Delta\Omega but different \Omega_{out}"""
     Nmodes = all_modes.shape[1]

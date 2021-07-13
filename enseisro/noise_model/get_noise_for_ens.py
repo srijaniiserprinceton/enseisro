@@ -43,9 +43,6 @@ def get_noise_for_ens(GVAR, Nstars, modes, mode_freq_arr, Nmodes_single_star=Non
         # updating index counters
         index_counter += Nmodes_single_star
 
-    print('Teff array;\n', Teff_arr)
-    print('g array;\n', g_arr)
-    print('numax array;\n', numax_arr)
 
     # using the Libbrecht noise model to get \sigma(\delta \omega_nlm) in nHz                                                                                                            
     sigma_del_omega_nlm = gen_libnoise.compute_freq_uncertainties(GVAR, modes, mode_freq_arr,\
