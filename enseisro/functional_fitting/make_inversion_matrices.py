@@ -34,7 +34,7 @@ def make_A(GVAR, modes, sigma_arr, rcz=0.7, Nparams=2, smax=1):
         modefill_end_ind = modefill_start_ind + len(inst_mult_marr)
         
         # getting the K_{ij}F_{jk}
-        KF = get_kerns.compute_kernel(GVAR, np.array([[n_inst, ell_inst]]), rcz, s_arr)    # shape (m x s x Nparams)
+        KF = get_kerns.compute_kernel_for_Delta_Omega(GVAR, np.array([[n_inst, ell_inst]]), rcz, s_arr)    # shape (m x s x Nparams)
 
         # changing the shape to (m x Nparams x s)
         KF = np.swapaxes(KF,1,2)

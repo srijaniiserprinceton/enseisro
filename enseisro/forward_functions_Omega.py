@@ -28,6 +28,8 @@ def compute_splitting_from_function(GVAR, Omegasr, mult):
         for i in range(len(s_arr)):
             wigvals[:, i] = FN.w3j_vecm(ell, s_arr[i], ell, -m, 0*m, m)
 
+        print(Omegasr.shape)
+        print(s_arr)
         Tsr = compute_Tsr(GVAR, mult, mult, s_arr)
         
         # Loading the synthetic flow profile
@@ -40,7 +42,11 @@ def compute_splitting_from_function(GVAR, Omegasr, mult):
         
         # integrating over radial grid
         # integrand = Tsr * wsr * (self.sup.gvar.rho * self.sup.gvar.r**2)[NAX, :]                                                                                                      
+        print(Tsr.shape, Omegasr.shape)
+        
         integrand = Tsr * Omegasr   # since U and V are scaled by sqrt(rho) * r
+
+        print(integrand.shape, GVAR.r.shape)
 
         integral = simps(integrand, axis=1, x=GVAR.r)
 

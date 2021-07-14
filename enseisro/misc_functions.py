@@ -260,3 +260,32 @@ def gen_freq_splitting_noise(sigma_arr):
     return delta_omega_nlm_noise
 
 # }}} def gen_freq_splitting_noise()
+
+
+# {{{ def propagate_errors():
+def propagate_errors(Omega_avg, DOmega, err_Omega_avg, err_DOmega):
+    """Carries out error propagation from the errors of 
+    Omega and Delta Omega to the error for Delta Omega / Omega.
+
+    Parameters
+    ----------
+    Omega : float 
+        The inverted Omega_out for averaged across stars in the ensemble.
+    DOmega : float
+        The inverted Delta Omega across all stars in the ensemble.
+    err_Omega_avg : float
+        The error in Omega_out averaged across stars in the ensemble.
+    err_DOmega : float
+        The error in Delta Omega inferred collectively across all stars.
+    """
+    
+    # the average DOmega / Omega
+    DOmega_by_Omega_avg = DOmega / Omega_avg
+
+    # computing the error for DOmega / Omega using error propagation
+    err_DOmega_by_Omega_avg = DOmega_by_Omega_avg * np.sqrt((err_DOmega/DOmega)**2 +\
+                                            (err_Omega_avg/Omega_avg)**2)
+
+    return DOmega_by_Omega_avg, err_DOmega_by_Omega_avg
+
+# }}} def propagate_errors()

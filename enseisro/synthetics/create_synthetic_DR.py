@@ -77,7 +77,7 @@ def params_to_step(GVAR, step_param_arr, rcz_ind_arr):
 
 
 # {{{ def randomize_DR_step_params():
-def randomize_DR_step_params(step_param_arr_1, p=10):
+def randomize_DR_step_params(step_param_arr, profile_type='Delta', p=10):
     """This functions takes a set of stars with
     the same rotation profile in terms of Omega_in
     and Omega_out and returns a set of stars with
@@ -89,12 +89,21 @@ def randomize_DR_step_params(step_param_arr_1, p=10):
     step_params_arr_1 : numpy.ndarray, float
         Array of shape (Nstars x s x Nparams) containing 
         Omega_in and Omega_out for Nstars.
+    profile_type : string, optional
+        Specifies if the step_param_arr profile being passed is in
+        (Omega_in, Omega_out) type or (Omega_out, DeltaOmega) type.
     p : float, optional
         Maximum percentage differnce from the original
         rotation profile.
     """
-    Nstars, lens, __ = step_param_arr_1.shape
-    step_param_arr_rand = step_param_arr_1 + \
-                          (step_param_arr_1[:,:,0] * 0.01 * p * np.random.rand(Nstars, lens))[:,:,np.newaxis]
-    
+    Nstars, lens, __ = step_param_arr.shape
+    if(profile_type == 'in-out'):
+        step_param_arr_rand = step_param_arr + \
+                          (step_param_arr[:,:,0] * 0.01 * p * np.random.rand(Nstars, lens))[:,:,np.newaxis]
+    if(profile_type == 'Delta'):
+        step_param_arr_rand = step_param_arr
+        # scattering only the Omega_out axis
+        step_param_arr_rand[:,:,0] = step_param_arr_rand[:,:,0] + \
+                            (step_param_arr[:,:,0] * 0.01 * p * np.random.rand(Nstars, lens))[:,:]
+   
     return step_param_arr_rand
