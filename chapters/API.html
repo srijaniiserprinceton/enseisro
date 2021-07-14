@@ -210,8 +210,8 @@ under isolated multiplet approximation from the step params.
 <span id="miscellaneous-functions"></span><h2>Miscellaneous Functions<a class="headerlink" href="#module-enseisro.misc_functions" title="Permalink to this headline">¶</a></h2>
 <p>Misc functions needed for the module</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="enseisro.misc_functions.build_mults">
-<span class="sig-prename descclassname"><span class="pre">enseisro.misc_functions.</span></span><span class="sig-name descname"><span class="pre">build_mults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/misc_functions.html#build_mults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.misc_functions.build_mults" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="enseisro.misc_functions.build_mults_single_star">
+<span class="sig-prename descclassname"><span class="pre">enseisro.misc_functions.</span></span><span class="sig-name descname"><span class="pre">build_mults_single_star</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/misc_functions.html#build_mults_single_star"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.misc_functions.build_mults_single_star" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function creates the list of multiplets
 given the nmin, nmax, lmin and lmax</p>
 </dd></dl>
@@ -221,6 +221,64 @@ given the nmin, nmax, lmin and lmax</p>
 <span class="sig-prename descclassname"><span class="pre">enseisro.misc_functions.</span></span><span class="sig-name descname"><span class="pre">create_argparser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/misc_functions.html#create_argparser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.misc_functions.create_argparser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates argument parser for arguments passed during                                                                                                                               
 execution of script.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enseisro.misc_functions.gen_freq_splitting_noise">
+<span class="sig-prename descclassname"><span class="pre">enseisro.misc_functions.</span></span><span class="sig-name descname"><span class="pre">gen_freq_splitting_noise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma_arr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/misc_functions.html#gen_freq_splitting_noise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.misc_functions.gen_freq_splitting_noise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates gaussian noise centered at zero
+with standard deviation given by sigma_arr.</p>
+<dl class="simple">
+<dt>sigma_arr<span class="classifier">array_like, float</span></dt><dd><p>Array of standard deviations.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enseisro.misc_functions.get_inst_mult_marr">
+<span class="sig-prename descclassname"><span class="pre">enseisro.misc_functions.</span></span><span class="sig-name descname"><span class="pre">get_inst_mult_marr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_inst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ell_inst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/misc_functions.html#get_inst_mult_marr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.misc_functions.get_inst_mult_marr" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function takes the instantaneous n and ell for a mode in the                                                                                                                        
+list of all observed modes and returns the m’s corresponding to that                                                                                                                         
+(n_inst, ell_inst) multiplet. This is to avoid repeated kernel computation for                                                                                                               
+each m which is clearly unnecessary.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enseisro.misc_functions.get_omega_nlm_from_delta_omega_nlm">
+<span class="sig-prename descclassname"><span class="pre">enseisro.misc_functions.</span></span><span class="sig-name descname"><span class="pre">get_omega_nlm_from_delta_omega_nlm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">GVAR</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_omega_nlm_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nstars</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mults</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">star_multlabel_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">star_modelabel_arr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/misc_functions.html#get_omega_nlm_from_delta_omega_nlm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.misc_functions.get_omega_nlm_from_delta_omega_nlm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the frequency splittings detla omega_nlm of respective modes to the 
+total frequency omega_nlm.</p>
+<dl class="simple">
+<dt>delta_omega_nlm_arr<span class="classifier">array_like, float</span></dt><dd><p>Frequency splittings arranged according to the global modes array in non-dimensional units.</p>
+</dd>
+<dt>Nstars<span class="classifier">int</span></dt><dd><p>Total number of stars in the ensemble.</p>
+</dd>
+<dt>mults<span class="classifier">numpy.ndarray, int</span></dt><dd><p>Array containing the multiplets used  across all stars.</p>
+</dd>
+<dt>modes<span class="classifier">numpy.ndarray, int</span></dt><dd><p>Array containing the modes used across all the stars.</p>
+</dd>
+<dt>star_multlabel_arr<span class="classifier">array_like, int</span></dt><dd><p>Labelling the multiplets according to which star it belongs to.</p>
+</dd>
+<dt>star_modelabel_arr<span class="classifier">array_like, int</span></dt><dd><p>Labelling the modes according to which star it belongs to.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enseisro.misc_functions.propagate_errors">
+<span class="sig-prename descclassname"><span class="pre">enseisro.misc_functions.</span></span><span class="sig-name descname"><span class="pre">propagate_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Omega_avg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DOmega</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err_Omega_avg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err_DOmega</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/misc_functions.html#propagate_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.misc_functions.propagate_errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Carries out error propagation from the errors of 
+Omega and Delta Omega to the error for Delta Omega / Omega.</p>
+<dl class="simple">
+<dt>Omega<span class="classifier">float </span></dt><dd><p>The inverted Omega_out for averaged across stars in the ensemble.</p>
+</dd>
+<dt>DOmega<span class="classifier">float</span></dt><dd><p>The inverted Delta Omega across all stars in the ensemble.</p>
+</dd>
+<dt>err_Omega_avg<span class="classifier">float</span></dt><dd><p>The error in Omega_out averaged across stars in the ensemble.</p>
+</dd>
+<dt>err_DOmega<span class="classifier">float</span></dt><dd><p>The error in Delta Omega inferred collectively across all stars.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -321,7 +379,7 @@ same length as the length of the abs_m_arr or ell_arr.</p>
 Libbrecht, 1992.</p>
 <span class="target" id="module-enseisro.noise_model.compute_libbrecht_noise"></span><dl class="py function">
 <dt class="sig sig-object py" id="enseisro.noise_model.compute_libbrecht_noise.compute_freq_uncertainties">
-<span class="sig-prename descclassname"><span class="pre">enseisro.noise_model.compute_libbrecht_noise.</span></span><span class="sig-name descname"><span class="pre">compute_freq_uncertainties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode_freq_arr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/noise_model/compute_libbrecht_noise.html#compute_freq_uncertainties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.noise_model.compute_libbrecht_noise.compute_freq_uncertainties" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">enseisro.noise_model.compute_libbrecht_noise.</span></span><span class="sig-name descname"><span class="pre">compute_freq_uncertainties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">GVAR</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode_freq_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Teff_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numax_arr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/enseisro/noise_model/compute_libbrecht_noise.html#compute_freq_uncertainties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enseisro.noise_model.compute_libbrecht_noise.compute_freq_uncertainties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the uncertainty in frequency for each mode
 according to Eqn.~(2.19) in Stahn’s thesis.</p>
 <dl class="simple">

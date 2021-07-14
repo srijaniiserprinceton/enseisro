@@ -160,9 +160,11 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">enseisro.noise_model</span> <span class="kn">import</span> <span class="n">misc_noise_functions</span> <span class="k">as</span> <span class="n">Noise_FN</span>
 <span class="kn">from</span> <span class="nn">enseisro.noise_model</span> <span class="kn">import</span> <span class="n">get_Gamma</span> <span class="k">as</span> <span class="n">get_Gamma</span>
+<span class="kn">from</span> <span class="nn">enseisro.noise_model</span> <span class="kn">import</span> <span class="n">convert_star_params</span> <span class="k">as</span> <span class="n">conv_star_params</span>
+
 
 <span class="c1"># {{{ def compute_freq_uncertainties():</span>
-<div class="viewcode-block" id="compute_freq_uncertainties"><a class="viewcode-back" href="../../../chapters/API.html#enseisro.noise_model.compute_libbrecht_noise.compute_freq_uncertainties">[docs]</a><span class="k">def</span> <span class="nf">compute_freq_uncertainties</span><span class="p">(</span><span class="n">modes</span><span class="p">,</span> <span class="n">mode_freq_arr</span><span class="p">):</span>
+<div class="viewcode-block" id="compute_freq_uncertainties"><a class="viewcode-back" href="../../../chapters/API.html#enseisro.noise_model.compute_libbrecht_noise.compute_freq_uncertainties">[docs]</a><span class="k">def</span> <span class="nf">compute_freq_uncertainties</span><span class="p">(</span><span class="n">GVAR</span><span class="p">,</span> <span class="n">modes</span><span class="p">,</span> <span class="n">mode_freq_arr</span><span class="p">,</span> <span class="n">Teff_arr</span><span class="p">,</span> <span class="n">g_arr</span><span class="p">,</span> <span class="n">numax_arr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns the uncertainty in frequency for each mode</span>
 <span class="sd">    according to Eqn.~(2.19) in Stahn&#39;s thesis.</span>
 
@@ -186,18 +188,31 @@
     <span class="c1"># getting the background noise profile B(\nu) in ppm^2/muHz</span>
     <span class="n">N_nu</span> <span class="o">=</span> <span class="n">Noise_FN</span><span class="o">.</span><span class="n">make_N_nu</span><span class="p">(</span><span class="n">mode_freq_arr</span><span class="p">,</span> <span class="n">tau_arr</span><span class="p">,</span> <span class="n">A_arr</span><span class="p">,</span> <span class="n">P_wn</span><span class="p">,</span> <span class="n">return_harveys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">c_bg</span> <span class="o">=</span> <span class="mi">1</span>    <span class="c1"># what is this value?? Not clear from Stahn&#39;s thesis</span>
-    <span class="n">B_nu</span> <span class="o">=</span> <span class="n">c_bg</span> <span class="o">*</span> <span class="n">N_nu</span>
+    <span class="n">B_nu_sun</span> <span class="o">=</span> <span class="n">c_bg</span> <span class="o">*</span> <span class="n">N_nu</span>
 
     
     <span class="c1"># getting the linewidths for the modes</span>
     <span class="n">n_arr</span><span class="p">,</span> <span class="n">ell_arr</span><span class="p">,</span> <span class="n">m_arr</span> <span class="o">=</span> <span class="n">modes</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span> <span class="n">modes</span><span class="p">[</span><span class="mi">1</span><span class="p">,:],</span> <span class="n">modes</span><span class="p">[</span><span class="mi">2</span><span class="p">,:]</span>
 
     <span class="c1"># getting linewidths in muHz</span>
-    <span class="n">Gamma_arr</span> <span class="o">=</span> <span class="n">get_Gamma</span><span class="o">.</span><span class="n">get_Gamma</span><span class="p">(</span><span class="n">n_arr</span><span class="p">,</span> <span class="n">ell_arr</span><span class="p">)</span>
+    <span class="n">Gamma_arr_sun</span> <span class="o">=</span> <span class="n">get_Gamma</span><span class="o">.</span><span class="n">get_Gamma</span><span class="p">(</span><span class="n">n_arr</span><span class="p">,</span> <span class="n">ell_arr</span><span class="p">)</span>
     
     
     <span class="c1"># computing the mode heights</span>
-    <span class="n">Hnlm</span> <span class="o">=</span> <span class="n">Noise_FN</span><span class="o">.</span><span class="n">make_Hnlm</span><span class="p">(</span><span class="n">modes</span><span class="p">,</span> <span class="n">mode_freq_arr</span><span class="p">,</span> <span class="n">Gamma_arr</span><span class="p">)</span>
+    <span class="n">Hnlm_sun</span> <span class="o">=</span> <span class="n">Noise_FN</span><span class="o">.</span><span class="n">make_Hnlm</span><span class="p">(</span><span class="n">modes</span><span class="p">,</span> <span class="n">mode_freq_arr</span><span class="p">,</span> <span class="n">Gamma_arr_sun</span><span class="p">)</span>
+
+
+    <span class="c1"># uptil now we got the various params for the Sun. Now we convert</span>
+    <span class="c1"># to other stars depending on scaling relations with T_eff, nu_max</span>
+    <span class="c1"># and surface gravity</span>
+
+    <span class="n">rel_gravity_arr</span> <span class="o">=</span> <span class="n">g_arr</span> <span class="o">/</span> <span class="n">GVAR</span><span class="o">.</span><span class="n">g_sun</span>
+    <span class="n">rel_Teff_arr</span> <span class="o">=</span> <span class="n">Teff_arr</span> <span class="o">/</span> <span class="n">GVAR</span><span class="o">.</span><span class="n">Teff_sun</span>
+    <span class="n">rel_numax_arr</span> <span class="o">=</span> <span class="n">numax_arr</span> <span class="o">/</span> <span class="n">GVAR</span><span class="o">.</span><span class="n">numax_sun</span>
+
+    <span class="n">Hnlm</span> <span class="o">=</span> <span class="n">conv_star_params</span><span class="o">.</span><span class="n">convert_Hnlm</span><span class="p">(</span><span class="n">Hnlm_sun</span><span class="p">,</span> <span class="n">rel_gravity_arr</span><span class="p">)</span>
+    <span class="n">Gamma_arr</span> <span class="o">=</span> <span class="n">conv_star_params</span><span class="o">.</span><span class="n">convert_Gamma</span><span class="p">(</span><span class="n">Gamma_arr_sun</span><span class="p">,</span> <span class="n">rel_Teff_arr</span><span class="p">)</span>
+    <span class="n">B_nu</span> <span class="o">=</span> <span class="n">conv_star_params</span><span class="o">.</span><span class="n">convert_B_nu</span><span class="p">(</span><span class="n">B_nu_sun</span><span class="p">,</span> <span class="n">rel_numax_arr</span><span class="p">)</span>
 
     <span class="c1"># \beta or the inverse signal-to-noise ratio</span>
     <span class="n">beta</span> <span class="o">=</span> <span class="n">B_nu</span> <span class="o">/</span> <span class="n">Hnlm</span>

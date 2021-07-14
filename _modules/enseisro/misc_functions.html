@@ -278,8 +278,8 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">KF</span><span class="p">,(</span><span class="n">KF</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="s1">&#39;F&#39;</span><span class="p">)</span></div>
 <span class="c1"># }}} def reshape_KF()</span>
 
-<span class="c1"># {{{ def build_mults():</span>
-<div class="viewcode-block" id="build_mults"><a class="viewcode-back" href="../../chapters/API.html#enseisro.misc_functions.build_mults">[docs]</a><span class="k">def</span> <span class="nf">build_mults</span><span class="p">(</span><span class="n">nmin</span><span class="p">,</span> <span class="n">nmax</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">):</span>
+<span class="c1"># {{{ def build_mults_single_star():</span>
+<div class="viewcode-block" id="build_mults_single_star"><a class="viewcode-back" href="../../chapters/API.html#enseisro.misc_functions.build_mults_single_star">[docs]</a><span class="k">def</span> <span class="nf">build_mults_single_star</span><span class="p">(</span><span class="n">nmin</span><span class="p">,</span> <span class="n">nmax</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;This function creates the list of multiplets</span>
 <span class="sd">    given the nmin, nmax, lmin and lmax</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -294,26 +294,159 @@
 
     <span class="k">return</span> <span class="n">mults</span></div>
 
-<span class="c1"># }}} def build_mults()</span>
+<span class="c1"># }}} def build_mults_single_star()</span>
 
-<span class="c1"># {{{ def build_star_labels_and_all_modes():</span>
-<span class="k">def</span> <span class="nf">build_star_labels_and_all_modes</span><span class="p">(</span><span class="n">Nstars</span><span class="p">,</span> <span class="n">modes_single_star</span><span class="p">):</span>
+<span class="c1"># {{{ def build_star_labels_and_mults_modes():</span>
+<span class="k">def</span> <span class="nf">build_star_labels_and_mults_modes</span><span class="p">(</span><span class="n">Nstars</span><span class="p">,</span> <span class="n">mults_single_star</span><span class="p">,</span> <span class="n">modes_single_star</span><span class="p">):</span>
     <span class="n">Nmodes_single_star</span> <span class="o">=</span> <span class="n">modes_single_star</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">star_label_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nstars</span> <span class="o">*</span> <span class="n">Nmodes_single_star</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
-    <span class="n">modes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">star_label_arr</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+    <span class="n">star_modelabel_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nstars</span> <span class="o">*</span> <span class="n">Nmodes_single_star</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># choosing some dummy multiplet since this is for synthetics only</span>
+    <span class="n">Nmults_single_star</span> <span class="o">=</span> <span class="n">mults_single_star</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">star_multlabel_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nstars</span> <span class="o">*</span> <span class="n">Nmults_single_star</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+
+    <span class="n">modes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">star_modelabel_arr</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+    <span class="n">mults</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">star_multlabel_arr</span><span class="p">),</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
                      
     <span class="c1"># filling in labels and repeating the modes</span>
     <span class="n">all_mode_fill_start_ind</span><span class="p">,</span> <span class="n">all_mode_fill_end_ind</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Nmodes_single_star</span>
+    <span class="n">all_mult_fill_start_ind</span><span class="p">,</span> <span class="n">all_mult_fill_end_ind</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Nmults_single_star</span>
+
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nstars</span><span class="p">):</span>
-        <span class="n">star_label_arr</span><span class="p">[</span><span class="n">all_mode_fill_start_ind</span><span class="p">:</span><span class="n">all_mode_fill_end_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> 
+        <span class="n">star_modelabel_arr</span><span class="p">[</span><span class="n">all_mode_fill_start_ind</span><span class="p">:</span><span class="n">all_mode_fill_end_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> 
+        <span class="n">star_multlabel_arr</span><span class="p">[</span><span class="n">all_mult_fill_start_ind</span><span class="p">:</span><span class="n">all_mult_fill_end_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+
         <span class="c1"># filling in the same set of modes for all the stars</span>
         <span class="n">modes</span><span class="p">[:,</span><span class="n">all_mode_fill_start_ind</span><span class="p">:</span><span class="n">all_mode_fill_end_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">modes_single_star</span>
-    
+        <span class="n">mults</span><span class="p">[</span><span class="n">all_mult_fill_start_ind</span><span class="p">:</span><span class="n">all_mult_fill_end_ind</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">mults_single_star</span>
+
         <span class="c1"># updating the start and end indices</span>
         <span class="n">all_mode_fill_start_ind</span> <span class="o">+=</span> <span class="n">Nmodes_single_star</span>
         <span class="n">all_mode_fill_end_ind</span> <span class="o">+=</span> <span class="n">Nmodes_single_star</span>
 
-    <span class="k">return</span> <span class="n">star_label_arr</span><span class="p">,</span> <span class="n">modes</span>
+        <span class="c1"># updating the start and end indices                                                                                                                                                     </span>
+        <span class="n">all_mult_fill_start_ind</span> <span class="o">+=</span> <span class="n">Nmults_single_star</span>
+        <span class="n">all_mult_fill_end_ind</span> <span class="o">+=</span> <span class="n">Nmults_single_star</span>
+
+    <span class="k">return</span> <span class="n">star_multlabel_arr</span><span class="p">,</span> <span class="n">mults</span><span class="p">,</span> <span class="n">star_modelabel_arr</span><span class="p">,</span> <span class="n">modes</span>
+
+<span class="c1"># }}} def build_star_labels_and_mults_modes()</span>
+
+<div class="viewcode-block" id="get_inst_mult_marr"><a class="viewcode-back" href="../../chapters/API.html#enseisro.misc_functions.get_inst_mult_marr">[docs]</a><span class="k">def</span> <span class="nf">get_inst_mult_marr</span><span class="p">(</span><span class="n">n_inst</span><span class="p">,</span> <span class="n">ell_inst</span><span class="p">,</span> <span class="n">modes</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function takes the instantaneous n and ell for a mode in the                                                                                                                        </span>
+<span class="sd">    list of all observed modes and returns the m&#39;s corresponding to that                                                                                                                         </span>
+<span class="sd">    (n_inst, ell_inst) multiplet. This is to avoid repeated kernel computation for                                                                                                               </span>
+<span class="sd">    each m which is clearly unnecessary.&quot;&quot;&quot;</span>
+
+    <span class="c1"># extracting all the available m&#39;s for this multiplet                                                                                                                                      </span>
+    <span class="n">mask_inst_mult</span> <span class="o">=</span> <span class="p">(</span><span class="n">modes</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span><span class="o">==</span><span class="n">n_inst</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">modes</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span><span class="o">==</span><span class="n">ell_inst</span><span class="p">)</span>
+    <span class="c1"># array that contains all the m&#39;s for this instantaneous multiplet                                                                                                                         </span>
+    <span class="n">inst_mult_marr</span> <span class="o">=</span> <span class="n">modes</span><span class="p">[:,</span><span class="n">mask_inst_mult</span><span class="p">][</span><span class="mi">2</span><span class="p">,:]</span>
+
+    <span class="k">return</span> <span class="n">inst_mult_marr</span></div>
+
+
+
+<span class="c1"># {{{ def get_omega_nlm_from_delta_omega_nlm():</span>
+<div class="viewcode-block" id="get_omega_nlm_from_delta_omega_nlm"><a class="viewcode-back" href="../../chapters/API.html#enseisro.misc_functions.get_omega_nlm_from_delta_omega_nlm">[docs]</a><span class="k">def</span> <span class="nf">get_omega_nlm_from_delta_omega_nlm</span><span class="p">(</span><span class="n">GVAR</span><span class="p">,</span> <span class="n">delta_omega_nlm_arr</span><span class="p">,</span> <span class="n">Nstars</span><span class="p">,</span> <span class="n">mults</span><span class="p">,</span> <span class="n">modes</span><span class="p">,</span> 
+                                       <span class="n">star_multlabel_arr</span><span class="p">,</span> <span class="n">star_modelabel_arr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Converts the frequency splittings detla omega_nlm of respective modes to the </span>
+<span class="sd">    total frequency omega_nlm.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    delta_omega_nlm_arr : array_like, float</span>
+<span class="sd">        Frequency splittings arranged according to the global modes array in non-dimensional units.</span>
+<span class="sd">    Nstars : int</span>
+<span class="sd">        Total number of stars in the ensemble.</span>
+<span class="sd">    mults : numpy.ndarray, int</span>
+<span class="sd">        Array containing the multiplets used  across all stars.</span>
+<span class="sd">    modes : numpy.ndarray, int</span>
+<span class="sd">        Array containing the modes used across all the stars.</span>
+<span class="sd">    star_multlabel_arr : array_like, int</span>
+<span class="sd">        Labelling the multiplets according to which star it belongs to.</span>
+<span class="sd">    star_modelabel_arr : array_like, int</span>
+<span class="sd">        Labelling the modes according to which star it belongs to.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">mult_idx</span> <span class="o">=</span> <span class="n">nl_idx_vec</span><span class="p">(</span><span class="n">GVAR</span><span class="p">,</span> <span class="n">mults</span><span class="p">)</span>
+    <span class="n">omeganl</span> <span class="o">=</span> <span class="n">GVAR</span><span class="o">.</span><span class="n">omega_list</span><span class="p">[</span><span class="n">mult_idx</span><span class="p">]</span>
+    
+    
+    <span class="c1"># to store the omega_nl for all modes                                                                                                                         </span>
+    <span class="n">omeganl_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">modes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="c1"># looping over the multiplets and storing                                                                                            </span>
+    <span class="n">current_index</span>  <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># keeping a counter on index position                                                                                                                    </span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nstars</span><span class="p">):</span>
+        <span class="n">mult_star_ind</span> <span class="o">=</span> <span class="p">(</span><span class="n">star_multlabel_arr</span> <span class="o">==</span> <span class="n">i</span><span class="p">)</span>
+        <span class="n">mult_star</span> <span class="o">=</span> <span class="n">mults</span><span class="p">[</span><span class="n">mult_star_ind</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">mult_ind</span><span class="p">,</span> <span class="n">mult</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mult_star</span><span class="p">):</span>
+            <span class="n">n_inst</span><span class="p">,</span> <span class="n">ell_inst</span> <span class="o">=</span> <span class="n">mult</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mult</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">modes_current_star</span> <span class="o">=</span> <span class="n">modes</span><span class="p">[:,</span><span class="n">star_modelabel_arr</span><span class="o">==</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">inst_mult_marr</span> <span class="o">=</span> <span class="n">get_inst_mult_marr</span><span class="p">(</span><span class="n">n_inst</span><span class="p">,</span> <span class="n">ell_inst</span><span class="p">,</span> <span class="n">modes_current_star</span><span class="p">)</span>
+            <span class="n">Nmodes_in_mult</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inst_mult_marr</span><span class="p">)</span>
+            <span class="n">omeganl_arr</span><span class="p">[</span><span class="n">current_index</span><span class="p">:</span><span class="n">current_index</span> <span class="o">+</span> <span class="n">Nmodes_in_mult</span><span class="p">]</span> <span class="o">=</span> <span class="n">omeganl</span><span class="p">[</span><span class="n">mult_ind</span><span class="p">]</span>
+            <span class="n">current_index</span> <span class="o">+=</span> <span class="n">Nmodes_in_mult</span>
+            
+            
+    <span class="c1"># total freq = omeganl + delta omega_nlm                                                                                                                      </span>
+    <span class="n">omega_nlm_arr</span> <span class="o">=</span> <span class="n">omeganl_arr</span> <span class="o">+</span> <span class="n">delta_omega_nlm_arr</span>
+
+    <span class="c1"># we need to pass the mode_freq_arr in muHz                                                                                                                                 </span>
+    <span class="n">omega_nlm_arr</span> <span class="o">*=</span> <span class="p">(</span><span class="n">GVAR</span><span class="o">.</span><span class="n">OM</span> <span class="o">*</span> <span class="mf">1e6</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">omega_nlm_arr</span></div>
+
+<span class="c1"># }}} def get_omega_nlm_from_delta_omega_nlm()</span>
+
+
+<span class="c1"># {{{ def gen_freq_splitting_noise():</span>
+<div class="viewcode-block" id="gen_freq_splitting_noise"><a class="viewcode-back" href="../../chapters/API.html#enseisro.misc_functions.gen_freq_splitting_noise">[docs]</a><span class="k">def</span> <span class="nf">gen_freq_splitting_noise</span><span class="p">(</span><span class="n">sigma_arr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generates gaussian noise centered at zero</span>
+<span class="sd">    with standard deviation given by sigma_arr.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sigma_arr : array_like, float</span>
+<span class="sd">        Array of standard deviations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">sigma_arr</span><span class="p">)</span>
+    <span class="n">delta_omega_nlm_noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma_arr</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">delta_omega_nlm_noise</span></div>
+
+<span class="c1"># }}} def gen_freq_splitting_noise()</span>
+
+
+<span class="c1"># {{{ def propagate_errors():</span>
+<div class="viewcode-block" id="propagate_errors"><a class="viewcode-back" href="../../chapters/API.html#enseisro.misc_functions.propagate_errors">[docs]</a><span class="k">def</span> <span class="nf">propagate_errors</span><span class="p">(</span><span class="n">Omega_avg</span><span class="p">,</span> <span class="n">DOmega</span><span class="p">,</span> <span class="n">err_Omega_avg</span><span class="p">,</span> <span class="n">err_DOmega</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Carries out error propagation from the errors of </span>
+<span class="sd">    Omega and Delta Omega to the error for Delta Omega / Omega.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Omega : float </span>
+<span class="sd">        The inverted Omega_out for averaged across stars in the ensemble.</span>
+<span class="sd">    DOmega : float</span>
+<span class="sd">        The inverted Delta Omega across all stars in the ensemble.</span>
+<span class="sd">    err_Omega_avg : float</span>
+<span class="sd">        The error in Omega_out averaged across stars in the ensemble.</span>
+<span class="sd">    err_DOmega : float</span>
+<span class="sd">        The error in Delta Omega inferred collectively across all stars.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># the average DOmega / Omega</span>
+    <span class="n">DOmega_by_Omega_avg</span> <span class="o">=</span> <span class="n">DOmega</span> <span class="o">/</span> <span class="n">Omega_avg</span>
+
+    <span class="c1"># computing the error for DOmega / Omega using error propagation</span>
+    <span class="n">err_DOmega_by_Omega_avg</span> <span class="o">=</span> <span class="n">DOmega_by_Omega_avg</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">err_DOmega</span><span class="o">/</span><span class="n">DOmega</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>\
+                                            <span class="p">(</span><span class="n">err_Omega_avg</span><span class="o">/</span><span class="n">Omega_avg</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">DOmega_by_Omega_avg</span><span class="p">,</span> <span class="n">err_DOmega_by_Omega_avg</span></div>
+
+<span class="c1"># }}} def propagate_errors()</span>
 </pre></div>
 
            </div>

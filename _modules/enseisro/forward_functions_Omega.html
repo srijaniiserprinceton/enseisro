@@ -186,6 +186,8 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s_arr</span><span class="p">)):</span>
             <span class="n">wigvals</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">FN</span><span class="o">.</span><span class="n">w3j_vecm</span><span class="p">(</span><span class="n">ell</span><span class="p">,</span> <span class="n">s_arr</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ell</span><span class="p">,</span> <span class="o">-</span><span class="n">m</span><span class="p">,</span> <span class="mi">0</span><span class="o">*</span><span class="n">m</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
 
+        <span class="nb">print</span><span class="p">(</span><span class="n">Omegasr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">s_arr</span><span class="p">)</span>
         <span class="n">Tsr</span> <span class="o">=</span> <span class="n">compute_Tsr</span><span class="p">(</span><span class="n">GVAR</span><span class="p">,</span> <span class="n">mult</span><span class="p">,</span> <span class="n">mult</span><span class="p">,</span> <span class="n">s_arr</span><span class="p">)</span>
         
         <span class="c1"># Loading the synthetic flow profile</span>
@@ -198,7 +200,11 @@
         
         <span class="c1"># integrating over radial grid</span>
         <span class="c1"># integrand = Tsr * wsr * (self.sup.gvar.rho * self.sup.gvar.r**2)[NAX, :]                                                                                                      </span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">Tsr</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">Omegasr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        
         <span class="n">integrand</span> <span class="o">=</span> <span class="n">Tsr</span> <span class="o">*</span> <span class="n">Omegasr</span>   <span class="c1"># since U and V are scaled by sqrt(rho) * r</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="n">integrand</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">GVAR</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
         <span class="n">integral</span> <span class="o">=</span> <span class="n">simps</span><span class="p">(</span><span class="n">integrand</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">GVAR</span><span class="o">.</span><span class="n">r</span><span class="p">)</span>
 

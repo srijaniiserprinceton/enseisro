@@ -4,7 +4,9 @@ import enseisro.misc_functions as FN
 from enseisro import forward_functions_Omega as forfunc_Om
 from enseisro.synthetics import w_omega_functions as w_om_func
 from enseisro.synthetics import create_synthetic_DR as create_synth_DR
+from enseisro.functional_fitting import a_solver as a_solver
 import matplotlib.pyplot as plt
+from enseisro.synthetics import create_synth_modes as make_modes
 import sys
 
 
@@ -13,8 +15,10 @@ import sys
 
 GVAR = globalvars.globalVars()
 
+smax = 3
+
 # extracting the solar DR profile in terms of wsr                                                                                                                                  
-wsr = create_synth_DR.get_solar_DR(GVAR, smax=3)
+wsr = create_synth_DR.get_solar_DR(GVAR, smax=smax)
 
 # converting this wsr to Omegasr                                                                                                                                                       
 Omegasr = w_om_func.w_2_omega(GVAR, wsr)
@@ -34,6 +38,27 @@ Omegasr = np.reshape(Omegasr, (Nstars, lens, len(GVAR.r)))
 # calculating the step function equivalent of this Omegasr
 step_param_arr = create_synth_DR.get_solar_stepfn_params(Omegasr, rcz_ind_arr)   # shape (Nstars x s x Nparams)
 Omegasr_step = create_synth_DR.params_to_step(GVAR, step_param_arr, rcz_ind_arr) # shape (Nstars x s x r)
+
+print(step_param_arr * GVAR.OM * 1e9)
+
+# creating modes for inversion
+nmin, nmax = 2, 18
+lmin, lmax = 2, 4
+
+mults_single_star = FN.build_mults_single_star(nmin, nmax, lmin, lmax)
+
+# getting the modes for which we want splitting values for one star                                                                                                                  
+# these would later be repeated to make multiple stars                                                                                                                               
+modes_single_star = make_modes.make_modes(mults_single_star)
+
+# inversion using the smooth profile to get step params arrs
+sigma_arr = np.ones(modes_single_star.shape[1])
+smax = 3
+
+step_param_arr_inv, __ = a_solver.use_numpy_inv_Omega_function(GVAR, modes_single_star, sigma_arr, smax, Omegasr=Omegasr[0])
+
+print(np.reshape(step_param_arr_inv, (lens, 2)) * GVAR.OM * 1e9)
+sys.exit()
 
 # converting to nHz
 Omegasr = Omegasr * GVAR.OM * 1e9
