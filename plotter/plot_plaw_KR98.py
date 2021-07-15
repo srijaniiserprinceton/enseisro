@@ -28,7 +28,9 @@ print('Delta Omega / Omega:\n', Delta_Omega/Omega)
     
 plt.figure()
     
-plt.loglog(Prot, DOmega_by_Omega_true)
-plt.loglog(Prot, DOmega_by_Omega_gen, 'x')
-    
+plt.loglog(Omega, DOmega)
+# plt.loglog(Prot, DOmega_by_Omega_gen, 'x')
+plt.xlabel('$\Omega$ in nHz')
+plt.ylabel('$\Delta \Omega$ in nHz')
+
 plt.savefig('KR98.pdf')

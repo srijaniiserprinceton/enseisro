@@ -25,6 +25,9 @@ def get_DeltaOmega_from_Prot(Prot_days, spectral_type):
     # getting the Delta Omega in nHz
     if(spectral_type == 'G2'): DOmega_by_Omega = make_G2_DeltaOmega(Prot_days)
 
+    # scaling since KR98 has underestimated
+    DOmega_by_Omega *= 2
+
     # in nHz. Same shape as Prot
     return DOmega_by_Omega, Omega
 

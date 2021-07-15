@@ -29,6 +29,9 @@ def run_ens_inv(Prot, Nstars, nmin, nmax, lmin, lmax, smax, rcz_arr, p, use_Delt
     # getting the modes for which we want splitting values for one star
     # these would later be repeated to make multiple stars
     modes_single_star = make_modes.make_modes(mults_single_star)
+
+    print(modes_single_star)
+    # sys.exit()
     
     # building the star labels. Each star's label is repeated for all the modes
     # that is used from that star. Labelling starts from 0 so that we can use it
@@ -61,22 +64,30 @@ def run_ens_inv(Prot, Nstars, nmin, nmax, lmin, lmax, smax, rcz_arr, p, use_Delt
     # adding constant random terms to each star's rotation profiles keeping \Delta \Omega_s constant 
     step_param_arr_in_out = create_synth_DR.randomize_DR_step_params(step_param_arr_in_out, profile_type='in-out', p=p)
     
-    '''
-    # converting it to Omega_{out} and \Delta \Omega
-    step_param_arr = np.zeros_like(step_param_arr_in_out)
-    # storing \Omega_{out}
-    step_param_arr[:,:,0] = step_param_arr_in_out[:,:,1]
-    # storing \Detla\Omega
-    step_param_arr[:,:,1] = step_param_arr_in_out[:,:,0] - step_param_arr_in_out[:,:,1]
-    '''
-    # getting the step_param_arr in nHz
-    step_param_arr = create_rot_prof.make_step_param_arr(Nstars, Prot, spectral_type='G2')
-   
-    # adding constant random terms to each star's rotation profiles keeping \Delta \Omega_s constant 
-    step_param_arr = create_synth_DR.randomize_DR_step_params(step_param_arr, profile_type='Delta', p=p)
+    if(smax == 3):
+        # converting it to Omega_{out} and \Delta \Omega
+        step_param_arr_Delta = np.zeros_like(step_param_arr_in_out)
+        # storing \Omega_{out}
+        step_param_arr_Delta[:,:,0] = step_param_arr_in_out[:,:,1]
+        # storing \Detla\Omega
+        step_param_arr_Delta[:,:,1] = step_param_arr_in_out[:,:,0] - step_param_arr_in_out[:,:,1]
+        
+    else:
+        # getting the step_param_arr in nHz
+        step_param_arr_Delta = create_rot_prof.make_step_param_arr(Nstars, Prot, spectral_type='G2')
+        
+        # adding constant random terms to each star's rotation profiles keeping \Delta \Omega_s constant 
+        step_param_arr_Delta = create_synth_DR.randomize_DR_step_params(step_param_arr_Delta, profile_type='Delta', p=p)
+        
+        # converting to non-dimensional units
+        step_param_arr_Delta = step_param_arr_Delta / (GVAR.OM * 1e9)
 
-    # converting to non-dimensional units
-    step_param_arr = step_param_arr / (GVAR.OM * 1e9)
+
+    
+    # choosing which step_param_arr to use
+    if(use_Delta): step_param_arr = step_param_arr_Delta
+    else: step_param_arr = step_param_arr_in_out
+    
 
     ##################### CREATING SYNTHETIC NOISE FOR FREQUENCY SPLITTINGS ##################
     
@@ -96,6 +107,8 @@ def run_ens_inv(Prot, Nstars, nmin, nmax, lmin, lmax, smax, rcz_arr, p, use_Delt
         
         # converting to non-dimensional units
         sigma_arr = sigma_arr_nhz / (GVAR.OM * 1e9)
+
+        # FN.plot_sigma_vs_freq(sigma_arr * GVAR.OM * 1e9, omega_nlm_arr) 
     
     else:
         sigma_arr = np.ones(modes.shape[1]) / (GVAR.OM * 1e9)
@@ -109,13 +122,15 @@ def run_ens_inv(Prot, Nstars, nmin, nmax, lmin, lmax, smax, rcz_arr, p, use_Delt
     # from Sambridge Lecture notes (Lecture 2, Slide 23)
     # C_M = (G^T C_d^{-1} G)^{-1}. In our case G^T C_d^{1/2} = A^T
     # C_d^{1/2} = \sigma
-    
+
     a_Delta, C_M_Delta = a_solver.use_numpy_inv_Omega_step_params(GVAR, modes, sigma_arr, smax, step_param_arr, rcz_ind_arr,\
                                                 use_diff_Omout=True, use_Delta=use_Delta, ret_res_mat=False, add_noise=add_noise)
     
     # converting to nHz
     a_Delta = a_Delta * GVAR.OM * 1e9
     C_M_Delta = C_M_Delta * (GVAR.OM * 1e9)**2
+
+    print(C_M_Delta)
     
     ##################################################### PRINTING OUTPUT ##################################################
     
@@ -133,7 +148,7 @@ def run_ens_inv(Prot, Nstars, nmin, nmax, lmin, lmax, smax, rcz_arr, p, use_Delt
     print('Synthetic noise added: ', add_noise)
     print(line_breaks)
     # printing the formatted output table
-    print_func.format_terminal_output_ens_star(Nstars, synthetic_out, synthetic_delta, inverted_out, inverted_delta, smax)
+    print_func.format_terminal_output_ens_star(Nstars, synthetic_out, synthetic_delta, inverted_out, inverted_delta, smax, use_Delta)
     print(line_breaks)
 
 
@@ -142,11 +157,10 @@ def run_ens_inv(Prot, Nstars, nmin, nmax, lmin, lmax, smax, rcz_arr, p, use_Delt
     # print('Model covariance matrix in nHz:\n', error_arr)
     # print(line_breaks)
 
-    
     # average Omega in ensemble
     if(smax == 1):
         Omega_avg = np.mean(a_Delta[:-1])
-        err_Omega_avg = np.mean(error_arr[:-1])
+        err_Omega_avg = np.sqrt(np.sum(error_arr[:-1]**2)) / len(error_arr[:-1])
         DOmega = a_Delta[-1]
         err_DOmega = error_arr[-1]
         
@@ -170,8 +184,8 @@ if __name__ == '__main__':
     Nstars = 10
     
     # Observed mode info
-    nmin, nmax = 16, 23
-    lmin, lmax = 2, 2  
+    nmin, nmax = 16, 24
+    lmin, lmax = 1, 2  
 
     # Max angular degree for Omega_s
     smax = 1
@@ -185,11 +199,14 @@ if __name__ == '__main__':
     Prot = np.array([26])  
 
     # the max. perentage randomization of rotation profiles
-    p = 10 
+    p = 0 
     
     # whether to use the noise model to add synthetic noise 
     # to the frequency splitting data
-    add_noise = True
+    add_noise = False
+
+    # whether to use (Omega_in, Omega_out) or (Omega_out, Delta_Omega)
+    use_Delta = True
 
     # carrying out the inversion and printing the results
-    run_ens_inv(Prot, Nstars, nmin, nmax, lmin, lmax, smax, rcz_arr, p, add_noise=add_noise)
+    run_ens_inv(Prot, Nstars, nmin, nmax, lmin, lmax, smax, rcz_arr, p, add_noise=add_noise, use_Delta=use_Delta)

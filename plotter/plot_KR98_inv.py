@@ -15,19 +15,19 @@ from enseisro.noise_model import get_noise_for_ens as get_noise
 from enseisro.synthetics import create_rot_prof_KR98 as create_rot_prof
 from enseisro.functional_fitting import run_funcfit_inv as run_funcfit_inv
 import sys
-import matplotlib 
+# import matplotlib 
 
 font = {#'family' : 'normal',
         #'weight' : 'bold',
         'size'   : 16}
 
-matplotlib.rc('font', **font)
+plt.rc('font', **font)
 
 # defining the parameters necessary                                                                                                                                            
 # Number of stars                                                                                                                                               
 Nstars = 10
 fac = 10
-multiply_star_arr = np.array([1e1, 1e2, 1e3, 1e4])
+multiply_star_arr = np.array([1e2, 1e3])
 
 # Observed mode info                                                                                                                                                          
 nmin, nmax = 16, 23
@@ -45,7 +45,7 @@ p = 0.0
 # whether to use the noise model to add synthetic noise                                                                                                                      
 # to the frequency splitting data                                                                                                                                   
 add_noise = True
-
+use_Delta = True
 # plotting the power law
 # creating the range of Prot we want to use          
 Npoints = 100                                                                                                                           
@@ -72,7 +72,7 @@ for i, Prot_low in enumerate(Prot_low_arr):
     Prot = np.array([Prot_low])                                                                                                                                                        
     # carrying out the inversion and printing the results and getting errors in nHz                                                                                                     
     Omega_avg, DOmega, err_Omega_avg, err_DOmega = run_funcfit_inv.run_ens_inv(Prot, Nstars, nmin, nmax, lmin, lmax,\
-                                                                               smax, rcz_arr, p, add_noise=add_noise)
+                                                          smax, rcz_arr, p, add_noise=add_noise, use_Delta=use_Delta)
     
     
     # final plot params in nHz
@@ -91,12 +91,18 @@ for i, Prot_low in enumerate(Prot_low_arr):
     # print(err_DOmega_by_Omega_avg/np.sqrt(fac))
 
 
+# solar rotation period
+Prot_sun = 28   # in days on an average
+solar_RDR = 2 * 7.0/441.0
+plt.plot(Prot_sun, solar_RDR, 'k*', markersize=15)
+
+
 # setting axis labels
 ax.set_xlabel('$P_{\mathrm{rot}}$ in days')
 ax.set_ylabel('$\\frac{\Delta\Omega}{\Omega}$', rotation=0, labelpad=15)
 
 plt.tight_layout()
 
-plt.savefig('KR98_inv.pdf')
+plt.savefig('KR98_inv_2_times.pdf')
     
     

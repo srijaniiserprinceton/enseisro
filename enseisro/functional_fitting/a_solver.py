@@ -11,7 +11,7 @@ def use_numpy_inv_Omega_function(GVAR, modes, sigma_arr, smax, use_synth=True, O
     """This is to calculate a in the equation A . a = d, using the
     Numpy solver numpy.linalg.inv(). This uses Omega function of r"""
     
-    A = make_mat.make_A(GVAR, modes, sigma_arr, smax=smax)   # shape (Nmodes x Nparams)
+    A = make_mat.make_A(GVAR, modes, sigma_arr, smax)   # shape (Nmodes x Nparams)
     d = make_mat.make_d_synth_from_function(GVAR, modes, sigma_arr, Omegasr)   # shape (Nmodes)
 
     
@@ -19,6 +19,7 @@ def use_numpy_inv_Omega_function(GVAR, modes, sigma_arr, smax, use_synth=True, O
     if(add_noise):
         d += FN.gen_freq_splitting_noise(sigma_arr)
 
+    print(d * GVAR.OM * 1e9)
     
     AT = A.T
 
@@ -59,6 +60,7 @@ def use_numpy_inv_Omega_step_params(GVAR, modes, sigma_arr, smax, Omegas_step_pa
     
     Nstars = Omegas_step_params.shape[0]    # Omegas_step_params has the shape (Nstars x s x Nparams_per_star)
     lens = Omegas_step_params.shape[1]
+
     
     # this is the shape if we want to infer internal rotation separately for each star but \Delta Omega is shared
     # Params = {Om^(1)_{out,1}, Om^(3)_{out,1},...,Om^(1)_{out,N}, Om^(3)_{out,N}, \Delta Om^(1), \Delta Om^(3)}
@@ -71,7 +73,7 @@ def use_numpy_inv_Omega_step_params(GVAR, modes, sigma_arr, smax, Omegas_step_pa
         build_A_function = build_A_all_stars_same_Omout
         
     # getting the complete A matrix
-    A = build_A_function(GVAR, Nstars, modes, sigma_arr, Nparams, use_Delta, smax=smax)     # shape (Nmodes x Nparams)
+    A = build_A_function(GVAR, Nstars, modes, sigma_arr, Nparams, use_Delta, smax)     # shape (Nmodes x Nparams)
     
     AT = A.T
 
@@ -114,7 +116,7 @@ def use_numpy_inv_Omega_step_params(GVAR, modes, sigma_arr, smax, Omegas_step_pa
 
 
 def build_A_all_stars_same_Omout(GVAR, Nstars, all_modes, sigma_arr,\
-                                 Nparams, use_Delta, smax=np.array([1])):
+                                 Nparams, use_Delta, smax):
     """This function creates the A matrix accounting for multiple stars in the 
     ensemble when they have the same properties, i.e., \Omega_{out} and \Delta \Omega"""
     Nmodes = all_modes.shape[1]
@@ -133,7 +135,7 @@ def build_A_all_stars_same_Omout(GVAR, Nstars, all_modes, sigma_arr,\
         sigma_arr_star = sigma_arr[all_modes_label_start_ind: all_modes_label_end_ind]
        
         # filling in the A matrix
-        A_star = make_A_function(GVAR, modes_star, sigma_arr_star, smax=smax)   # shape (Nmodes x Nparams)
+        A_star = make_A_function(GVAR, modes_star, sigma_arr_star, smax)   # shape (Nmodes x Nparams)
         
         # filling in the correct rows
         A[all_modes_label_start_ind: all_modes_label_end_ind,:] = A_star
@@ -149,7 +151,7 @@ def build_A_all_stars_same_Omout(GVAR, Nstars, all_modes, sigma_arr,\
 
 
 def build_A_all_stars_diff_Omout(GVAR, Nstars, all_modes, sigma_arr,\
-                                 Nparams, use_Delta, smax=np.array([1])):
+                                 Nparams, use_Delta, smax):
     """This function creates the A matrix accounting for multiple stars in the 
     ensemble when they share the same \Delta\Omega but different \Omega_{out}"""
     Nmodes = all_modes.shape[1]
@@ -171,11 +173,11 @@ def build_A_all_stars_diff_Omout(GVAR, Nstars, all_modes, sigma_arr,\
         sigma_arr_star = sigma_arr[all_modes_label_start_ind: all_modes_label_end_ind]
        
         # filling in the A matrix
-        A_star = make_A_function(GVAR, modes_star, sigma_arr_star, smax=smax)   # shape (Nmodes x Nparams)
+        A_star = make_A_function(GVAR, modes_star, sigma_arr_star, smax)   # shape (Nmodes x Nparams)
         
         # filling in the Omout part of the kernel
         star_label = i
-        
+       
         # slicing out the Omout parts carefully. They are arranged as (Omout_1, Delta Omega_1, Omout_3, Delta Omega_3)
         A[all_modes_label_start_ind: all_modes_label_end_ind, lens*star_label:lens*star_label+lens] = A_star[:,0:-1:2]        
 

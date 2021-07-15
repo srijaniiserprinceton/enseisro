@@ -150,8 +150,8 @@ def make_Hnlm(modes, mode_freq_arr, Gamma_arr, inc_angle_arr=None):
 
 
     # the mode visibility. Same length as the mode_freq_arr or the number of modes                                                                                                      
-    # E_lm_i = mode_visibility(abs_m_arr, ell_arr, inc_angle_arr)
-    E_lm_i = np.ones_like(mode_freq_arr)
+    E_lm_i = mode_visibility(abs_m_arr, ell_arr, inc_angle_arr)
+    # E_lm_i = np.ones_like(mode_freq_arr)
     
 
     # the envelope function. Same length as the mode_freq_arr or the number of modes                                                                                                    

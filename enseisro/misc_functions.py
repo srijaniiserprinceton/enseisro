@@ -3,6 +3,7 @@ import argparse
 # import jax.numpy as np
 import numpy as np
 import py3nj
+import matplotlib.pyplot as plt
 
 # {{{ def create_argparser():                                                                                                                                                            
 def create_argparser():
@@ -289,3 +290,29 @@ def propagate_errors(Omega_avg, DOmega, err_Omega_avg, err_DOmega):
     return DOmega_by_Omega_avg, err_DOmega_by_Omega_avg
 
 # }}} def propagate_errors()
+
+# {{{ def plot sigma_vs_freq():                                                                                                                                                          
+def plot_sigma_vs_freq(sigma_arr, omega_nlm_arr):
+    """Plots the uncertainty obtained from the                                                                                                                                           
+    the noise model vs the mode frequencies.                                                                                                                                             
+                                                                                                                                                                                         
+    Parameters                                                                                                                                                                           
+    ----------                                                                                                                                                                           
+    sigma_arr : array_like, float                                                                                                                                                        
+        Array containing the noise in nHz for all modes.                                                                                                                                 
+    omega_nlm_arr : array_like, float                                                                                                                                                    
+        Array containing omega_nlm in muHz for all modes.                                                                                                                                
+    """
+    sort_args_mode_freq = np.argsort(omega_nlm_arr)
+    sigma_arr = sigma_arr[sort_args_mode_freq]
+    omega_nlm_arr = omega_nlm_arr[sort_args_mode_freq]
+
+    plt.plot(omega_nlm_arr, sigma_arr, 'k+', markersize=10)
+    plt.plot(omega_nlm_arr, sigma_arr, 'k')
+
+    plt.xlabel('$\omega_{nlm}$ in $\mu$Hz')
+    plt.ylabel('$\sigma(\delta \omega_{nlm}$) in nHz')
+
+    plt.savefig('./plotter/sigma_vs_freq.pdf')
+
+# }}} def plot_sigma_vs_freq()   

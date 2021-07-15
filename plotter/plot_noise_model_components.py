@@ -48,6 +48,5 @@ def plot_N_nu():
 
     plt.savefig('background_noise.pdf')
 
-
 # plotting and saving the background noise
 plot_N_nu()

@@ -19,6 +19,8 @@ def make_modes(mults):
         # we restrict ourselves to m = \pm 1,\pm 2 only
         m_arr = np.array([-2,-1,1,2], dtype='int')
         for m in m_arr:
+            if((np.abs(m) == 1) * (mult[1] == 2)): continue
+            if(np.abs(m) > mult[1]): continue
             mode = np.array([mult[0], mult[1], m], dtype='int')
             # it is okay to hardcode the shape since it won't change
             mode = np.reshape(mode,(3,1))

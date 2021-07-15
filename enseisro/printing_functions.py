@@ -28,15 +28,20 @@ def format_terminal_output_onestar(synthetic, inverted, error):
 
 
 # def format_terminal_output_ens_star():                                                                                                                                             
-def format_terminal_output_ens_star(Nstars, synthetic_out, synthetic_delta, inverted_out, inverted_delta, smax):
+def format_terminal_output_ens_star(Nstars, synthetic_out, synthetic_delta, inverted_out, inverted_delta, smax, use_Delta):
     """This function formats the output to be printed in the terminal                                                                                                                   
     """
     
     if(smax == 1):
         dash = '-' * 101
-        col_headers = np.array(['in nHz', 'Om_out_1 (Input)', 'Om_out_1 (Inverted)', \
-                                'Delta_Om_1 (Input)','Delta_Om_1 (Inverted)'])
-        
+
+        if(use_Delta):
+            col_headers = np.array(['in nHz', 'Om_out_1 (Input)', 'Om_out_1 (Inverted)', \
+                                    'Delta_Om_1 (Input)','Delta_Om_1 (Inverted)'])
+        else: 
+            col_headers = np.array(['in nHz', 'Om_in_1 (Input)', 'Om_in_1 (Inverted)', \
+                                    'Om_out_1 (Input)','Om_out_1 (Inverted)'])
+
         row_headers = np.array([])
         
         for star_ind in range(Nstars):
@@ -56,10 +61,16 @@ def format_terminal_output_ens_star(Nstars, synthetic_out, synthetic_delta, inve
 
     if(smax == 3):
         dash = '-' * 182
-        col_headers = np.array(['in nHz', 'Om_out_1 (Input)', 'Om_out_1 (Inverted)', \
-                                'Om_out_3 (Input)', 'Om_out_3 (Inverted)', 'Delta_Om_1 (Input)',\
-                                'Delta_Om_1 (Inverted)', 'Delta_Om_3 (Input)', 'Delta_Om_3 (inverted)'])
         
+        if(use_Delta):
+            col_headers = np.array(['in nHz', 'Om_out_1 (Input)', 'Om_out_1 (Inverted)', \
+                                    'Om_out_3 (Input)', 'Om_out_3 (Inverted)', 'Delta_Om_1 (Input)',\
+                                    'Delta_Om_1 (Inverted)', 'Delta_Om_3 (Input)', 'Delta_Om_3 (inverted)'])
+        else:
+            col_headers = np.array(['in nHz', 'Om_in_1 (Input)', 'Om_in_1 (Inverted)', \
+                                    'Om_in_3 (Input)', 'Om_in_3 (Inverted)', 'Om_out_1 (Input)',\
+                                    'Om_out_1 (Inverted)', 'Om_out_3 (Input)', 'Om_out_3 (inverted)'])
+
         row_headers = np.array([])
         
         for star_ind in range(Nstars):

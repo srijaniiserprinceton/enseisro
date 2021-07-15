@@ -5,6 +5,8 @@ import enseisro.misc_functions as FN
 from enseisro.synthetics import create_synthetic_DR as create_syn_DR
 from enseisro.synthetics import w_omega_functions as w_om_func
 import matplotlib.pyplot as plt
+from enseisro.synthetics import create_synthetic_DR as create_synth_DR
+from scipy.integrate import simpson as simp
 
 # ARGS = FN.create_argparser()
 # GVAR = globalvars.globalVars(ARGS)
@@ -61,13 +63,14 @@ def plot_Omega_2D(N=10, p=1, rmin_plot=0.3, Ntheta=100):
     # getting the ensemble w_s(r)                                                                
     wsr, wsr_ens = get_ens_synth_DR(N, p)
 
-    # converting to Omegasr                                                                      
+    # converting to Omegasr of shape (s x r x Nstars)                                                                      
     Omegasr = w_om_func.w_2_omega(GVAR, wsr)
     Omegasr_ens = w_om_func.w_2_omega(GVAR, wsr_ens)
 
     # index for rmin_plot                                                                      
     rmin_ind = np.argmin(np.abs(GVAR.r - rmin_plot))
     r = GVAR.r[rmin_ind:]
+
 
     # getting the Omega(r,theta) profile
     Omega_r_theta, theta = w_om_func.Omega_s_to_Omega_theta(Omegasr_ens,\
@@ -147,5 +150,138 @@ def plot_Omega_2D(N=10, p=1, rmin_plot=0.3, Ntheta=100):
 
     plt.savefig('Omega_2D_ens.pdf')
 
+    # plotting radial after averaging over theta (bulk rotation)
+    Omega_r_bulk = simp(2 * 0.75 * Omega_r_theta_true[rmin_ind:,:] * (np.sin(theta)**3)[np.newaxis,:], x=theta, axis=1)
+    
+    plt.figure()
+    plt.plot(GVAR.r[rmin_ind:], Omega_r_bulk, 'k')
+    plt.xlabel('$r$ in $R_{\odot}$')
+    plt.ylabel('$\Omega(r)$')
+    
+    plt.savefig('Omega_bulk.pdf')
+
+
+def plot_Omega_2D_step(N=10, p=1, rmin_plot=0.3, Ntheta=100):
+    Nstars = N
+
+    # getting the ensemble w_s(r)                                                                                                                                                               
+    wsr, wsr_ens = get_ens_synth_DR(N, p)
+
+    # converting to Omegasr of shape (s x r x Nstars)                                                                                                                                            
+    Omegasr = w_om_func.w_2_omega(GVAR, wsr)
+    Omegasr_ens = w_om_func.w_2_omega(GVAR, wsr_ens)
+
+    lens, lenr = Omegasr.shape
+
+    # converting to shape (Nstars x s x r)                                                                                                                                                       
+    Omegasr_ens = np.swapaxes(Omegasr_ens, 0, 2)
+    Omegasr_ens = np.swapaxes(Omegasr_ens, 1, 2)
+
+
+    # Base of the convection zone for each star                                                                                                                                                  
+    rcz_arr = np.zeros(Nstars) + 0.7
+
+    # finding the rcz index for all the stars                                                                                                                                                    
+    rcz_ind_arr = np.zeros(Nstars, dtype='int')
+    for i in range(Nstars):
+        rcz_ind = np.argmin(np.abs(GVAR.r - rcz_arr[i]))
+        rcz_ind_arr[i] = rcz_ind
+
+    step_param_arr_in_out = create_synth_DR.get_solar_stepfn_params(np.reshape(Omegasr,(1,lens,lenr)), rcz_ind_arr)   # shape (Nstars x s x  Nparams)
+    # calculating the step function equivalent of this Omegasr. (\Omega_{in} + \Omega_{out))                                                                                                     
+    step_param_arr_in_out_ens = create_synth_DR.get_solar_stepfn_params(Omegasr_ens, rcz_ind_arr)   # shape (Nstars x s x  Nparams)                                                                  
+
+    # converting back to step function in r for plotting. (Nstars x s x r)                                                                                                                      
+    Omegasr = create_synth_DR.params_to_step(GVAR, step_param_arr_in_out, rcz_ind_arr)[0]
+    Omegasr_ens = create_synth_DR.params_to_step(GVAR, step_param_arr_in_out_ens, rcz_ind_arr)
+
+    # converting back to shape (s x r x Nstars)                                                                                                                                                 
+    Omegasr_ens = np.swapaxes(Omegasr_ens, 0, 2)
+    Omegasr_ens = np.swapaxes(Omegasr_ens, 0, 1)
+
+
+    # index for rmin_plot                                                                                                                                                                        
+    rmin_ind = np.argmin(np.abs(GVAR.r - rmin_plot))
+    r = GVAR.r[rmin_ind:]
+
+    # getting the Omega(r,theta) profile                                                                                                                                                         
+    Omega_r_theta, theta = w_om_func.Omega_s_to_Omega_theta(Omegasr_ens,\
+                                                            Ntheta=Ntheta)
+    Omega_r_theta_true, theta = w_om_func.Omega_s_to_Omega_theta(Omegasr,Ntheta=Ntheta)
+
+    # we shall be plotting the difference from the true profile                                                                                                                                  
+    Omega_diff = Omega_r_theta - Omega_r_theta_true[:,:,NAX]
+
+    # getting them to correct units (nHz)                                                                                                                                                        
+    Omega_r_theta_true *= GVAR.OM * 1e9
+    Omega_diff *= GVAR.OM * 1e9
+
+    # creating the meshgrid                                                                                                                                                                      
+    rr,tt = np.meshgrid(r, theta, indexing='ij')
+    # making a slight adjsustment since we are using co-latitude                                                                                                                                 
+    # in defining theta and not latitude                                                                                                                                                         
+    xx = rr * np.cos(np.pi/2. - tt)
+    yy = rr * np.sin(np.pi/2. - tt)
+
+    # creating the grid of subplots                                                                                                                                                              
+    nrows, ncols = 2, 5
+    
+    #fig, axs = plt.subplots(nrows, ncols, figsize=(15,6))                                                                                                                                       
+    fig = plt.figure(figsize=(21,6))
+
+    gs = fig.add_gridspec(2,7)
+    ax = []
+    for i in range(N):
+        row, col = i//5, i%5
+        ax.append(fig.add_subplot(gs[row,2+col]))
+
+    ax_big = fig.add_subplot(gs[0:2,0:2])
+
+    # colormap vmin and vmax                                                                                                                                                                      
+    vmin, vmax = np.amin(Omega_diff), np.amax(Omega_diff)
+    vmin *= 1.1
+    vmax *= 1.1
+
+    # choosing the max of abs of vmax and vmin since we want                                                                                                                                      
+    # white to be about 0.0                                                                                                                                                                       
+    vmaxabs = max(np.abs(vmin),np.abs(vmax))
+
+    # drawing the inner and outer surface lines (just for cleanliness)                                                                                                                            
+    r_out, r_in = 1.0, rmin_plot
+    x_out, y_out = r_out * np.cos(theta), r_out * np.sin(theta)
+    x_in, y_in = r_in * np.cos(theta), r_in * np.sin(theta)
+
+    # looping over the cases in the ensemble                                                                                                                                                      
+    for i in range(N):
+        im = ax[i].pcolormesh(xx, yy, Omega_diff[rmin_ind:,:,i],\
+        rasterized=True, vmin=-vmaxabs, vmax=vmaxabs, cmap='seismic')
+        ax[i].plot(x_in, y_in, 'k')
+        ax[i].plot(x_out, y_out, 'k')
+        ax[i].set_aspect('equal')
+
+    # fig.subplots_adjust(left=0.0, right=0.95)                                                                                                                                                   
+    plt.subplots_adjust(left=0.01, right=0.95, bottom=0.15, top=0.98, wspace=0.1, hspace=0.2)
+    # put colorbar at desire position                                                                                                                                                             
+    cbar_ax = fig.add_axes([0.97, 0.14, 0.005, 0.84])
+    fig.colorbar(im, cax=cbar_ax)
+    
+    ax[7].set_xlabel('$\Omega_{*}(\\theta,\phi) - \Omega_{\odot}(\\theta,\phi)$ in nHz', \
+                     labelpad = 15, fontsize=16)
+
+    im = ax_big.pcolormesh(xx, yy, Omega_r_theta_true[rmin_ind:,:], rasterized=True)
+    ax_big.plot(x_in, y_in, 'k')
+    ax_big.plot(x_out, y_out, 'k')
+    ax_big.set_aspect('equal')
+    ax_big.text(0.65,0.85,'$\Omega_{\odot}(\\theta,\phi)$ in nHz',fontsize=16)
+
+    cbar_ax = fig.add_axes([0.014, 0.05, 0.25, 0.01])
+    fig.colorbar(im, cax=cbar_ax, orientation='horizontal')
+    # fig.colorbar(im, ax=ax_big, orientation='horizontal')                                                                                                                                       
+
+    # plt.tight_layout()                                                                                                                                                                          
+
+    plt.savefig('Omega_2D_ens_step.pdf')
+
 # plot_ens_DR()
 plot_Omega_2D(p=1)
+plot_Omega_2D_step(p=1)
