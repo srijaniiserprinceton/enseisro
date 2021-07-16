@@ -28,7 +28,7 @@ plt.rc('font', **font)
 Nstars = 10
 # fac = 10
 # multiply_star_arr = np.array([1e2, 1e3])
-multiply_star_arr = np.array([22085, 12894, 5132, 2344])
+multiply_star_arr = np.array([22085, 12894, 5132]) #, 2344])
 multiply_star_arr = multiply_star_arr
 
 # Observed mode info                                                                                                                                                          
@@ -67,7 +67,7 @@ ax.plot(Prot, DOmega_by_Omega_gen, 'k')
 # Nbins = 6
 # Prot_low_arr = Prot[::Npoints//Nbins]
 
-Prot_low_arr = np.array([1., 10., 20., 30.]) 
+Prot_low_arr = np.array([1., 10., 20.]) #, 30.]) 
 Prot_window = 10.0
 
 for i, Prot_low in enumerate(Prot_low_arr):
@@ -92,8 +92,8 @@ for i, Prot_low in enumerate(Prot_low_arr):
                                             fmt = 'o', capsize=10, label='%.0e'%(fac))
         
     # if(i==0): ax.legend(loc='upper center', bbox_to_anchor=(0.5,1.1), ncol=len(multiply_star_arr), prop={'size' : 12})
-    print('Prot: \n', Prot)
-    print('Ensemble 1:', np.mean(Prot), np.mean(DOmega))
+    
+    print('Prot_low', Prot_low)
 
     # resetting color order 
     # plt.gca().set_prop_cycle(None)
@@ -103,7 +103,7 @@ ax.legend(loc='upper center', bbox_to_anchor=(0.5,1.1), ncol=len(multiply_star_a
 
 # solar rotation period
 Prot_sun = 28   # in days on an average
-solar_RDR = 5 * 7.0/441.0
+solar_RDR = 2 * 7.0/441.0
 plt.plot(Prot_sun, solar_RDR, 'k*', markersize=15)
 
 
@@ -113,6 +113,6 @@ ax.set_ylabel('$\\frac{\Delta\Omega}{\Omega}$', rotation=0, labelpad=15)
 
 plt.tight_layout()
 
-plt.savefig('KR98_inv_5_times_10stars.pdf')
+plt.savefig('KR98_inv_2_times_10stars.pdf')
     
     

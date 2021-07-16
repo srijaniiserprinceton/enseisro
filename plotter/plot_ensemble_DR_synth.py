@@ -15,6 +15,9 @@ GVAR = globalvars.globalVars()
 
 NAX = np.newaxis
 
+font = {'size'   : 16}
+plt.rc('font', **font)
+
 def get_ens_synth_DR(N=10, p=1):
     # getting the solar differential rotation profile
     wsr = create_syn_DR.get_solar_DR(GVAR)
