@@ -163,7 +163,12 @@ def run_ens_inv(Prot, Nstars, nmin, nmax, lmin, lmax, smax, rcz_arr, p, use_Delt
         err_Omega_avg = np.sqrt(np.sum(error_arr[:-1]**2)) / len(error_arr[:-1])
         DOmega = a_Delta[-1]
         err_DOmega = error_arr[-1]
-        
+
+        # dividing first
+        DOmega_by_Omega_arr = DOmega / a_Delta[:-1]
+        # then taking the average
+        avg_DOmega_by_Omega = np.mean(DOmega_by_Omega_arr)
+
         # Nstar multiple to see how many is necessary
         Nstar_multiple = np.array([1, 10, 50, 100, 500, 1000])
 
@@ -174,7 +179,7 @@ def run_ens_inv(Prot, Nstars, nmin, nmax, lmin, lmax, smax, rcz_arr, p, use_Delt
             print('Avg ensemble DOmega in nHz: ', DOmega, ' +/- ', err_DOmega/np.sqrt(fac))
             print('\n')
             
-        return Omega_avg, DOmega, err_Omega_avg, err_DOmega
+        return Omega_avg, DOmega, err_Omega_avg, err_DOmega, avg_DOmega_by_Omega
 
     
 
@@ -185,7 +190,7 @@ if __name__ == '__main__':
     
     # Observed mode info
     nmin, nmax = 16, 24
-    lmin, lmax = 1, 2  
+    lmin, lmax = 2, 2  
 
     # Max angular degree for Omega_s
     smax = 1
@@ -199,11 +204,11 @@ if __name__ == '__main__':
     Prot = np.array([26])  
 
     # the max. perentage randomization of rotation profiles
-    p = 0 
+    p = 10 
     
     # whether to use the noise model to add synthetic noise 
     # to the frequency splitting data
-    add_noise = False
+    add_noise = True
 
     # whether to use (Omega_in, Omega_out) or (Omega_out, Delta_Omega)
     use_Delta = True

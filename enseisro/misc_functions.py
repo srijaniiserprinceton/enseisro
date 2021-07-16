@@ -264,7 +264,7 @@ def gen_freq_splitting_noise(sigma_arr):
 
 
 # {{{ def propagate_errors():
-def propagate_errors(Omega_avg, DOmega, err_Omega_avg, err_DOmega):
+def propagate_errors(avg_DOmega_by_Omega, Omega_avg, DOmega, err_Omega_avg, err_DOmega):
     """Carries out error propagation from the errors of 
     Omega and Delta Omega to the error for Delta Omega / Omega.
 
@@ -281,7 +281,8 @@ def propagate_errors(Omega_avg, DOmega, err_Omega_avg, err_DOmega):
     """
     
     # the average DOmega / Omega
-    DOmega_by_Omega_avg = DOmega / Omega_avg
+    # DOmega_by_Omega_avg = DOmega / Omega_avg
+    DOmega_by_Omega_avg = avg_DOmega_by_Omega
 
     # computing the error for DOmega / Omega using error propagation
     err_DOmega_by_Omega_avg = DOmega_by_Omega_avg * np.sqrt((err_DOmega/DOmega)**2 +\
