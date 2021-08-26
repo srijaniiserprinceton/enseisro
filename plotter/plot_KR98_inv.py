@@ -103,7 +103,7 @@ ax.legend(loc='upper center', bbox_to_anchor=(0.5,1.1), ncol=len(multiply_star_a
 
 # solar rotation period
 Prot_sun = 28   # in days on an average
-solar_RDR = 2 * 7.0/441.0
+solar_RDR = 7.0/441.0
 plt.plot(Prot_sun, solar_RDR, 'k*', markersize=15)
 
 
@@ -113,6 +113,6 @@ ax.set_ylabel('$\\frac{\Delta\Omega}{\Omega}$', rotation=0, labelpad=15)
 
 plt.tight_layout()
 
-plt.savefig('KR98_inv_2_times_10stars.pdf')
+plt.savefig('KR98_inv_1_times_10stars.pdf')
     
     
