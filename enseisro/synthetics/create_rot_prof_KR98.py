@@ -32,7 +32,7 @@ def get_DeltaOmega_from_Prot(Prot_days, spectral_type):
 
         
     # scaling since KR98 has underestimated
-    DOmega_by_Omega_RDR *= 1
+    DOmega_by_Omega_RDR *= 2
 
     # in nHz. Same shape as Prot
     return DOmega_by_Omega_RDR, DOmega_by_Omega_LDR, Omega
@@ -292,7 +292,8 @@ def make_step_param_arr(Nstars, Prot, spectral_type='G2'):
     # to build Nstars identical stars' rotation profile.
     if(N_unique_stars):
         # getting the step params in nHz
-        DOmega_by_Omega, Omega = get_DeltaOmega_from_Prot(Prot, spectral_type)
+        # not storing the LDR since we are inverted for RDR currently only
+        DOmega_by_Omega, __, Omega = get_DeltaOmega_from_Prot(Prot, spectral_type)
         DOmega = DOmega_by_Omega * Omega
 
         # creating the step_param_arr of shape (Nstars x s  x Nparams)
@@ -308,7 +309,7 @@ def make_step_param_arr(Nstars, Prot, spectral_type='G2'):
     # ensemble
     else:
          # getting the step params in nHz
-        DOmega_by_Omega, Omega = get_DeltaOmega_from_Prot(Prot, spectral_type)
+        DOmega_by_Omega, __, Omega = get_DeltaOmega_from_Prot(Prot, spectral_type)
         DOmega = DOmega_by_Omega * Omega
 
         # creating the step_param_arr of shape (Nstars x s  x Nparams)

@@ -47,6 +47,54 @@ def plot_N_nu():
     plt.tight_layout()
 
     plt.savefig('background_noise.pdf')
+    plt.close()
+
+# plotting the sigma vs freq
+def plot_sigma_vs_freq():
+    """Plots the uncertainty obtained from the                                       
+    the noise model vs the mode frequencies.  
+
+    Parameters                                                                                
+    ----------                                                                              
+    sigma_arr : array_like, float                                                           
+        Array containing the noise in nHz for all modes.                                    
+    omega_nlm_arr : array_like, float                                                       
+        Array containing omega_nlm in muHz for all modes.                                   
+    """
+    # reading from the stored files for ell = 1, 2
+    mode_freq_arr_l1 = np.load('mode_freq_arr_l1.npy')
+    mode_freq_arr_l2 = np.load('mode_freq_arr_l2.npy')
+
+    sigma_arr_l1 = np.load('sigma_arr_l1.npy')
+    sigma_arr_l2 = np.load('sigma_arr_l2.npy')
+
+
+    sort_args_mode_freq_l1 = np.argsort(mode_freq_arr_l1)
+    sigma_arr_l1 = sigma_arr_l1[sort_args_mode_freq_l1]
+    mode_freq_arr_l1 = mode_freq_arr_l1[sort_args_mode_freq_l1]
+
+    sort_args_mode_freq_l2 = np.argsort(mode_freq_arr_l2)
+    sigma_arr_l2 = sigma_arr_l2[sort_args_mode_freq_l2]
+    mode_freq_arr_l2 = mode_freq_arr_l2[sort_args_mode_freq_l2]
+
+    plt.figure(figsize=(10,6))
+
+    plt.plot(mode_freq_arr_l1, sigma_arr_l1, 'k+', markersize=10, label='$\ell=1$')
+    plt.plot(mode_freq_arr_l1, sigma_arr_l1, 'k')
+
+    plt.plot(mode_freq_arr_l2, sigma_arr_l2, 'r+', markersize=10, label='$\ell=2$')
+    plt.plot(mode_freq_arr_l2, sigma_arr_l2, 'r')
+
+    plt.xlabel('$\omega_{nlm}$ in $\mu$Hz')
+    plt.ylabel('$\sigma(\delta \omega_{nlm}$) in nHz')
+
+    plt.legend()
+    plt.grid(True)
+    
+    plt.savefig('sigma_vs_freq.pdf')
+    plt.close()
 
 # plotting and saving the background noise
 plot_N_nu()
+
+plot_sigma_vs_freq()

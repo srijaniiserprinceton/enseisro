@@ -361,6 +361,8 @@ def plot_Omega_2D_KSPAReport(Prot_arr, p=0, rmin_plot=0.3, Ntheta=100):
 
     # creating the grid of subplots                                                                                                                                                              
     nrows, ncols = 2, 2
+
+    subplot_label = np.array(['Sun', 'Star A', 'Star B', 'Star C'])
     
     #fig, axs = plt.subplots(nrows, ncols, figsize=(15,6))                                                                                                                                       
     fig, ax = plt.subplots(nrows, ncols, figsize=(10,8))
@@ -387,6 +389,7 @@ def plot_Omega_2D_KSPAReport(Prot_arr, p=0, rmin_plot=0.3, Ntheta=100):
     ax[0,0].plot(x_out, y_out, 'k')
     ax[0,0].set_aspect('equal')
     ax[0,0].text(0.6, 0.9, '$\Omega_{\odot}$ in nHz')
+    ax[0,0].text(0.05, 0.05, subplot_label[0])
     
     divider = make_axes_locatable(ax[0,0])
     cax = divider.append_axes("right", size="5%", pad=0.05)
@@ -412,6 +415,8 @@ def plot_Omega_2D_KSPAReport(Prot_arr, p=0, rmin_plot=0.3, Ntheta=100):
 
             ax[i,j].text(0.6, 0.9, '$\Omega_{\mathrm{%s}} / \Omega_{\odot}$'%star_label[2*i+j-1])
 
+            ax[i,j].text(0.05, 0.05, subplot_label[(2*i+j)])
+
             divider = make_axes_locatable(ax[i,j])
             cax = divider.append_axes("right", size="5%", pad=0.05)
 
@@ -428,5 +433,5 @@ def plot_Omega_2D_KSPAReport(Prot_arr, p=0, rmin_plot=0.3, Ntheta=100):
 #plot_Omega_2D_step(p=1)
 
 # Prot array in days
-Prot_arr = np.array([5, 10, 25])
+Prot_arr = np.array([5, 15, 25])
 plot_Omega_2D_KSPAReport(Prot_arr)

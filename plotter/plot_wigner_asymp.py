@@ -7,9 +7,13 @@ from math import floor
 from math import ceil
 from scipy.integrate import simps
 import matplotlib.pyplot as plt 
+from scipy.special import factorial2
 plt.ion()
 
 fac_vec = np.vectorize(factorial)
+
+font = {'size'   : 10}
+plt.rc('font', **font)
 
 
 # checking the orthonormality of legendre polynomials
@@ -27,38 +31,91 @@ orth_fac = (2./(2*ell+1)) * (factorial(ell+m)/factorial(ell-m))
 
 print("Orthonormality: ", check_orth/orth_fac)
 
+
 # parameters
-N = 20
-s = 2
+N = 500
+s = 3
 ell = np.linspace(1,N,N).astype(int)
 ell_ = np.linspace(1,N,N).astype(int)
 
-print(ell)
+print("$\ell$ used: ", ell)
 m = 1
+    
+# checking the error in a single wigner
+def single_wigner(N,s,ell,ell_,m):    
+    # the 2 is multiplied since that is how py3nj is written
+    wigner_val = py3nj.wigner3j(2*s, 2*ell_, 2*ell, 0, 2*m, -2*m)
 
-# the 2 is multiplied since that is how py3nj is written
-wigner_val = py3nj.wigner3j(2*s, 2*ell_, 2*ell, 0, 2*m, -2*m)
+    print(wigner_val)
+    
+    # asymptotic approx from legendre polynomials
+    asymp_val_arr = np.zeros(N)
+    for i in range(N):
+        l = ell[i]
+        l_ = ell_[i]
+        legendre_value = lpmn(l_-l,s,1.0*m/l)[0][0,-1]
+        legendre_coeff =  ((-1)**(l_ + m))/np.sqrt(2 * l) * np.sqrt(fac_vec(s - l_ + l) / fac_vec(s + l_ - l))
+        asymp_val_arr[i] = legendre_coeff * legendre_value
+        
+    error_percent = (asymp_val_arr - wigner_val)/wigner_val * 100
 
-# asymptotic approx from legendre polynomials
-asymp_val_arr = np.zeros(N)
-for i in range(N):
-    l = ell[i]
-    l_ = ell_[i]
-    legendre_value = lpmn(l_-l,s,1.0*m/l)[0][0,-1]
-    legendre_coeff =  ((-1)**(l_ + m))/np.sqrt(2 * l) * np.sqrt(fac_vec(s - l_ + l) / fac_vec(s + l_ - l))
-    asymp_val_arr[i] = legendre_coeff * legendre_value
+    # masking where denominator is zero
+    error_percent = error_percent[~(wigner_val == 0)]
+    ell = ell[~(wigner_val == 0)]
+ 
+    return ell, error_percent
 
-error_percent = (wigner_val - asymp_val_arr)/wigner_val * 100
+
+# checking the error in a product of wigners
+def wigner_product(N,s,ell,ell_,m):    
+
+    # the 2 is multiplied since that is how py3nj is written
+    wigner_val_m = py3nj.wigner3j(2*s, 2*ell_, 2*ell, 0, 2*m, -2*m)
+    wigner_val_1 = py3nj.wigner3j(2*s, 2*ell_, 2*ell, 0, 2*1, -2*1)
+
+    print(wigner_val_m, wigner_val_1)
+
+    # asymptotic approx from legendre polynomials
+    asymp_val_arr = np.zeros(N)
+    for i in range(N):
+        l = ell[i]
+        l_ = ell_[i]
+        legendre_value = lpmn(l_-l,s,1.0*m/l)[0][0,-1]
+        legendre_coeff =  ((-1)**((s-l_+l+2*m+1)//2)) * factorial2(s+l_-l,exact=True) * factorial2(s-l_+l,exact=True) / ((2*l**2) * fac_vec(s+l_-l))
+        asymp_val_arr[i] = legendre_coeff * legendre_value
+        
+    wigner_val = wigner_val_m * wigner_val_1
+
+    error_percent = (asymp_val_arr - wigner_val)/wigner_val * 100
+   
+    # masking where denominator is zero
+    error_percent = error_percent[~(wigner_val == 0)]
+    ell = ell[~(wigner_val == 0)] 
+
+    return ell, error_percent
+    
+__, error_single_wigner = single_wigner(N,s,ell,ell_,m)
+ell, error_wigner_product = wigner_product(N,s,ell,ell_,m)
+
+# plotting the single and the product
 
 plt.figure()
-plt.plot(ell, error_percent, 'k')
-plt.plot(ell, error_percent, 'or')
-plt.xticks(ell[::2])
+plt.plot(ell, error_single_wigner, 'k', label='Approximation 1')
+plt.plot(ell, error_wigner_product, 'r', label='Approximation 2')
+plt.xticks(ell[::50])
 plt.xlim([0,N+1])
 plt.xlabel('$\ell$')
+plt.ylabel('Error %')
+plt.legend()
 plt.grid(True)
 plt.tight_layout()
 plt.savefig('Exact_vs_asymptotic.pdf')
+
+# finding the ell below which the error in wigner product is 
+# larger than 10%
+
+ell_ind_gt_10_pct = np.where(error_wigner_product > 10)
+print("More than 10% error in wigner product below $\ell$ = ", np.amax(ell[ell_ind_gt_10_pct]))
 
 '''
 ##################################################################################################################

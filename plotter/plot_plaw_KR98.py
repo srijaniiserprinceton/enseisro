@@ -7,7 +7,7 @@ Nstars = 100
 ################## Plotting the RDR ##################
 
 # creating the range of Prot we want to use
-Prot = np.logspace(np.log10(1), np.log10(28), Nstars)
+Prot = np.logspace(np.log10(1), np.log10(30), Nstars)
 
 # Delta Omega / Omega
 DOmega_by_Omega_true_RDR = np.logspace(np.log10(5e-4), np.log10(0.015), Nstars)
@@ -30,14 +30,21 @@ print('Delta Omega RDR in nHz:\n', Delta_Omega_RDR)
 print('Delta Omega RDR / Omega:\n', Delta_Omega_RDR/Omega)
 '''
     
+# the Sun
+Prot_sun = 27
+Sun_ind = np.argmin(np.abs(Prot-Prot_sun))
+DOmega_by_Omega_Sun_LDR = DOmega_by_Omega_LDR_G2[Sun_ind]
+DOmega_by_Omega_Sun_RDR = DOmega_by_Omega_RDR_G2[Sun_ind]
+
 # plt.figure()
 fig, ax = plt.subplots(1,2)
 
 ax[0].loglog(Prot, DOmega_by_Omega_LDR_G2, 'k', label='G2')
 ax[0].loglog(Prot, DOmega_by_Omega_LDR_K5, 'r', label='K5')
+ax[0].loglog(Prot_sun, DOmega_by_Omega_Sun_LDR, 'b*')
 # plt.loglog(Prot, DOmega_by_Omega_LDR, 'x')
 ax[0].set_xlabel('Rotation period (day)')
-ax[0].set_ylabel('Differential rotation in nHz')
+ax[0].set_ylabel('Differential rotation')
 ax[0].set_title('LDR')
 ax[0].legend()
 
@@ -66,10 +73,13 @@ print('Delta Omega_LDR / Omega:\n', Delta_Omega_LDR/Omega)
     
 ax[1].loglog(Prot, DOmega_by_Omega_RDR_G2, 'k', label='G2')
 ax[1].loglog(Prot, DOmega_by_Omega_RDR_K5, 'r', label='K5')
+ax[1].loglog(Prot_sun, DOmega_by_Omega_Sun_RDR, 'b*')
 # plt.loglog(Prot, DOmega_by_Omega_RDR, 'x')
 ax[1].set_xlabel('Rotation period (day)')
 ax[1].set_label('RDR in nHz')
 ax[1].set_title('RDR')
 ax[1].legend()
+
+plt.tight_layout()
 
 plt.savefig('KR98_DR.pdf')

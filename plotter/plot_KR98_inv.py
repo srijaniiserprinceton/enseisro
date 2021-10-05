@@ -19,7 +19,7 @@ import sys
 
 font = {#'family' : 'normal',
         #'weight' : 'bold',
-        'size'   : 16}
+        'size'   : 20}
 
 plt.rc('font', **font)
 
@@ -57,9 +57,9 @@ Prot = np.logspace(np.log10(1), np.log10(35), Npoints)
 DOmega_by_Omega_true = np.logspace(np.log10(5e-4), np.log10(0.02), Nstars)
 
 # getting the Delta Omega and Omega in nHz
-DOmega_by_Omega_gen, __ = create_rot_prof.get_DeltaOmega_from_Prot(Prot, 'G2')
+DOmega_by_Omega_gen, __, __ = create_rot_prof.get_DeltaOmega_from_Prot(Prot, 'G2')
 
-fig, ax = plt.subplots(1, figsize=(6,6))
+fig, ax = plt.subplots(1, figsize=(8,6))
 ax.set_xscale('log')
 ax.set_yscale('log')
 ax.plot(Prot, DOmega_by_Omega_gen, 'k')
@@ -103,16 +103,16 @@ ax.legend(loc='upper center', bbox_to_anchor=(0.5,1.1), ncol=len(multiply_star_a
 
 # solar rotation period
 Prot_sun = 28   # in days on an average
-solar_RDR = 7.0/441.0
+solar_RDR = 2*7.0/441.0
 plt.plot(Prot_sun, solar_RDR, 'k*', markersize=15)
 
 
 # setting axis labels
 ax.set_xlabel('$P_{\mathrm{rot}}$ in days')
-ax.set_ylabel('$\\frac{\Delta\Omega}{\Omega}$', rotation=0, labelpad=15)
+ax.set_ylabel('$\left(\\frac{\Delta\Omega}{\Omega}\\right)_{\mathrm{rad}}$', rotation=0, labelpad=15)
 
 plt.tight_layout()
 
-plt.savefig('KR98_inv_1_times_10stars.pdf')
+plt.savefig('./plotter/KR98_inv_2_times_10stars.pdf')
     
     
