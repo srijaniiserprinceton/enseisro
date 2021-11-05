@@ -166,6 +166,62 @@ def plot_Omega_2D(N=10, p=1, rmin_plot=0.3, Ntheta=100):
     plt.savefig('Omega_bulk.pdf')
 
 
+def plot_Omega_2D_sunonly(N=1, p=0.0, rmin_plot=0.3, Ntheta=500):
+    # getting the ensemble w_s(r)                                                                
+    wsr, __ = get_ens_synth_DR(N, p)
+
+    # converting to Omegasr of shape (s x r x Nstars)                                                                      
+    Omegasr = w_om_func.w_2_omega(GVAR, wsr)
+
+    # index for rmin_plot                                                                      
+    rmin_ind = np.argmin(np.abs(GVAR.r - rmin_plot))
+    r = GVAR.r[rmin_ind:]
+
+    # getting the Omega(r,theta) profile
+    Omega_r_theta_true, theta = w_om_func.Omega_s_to_Omega_theta(Omegasr,Ntheta=Ntheta)
+    
+
+    # getting them to correct units (nHz)
+    Omega_r_theta_true *= GVAR.OM * 1e9
+
+    # creating the meshgrid
+    rr,tt = np.meshgrid(r, theta, indexing='ij')
+    # making a slight adjsustment since we are using co-latitude
+    # in defining theta and not latitude
+    xx = rr * np.cos(np.pi/2. - tt)
+    yy = rr * np.sin(np.pi/2. - tt)
+    
+
+    #fig, axs = plt.subplots(nrows, ncols, figsize=(15,6))
+    fig, ax = plt.subplots(figsize=(15,15))
+
+    # colormap vmin and vmax
+    vmin, vmax = np.min(Omega_r_theta_true), np.max(Omega_r_theta_true)
+    vmin *= 1.0
+    vmax *= 0.945
+
+    # choosing the max of abs of vmax and vmin since we want 
+    # white to be about 0.0
+    vmaxabs = max(np.abs(vmin),np.abs(vmax))
+
+    # drawing the inner and outer surface lines (just for cleanliness)                           
+    r_out, r_in = 1.0, rmin_plot
+    x_out, y_out = r_out * np.cos(theta), r_out * np.sin(theta)
+    x_in, y_in = r_in * np.cos(theta), r_in * np.sin(theta)
+
+    plt.axis('off')
+    im = ax.pcolormesh(xx, yy, Omega_r_theta_true[rmin_ind:,:], rasterized=True,
+                       cmap='hot', vmin=vmin, vmax=vmax)
+    ax.contour(xx, yy, Omega_r_theta_true[rmin_ind:,:], levels=15, colors=((0.9, 0.9, 0.9),))
+    ax.plot(x_in, y_in, 'k', lw=2)
+    ax.plot(x_out, y_out, 'k', lw=2)
+    ax.plot(r, np.zeros_like(r), 'k', lw=2, zorder=100, clip_on=False)
+    ax.plot(np.zeros_like(r), r, 'k', lw=2, zorder=101, clip_on=False)
+    ax.set_aspect('equal')
+    
+    plt.savefig('Omega_2D_sun_only.pdf')
+
+
 def plot_Omega_2D_step(N=10, p=1, rmin_plot=0.3, Ntheta=100):
     Nstars = N
 
@@ -431,7 +487,8 @@ def plot_Omega_2D_KSPAReport(Prot_arr, p=0, rmin_plot=0.3, Ntheta=100):
 
 #plot_Omega_2D(p=1)
 #plot_Omega_2D_step(p=1)
+plot_Omega_2D_sunonly()
 
 # Prot array in days
-Prot_arr = np.array([5, 15, 25])
-plot_Omega_2D_KSPAReport(Prot_arr)
+# Prot_arr = np.array([5, 15, 25])
+# plot_Omega_2D_KSPAReport(Prot_arr)
