@@ -19,6 +19,10 @@ configpath = filepath
 with open(f"{configpath}/.config", "r") as f:
     dirnames = f.read().splitlines()
 
+# reading the start data paths stored in .star_data_paths
+with open(f"{jax_enseisro_path}/.star_data_paths", "r") as f:
+    star_data_paths = f.read().splitlines()
+
 class qdParams():
     # {{{ Reading global variables
     # setting rmax as 1.2 because the entire r array needs to be used
@@ -49,6 +53,7 @@ class GlobalVars():
         self.local_dir = dirnames[0]
         self.scratch_dir = dirnames[1]
         self.snrnmais = dirnames[2]
+        self.star_data_paths = star_data_paths
         self.datadir = f"{self.snrnmais}/data_files"
         self.outdir = f"{self.scratch_dir}/output_files"
         self.eigdir = f"{self.snrnmais}/eig_files"
