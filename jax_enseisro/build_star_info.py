@@ -18,19 +18,19 @@ rand_mults : Whether to introduce minor changes across the radial order of
 #-------------------------- defining metadata -----------------------------#
 nStype = 4
 
-num_startype_arr = np.array([4, 2, 8, 20], dtype='int')
+num_startype_arr = np.array([4, 2, 8, 5], dtype='int')
 
 nmin, nmax = 16, 24
 lmin, lmax = 1, 3
 
-rand_mults = 0
+rand_mults = 1
 
 # Max angular degree for Omega_s
 smax = 3
 
 # whether to use the noise model to add synthetic noise                                    
 # to the frequency splitting data
-add_Noise = 1
+add_Noise = 0
 
 # whether to use (Omega_in, Omega_out) or (Omega_out, Delta_Omega)
 use_Delta = 1
