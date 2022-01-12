@@ -60,7 +60,7 @@ class GlobalVars():
         self.progdir = self.local_dir
         self.hmidata = np.loadtxt(f"{self.snrnmais}/data_files/hmi.6328.36")
         self.metadata = f"{jax_enseisro_path}/inversion_metadata"
-        self.synthdata = f"{jax_enseisro_path}/synthetic_data"
+        self.synthdata = f"{self.scratch_dir}/synthetic_data"
 
         # Frequency unit conversion factor (in Hz (cgs))
         #all quantities in cgs
