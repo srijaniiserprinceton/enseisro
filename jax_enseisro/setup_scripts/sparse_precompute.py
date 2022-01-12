@@ -23,81 +23,7 @@ jax_Omega_ = jit(misc_fn.jax_Omega)
 jax_gamma_ = jit(mics_fn.jax_gamma)
 
 
-def get_bsp_basis_elements(x):
-    """Returns the integrated basis polynomials
-    forming the B-spline.
-
-    Parameters
-    ----------
-    x : float, array-like
-        The grid to be used for integration.
-
-    bsp_params : A tuple containing (nc, t, k),
-        where nc = the number of control points,
-        t = the knot array from splrep,
-        k = degree of the spline polynomials.
-    """
-    nc_total, t, k = GVARS.bsp_params
-    basis_elements = np.zeros((GVARS.nc, len(x)))
-
-    # looping over the basis elements for each control point
-    for c_ind in range(GVARS.nc):
-        # c = np.zeros(GVARS.ctrl_arr_dpt.shape[1])
-        c = np.zeros_like(GVARS.ctrl_arr_dpt_full[0, :])
-        c[GVARS.knot_ind_th + c_ind] = 1.0
-        basis_elements[c_ind, :] = splev(x, (t, c, k))
-    return basis_elements
-
-# extracting the basis elements once 
-bsp_basis = get_bsp_basis_elements(GVARS.r)
-
-def build_integrated_part(eig_idx, ell, s):
-    '''Builds the integrated part of the kernel                                               
-    which depends on s and the control point as a                                             
-    part of pre-computation.                                                                  
-                                                                                              
-    Parameters:                                                                               
-    -----------                                                                               
-    eig_idx : int                                                                             
-              Index of the multiplet in the list of multiplets                                
-              whose eigenfunctions are pre-loaded.                                            
-                                                                                              
-    ell     : int                                                                             
-              Angular degree of the multiplet whose kernel integral                           
-              we want to calculate.                                                           
-                                                                                              
-    s       : int                                                                             
-              Angular degree of the perturbation                                              
-              (differential rotation for now).                                                
-                                                                                              
-    Returns:                                                                                  
-    --------                                                                                  
-    post_integral: float, ndarray                                                             
-                   Array of shape (GVARS.nc,) containing                                      
-                   the integrated values using the spline basis                               
-                   to which the spline coefficients need to be                                
-                   multiplied during inversion.                                               
-    '''
-    ls2fac = 2*ell*(ell+1) - s*(s+1)
-
-    # slicing the required eigenfunctions
-    U, V = lm.U_arr[eig_idx], lm.V_arr[eig_idx]
-    
-    # the factor in the integral dependent on eigenfunctions
-    # shape (r,)
-    eigfac = 2*U*V - U**2 - 0.5*(V**2)*ls2fac
-
-    # total integrand
-    # nc = number of control points, the additional value indicates the
-    # integral between (rmin, rth), which is constant across MCMC iterations
-    # shape (nc x r)
-    integrand = -1. * bsp_basis * eigfac / GVARS.r
-
-    # shape (nc,)
-    post_integral = integrate.trapz(integrand, GVARS.r, axis=1)
-    return post_integral
-
-def integrate_fixed_wsr(eig_idx, ell, s):
+def get_s1_kernels(eig_idx, ell, GVARS, percomp_dict, s=1):
     '''Builds the integrated part of the fixed                                                
     part of pre-computation for the region below                                              
     rth.                                                                                      
@@ -120,20 +46,67 @@ def integrate_fixed_wsr(eig_idx, ell, s):
                    Array of shape containing the integrated values using                      
                    the fixed part of the profile below rth.                                   
     '''
-    s_ind = (s-1)//2
     ls2fac = 2*ell*(ell+1) - s*(s+1)
 
     # slicing the required eigenfunctions
-    U, V = lm.U_arr[eig_idx], lm.V_arr[eig_idx]
+    U, V = precomp_dict.lm.U_arr[eig_idx], precomp_dict.lm.V_arr[eig_idx]
 
     # the factor in the integral dependent on eigenfunctions
     # shape (r,)
     eigfac = 2*U*V - U**2 - 0.5*(V**2)*ls2fac
+    
     # total integrand
-    integrand = -1. * GVARS.wsr_fixed[s_ind] * eigfac / GVARS.r
-    post_integral = integrate.trapz(integrand, GVARS.r) # a scalar
-    return post_integral
+    integrand = -1. * eigfac / GVARS.r
+    
+    kernel_Omega1_out = integrate.trapz(integrand, GVARS.r)
+    
+    kernel_DeltaOmega1 = integrate.trapz(integrand[:precomp_dict.rcz_ind],
+                                         GVARS.r[:precomp_dict.rcz_ind])
+    
+    # returns two scalars
+    return kernel_Omega1_out, kernel_DeltaOmega1
 
+def get_sgt1_kernels(eig_idx, ell, GVARS, percomp_dict, s):
+    '''Builds the integrated part of the fixed                                                
+    part of pre-computation for the region below                                              
+    rth.                                                                                      
+    Parameters:                                                                               
+    -----------                                                                               
+    eig_idx : int                                                                             
+              Index of the multiplet in the list of multiplets                                
+              whose eigenfunctions are pre-loaded.                                            
+                                                                                              
+    ell     : int                                                                             
+              Angular degree of the multiplet whose kernel integral                           
+              we want to calculate.                                                           
+                                                                                              
+    s       : int                                                                             
+              Angular degree of the perturbation                                              
+              (differential rotation for now).                                                
+    Returns:                                                                                  
+    --------                                                                                  
+    post_integral: float, ndarray                                                             
+                   Array of shape containing the integrated values using                      
+                   the fixed part of the profile below rth.                                   
+    '''
+    ls2fac = 2*ell*(ell+1) - s*(s+1)
+
+    # slicing the required eigenfunctions                                                    
+    U, V = precomp_dict.lm.U_arr[eig_idx], precomp_dict.lm.V_arr[eig_idx]
+
+    # the factor in the integral dependent on eigenfunctions                                 
+    # shape (r,)                                                                             
+    eigfac = 2*U*V - U**2 - 0.5*(V**2)*ls2fac
+
+    # total integrand                                                                         
+    integrand = -1. * eigfac / GVARS.r
+
+    # sgt1 = s > 1
+    kernel_DeltaOmega_sgt1 = integrate.trapz(integrand[precomp_dict.rcz_ind:],
+                                         GVARS.r[precomp_dict.rcz_ind:])
+
+    # returns two scalars                                                                     
+    return kernel_DeltaOmega_sgt1
 
 def build_hm_nonint_n_fxd_1cnm(s, CNM, precomp_dict):
     """Main function that does the multiplet-wise                                             

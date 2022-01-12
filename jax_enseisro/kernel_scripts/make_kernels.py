@@ -2,7 +2,7 @@ import numpy as np
 
 from jax_enseisro.setup_scripts import misc_functions as misc_fn
 from jax_enseisro.setup_scripts import build_cenmults as build_cnm
-from jax_enseisro.setup_scripts import sparse_precompute_acoeffs as precompute
+from jax_enseisro.setup_scripts import sparse_precompute as precompute
 
 def make_kernels(star_mult_arr, GVARS):
     # dictionary of kernels to be filled by Star Type
