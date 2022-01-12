@@ -1,5 +1,5 @@
 import numpy as np   
-from qdpy_jax import jax_functions as jf
+import misc_functions as misc_fn
 
 def getnt4cenmult(GVARS):
     """Function that returns the name tuple for the
@@ -63,12 +63,12 @@ def getnt4cenmult(GVARS):
     nl_cnm_idx = nl_idx_vec(nl_cnm)
     omega_cnm = omega_list[nl_cnm_idx]
 
-    CENMULTS = jf.create_namedtuple('CENMULT',
-                                    ['nl_cnm',
-                                     'nl_cnm_idx',
-                                     'omega_cnm'],
-                                    (nl_cnm,
-                                     nl_cnm_idx,
-                                     omega_cnm))
-
+    CENMULTS = misc_fn.create_namedtuple('CENMULT',
+                                         ['nl_cnm',
+                                          'nl_cnm_idx',
+                                          'omega_cnm'],
+                                         (nl_cnm,
+                                          nl_cnm_idx,
+                                          omega_cnm))
+    
     return CENMULTS

@@ -73,6 +73,7 @@ class GlobalVars():
         self.numax_sun = 3067.0    # in muHz
         self.g_sun = 274.0         # in SI units
 
+        # these are the solar data
         # self.rho = np.loadtxt(f"{self.datadir}/rho.dat")
         self.r = np.loadtxt(f"{self.datadir}/r.dat")
         self.nl_all = np.loadtxt(f"{self.datadir}/nl.dat").astype('int')

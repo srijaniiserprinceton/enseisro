@@ -16,6 +16,11 @@ def load_obj(name):
     with open(name + '.pkl', 'rb') as f:
         return pickle.load(f)
 
+def create_namedtuple(tname, keys, values):
+    NT = namedtuple(tname, keys)
+    nt = NT(*values)
+    return nt
+
 def tree_map_CNM_AND_NBS(CNM_AND_NBS):
     # converting to tuples and nestes tuples for easy of passing
     nl_nbs = tuple(map(tuple, CNM_AND_NBS.nl_nbs))

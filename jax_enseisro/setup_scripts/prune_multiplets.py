@@ -1,11 +1,6 @@
-from jax import jit
 import numpy as np
 
-import wigner_map as wigmap
-import build_cenmults as build_cnm
-
-# jitting various functions
-getnt4cenmult_ = jit(build_cnm.getnt4cenmult, static_argnums = (0, 1, 2))
+from jax_enseisro.setup_scripts import wigner_map as wigmap
 
 # slices out the unique nl, nl_idx and omega from
 # from the arguments nl, omega which may contain repetitions
@@ -29,12 +24,9 @@ def get_pruned_multiplets(nl, omega, nl_all):
     return nl_pruned, nl_idx_pruned, omega_pruned
 
 
-def get_pruned_attributes(GVARS):
+def get_pruned_attributes(GVARS, CENMULTS):
     wig_list = []
     wig_idx = []
-    
-    # building the namedtuple for the central multiplet and its neighbours
-    CENMULTS = getnt4cenmult_(GVARS)
     
     nl_pruned = CENMULTS.nl_cnm
     omega_pruned = CENMULTS.omega_cnm

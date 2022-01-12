@@ -1,4 +1,4 @@
-Bimport numpy as np
+import numpy as np
 from tqdm import tqdm
 from scipy import integrate
 from scipy.interpolate import splev
@@ -15,8 +15,6 @@ import wigner_map as wigmap
 import prune_multiplets
 import build_cenmults as build_cnm
 
-# defining functions used in multiplet functions in the script
-getnt4cenmult = build_cnm.getnt4cenmult
 _find_idx = wigmap.find_idx
 jax_minus1pow_vec = misc_fn.jax_minus1pow_vec
 
@@ -24,27 +22,6 @@ jax_minus1pow_vec = misc_fn.jax_minus1pow_vec
 jax_Omega_ = jit(misc_fn.jax_Omega)
 jax_gamma_ = jit(mics_fn.jax_gamma)
 
-ARGS = np.loadtxt(".n0-lmin-lmax.dat")
-GVARS = gvar_jax.GlobalVars(n0=int(ARGS[0]),
-                            lmin=int(ARGS[1]),
-                            lmax=int(ARGS[2]),
-                            rth=ARGS[3],
-                            knot_num=int(ARGS[4]),
-                            load_from_file=int(ARGS[5]))
-GVARS_PATHS, GVARS_TR, GVARS_ST = GVARS.get_all_GVAR()
-nl_pruned, nl_idx_pruned, omega_pruned, wig_list, wig_idx =\
-                    prune_multiplets.get_pruned_attributes(GVARS)
-
-CNM = build_cnm.getnt4cenmult(GVARS)
-
-# extracting attributes from CNM_AND_NBS
-num_cnm = len(CNM.omega_cnm)
-ellmax = np.max(CNM.nl_cnm[:,1])
-
-
-lm = load_multiplets.load_multiplets(GVARS, nl_pruned,
-                                     nl_idx_pruned,
-                                     omega_pruned)
 
 def get_bsp_basis_elements(x):
     """Returns the integrated basis polynomials
@@ -158,7 +135,7 @@ def integrate_fixed_wsr(eig_idx, ell, s):
     return post_integral
 
 
-def build_hm_nonint_n_fxd_1cnm(s):
+def build_hm_nonint_n_fxd_1cnm(s, CNM, precomp_dict):
     """Main function that does the multiplet-wise                                             
     precomputation of the non-c and the fixed part of the hypermatrix.                        
     In this case, the hypermatrix is effectively the diagonal of                              
@@ -181,7 +158,8 @@ def build_hm_nonint_n_fxd_1cnm(s):
                         The pre-integrated part of the hypermatrix                            
                         which has the shape (2*ell+1).sum().
     """
-    two_ellp1_sum_all = num_cnm * (2 * ellmax + 1)
+    two_ellp1_sum_all = precomp_dict.num_cnm *\
+                        (2 * precomp_dict.ellmax + 1)
     # the non-m part of the hypermatrix
     non_c_diag_arr = np.zeros((GVARS.nc, two_ellp1_sum_all))
     non_c_diag_list = []
@@ -192,7 +170,7 @@ def build_hm_nonint_n_fxd_1cnm(s):
     start_cnm_ind = 0
 
     # filling in the non-m part using the masks
-    for i in tqdm(range(num_cnm), desc=f"Precomputing for s={s}"):
+    for i in tqdm(range(precomp_dict.num_cnm), desc=f"Precomputing for s={s}"):
         # updating the start and end indices
         omega0 = CNM.omega_cnm[i]
         end_cnm_ind = start_cnm_ind + 2 * CNM.nl_cnm[i, 1] + 1
@@ -201,13 +179,13 @@ def build_hm_nonint_n_fxd_1cnm(s):
         ell = CNM.nl_cnm[i, 1]
 
         wig1_idx, fac1 = _find_idx(ell, s, ell, 1)
-        wigidx1ij = np.searchsorted(wig_idx, wig1_idx)
-        wigval1 = fac1 * wig_list[wigidx1ij]
+        wigidx1ij = np.searchsorted(precomp_dict.wig_idx, wig1_idx)
+        wigval1 = fac1 * precomp_dict.wig_list[wigidx1ij]
 
         m_arr = np.arange(-ell, ell+1)
         wig_idx_i, fac = _find_idx(ell, s, ell, m_arr)
-        wigidx_for_s = np.searchsorted(wig_idx, wig_idx_i)
-        wigvalm = fac * wig_list[wigidx_for_s]
+        wigidx_for_s = np.searchsorted(precomp_dict.wig_idx, wig_idx_i)
+        wigvalm = fac * precomp_dict.wig_list[wigidx_for_s]
 
         #-------------------------------------------------------
         # computing the ell1, ell2 dependent factors such as
@@ -242,7 +220,7 @@ def build_hm_nonint_n_fxd_1cnm(s):
         fixed_diag_arr[start_cnm_ind: end_cnm_ind] = fixed_integral * wigvalm * wigval1 
 
         # updating the start index
-        start_cnm_ind = (i+1) * (2 * ellmax + 1)
+        start_cnm_ind = (i+1) * (2 * precomp_dict.ellmax + 1)
 
     # deleting wigvalm 
     del wigvalm, wigval1, fixed_integral, integrated_part
@@ -261,7 +239,7 @@ def build_hm_nonint_n_fxd_1cnm(s):
     return non_c_diag_list, fixed_diag_sparse
 
 
-def build_hypmat_all_cenmults():
+def build_kernels_all_cenmults(CNM, precomp_dict):
     '''Precomputes all the arrays needed for the inversion.                                   
                                                                                               
     Returns:                                                                                  
@@ -280,7 +258,7 @@ def build_hypmat_all_cenmults():
                     when dividing by 2 * omega0.                                              
     '''
     # to store the cnm frequencies
-    omega0_arr = np.ones(num_cnm * (2 * ellmax + 1))
+    omega0_arr = np.ones(precomp_dict.num_cnm * (2 * precomp_dict.ellmax + 1))
     start_cnm_ind = 0
     for i, omega_cnm in enumerate(CNM.omega_cnm):
         # updating the start and end indices
@@ -288,7 +266,7 @@ def build_hypmat_all_cenmults():
         omega0_arr[start_cnm_ind:end_cnm_ind] *= CNM.omega_cnm[i]
 
         # updating the start index
-        start_cnm_ind = (i+1) * (2 * ellmax + 1)
+        start_cnm_ind = (i+1) * (2 * precomp_dict.ellmax + 1)
 
 
     # stores the diags as a function of s and c. Shape (s x c) 
@@ -297,7 +275,7 @@ def build_hypmat_all_cenmults():
     for s_ind, s in enumerate(GVARS.s_arr):
         # shape (dim_hyper x dim_hyper) but sparse form
         non_c_diag_s, fixed_diag_s =\
-                    build_hm_nonint_n_fxd_1cnm(s)
+                    build_hm_nonint_n_fxd_1cnm(s, CNM, precompte_dict)
         
         # appending the different m part in the list
         non_c_diag_cs.append(non_c_diag_s)
