@@ -37,4 +37,4 @@ star_mult_arr = create_synthetic_mults.get_star_mult_arr(GVARS)
 
 # get data vector
 # data_vector = make_data_vector.get_d(star_mult_arr, GVARS)
-make_kernels.make_kernels((star_mult_arr), GVARS)
+kernel = make_kernels.make_kernels((star_mult_arr), GVARS)

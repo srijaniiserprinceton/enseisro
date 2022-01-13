@@ -97,6 +97,9 @@ class GlobalVars():
         # retaining only region between rmin and rmax
         self.r = self.mask_minmax(self.r)
 
+        # the s array. Considering only odd s
+        self.s_arr = np.arange(1, self.smax+1, 2)
+
     def get_idx(self, arr, val):
         return abs(arr - val).argmin()
 

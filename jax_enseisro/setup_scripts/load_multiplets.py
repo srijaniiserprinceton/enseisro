@@ -17,8 +17,8 @@ class load_multiplets:
            Array of angular degree for the multiplets.
     '''
 
-    def __init__(self, GVAR, nl_pruned, nl_idx_pruned, omega_pruned):
-        self.GVAR = GVAR
+    def __init__(self, GVARS, nl_pruned, nl_idx_pruned, omega_pruned):
+        self.GVARS = GVARS
         self.nl_pruned = nl_pruned
         self.omega_pruned = omega_pruned
         self.nl_idx_pruned = nl_idx_pruned
@@ -29,16 +29,17 @@ class load_multiplets:
     def load_eigs(self):
         '''Loading the eigenfunctions only for the pruned multiplets.'''
         nmults = len(self.nl_pruned)
-        rmin_idx = self.GVAR.rmin_ind
-        rmax_idx = self.GVAR.rmax_ind
+        rmin_idx = self.GVARS.rmin_idx
+        rmax_idx = self.GVARS.rmax_idx
 
-        U_arr = np.zeros((nmults, len(self.GVAR.r)))
-        V_arr = np.zeros((nmults, len(self.GVAR.r)))
+        U_arr = np.zeros((nmults, len(self.GVARS.r)))
+        V_arr = np.zeros((nmults, len(self.GVARS.r)))
 
         # directory containing the eigenfunctions
-        eigdir = self.GVAR.eigdir
+        eigdir = self.GVARS.eigdir
         
-        for i in tqdm(range(nmults), desc=f"Loading eigenfunctions..."):
+        for i in tqdm(range(nmults),
+                      desc=f"[Type {self.GVARS.Stype}] Loading eigenfunctions"):
             idx = self.nl_idx_pruned[i]
             U_arr[i] = np.loadtxt(f'{eigdir}/U{idx}.dat')[rmin_idx:rmax_idx]
             V_arr[i] = np.loadtxt(f'{eigdir}/V{idx}.dat')[rmin_idx:rmax_idx]

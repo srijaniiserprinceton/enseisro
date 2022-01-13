@@ -1,5 +1,6 @@
 import numpy as np   
-import misc_functions as misc_fn
+
+from jax_enseisro.setup_scripts import misc_functions as misc_fn
 
 def getnt4cenmult(GVARS):
     """Function that returns the name tuple for the

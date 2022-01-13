@@ -9,21 +9,19 @@ from jax import jit
 
 from jax_enseisro import globalvars as gvar_jax
 
-import load_multiplets
-import misc_functions_dpy as misc_fn
-import wigner_map as wigmap
-import prune_multiplets
-import build_cenmults as build_cnm
+from jax_enseisro.setup_scripts import load_multiplets
+from jax_enseisro.setup_scripts import misc_functions as misc_fn
+from jax_enseisro.setup_scripts import wigner_map as wigmap
 
 _find_idx = wigmap.find_idx
 jax_minus1pow_vec = misc_fn.jax_minus1pow_vec
 
 # jitting the jax_gamma and jax_Omega functions
 jax_Omega_ = jit(misc_fn.jax_Omega)
-jax_gamma_ = jit(mics_fn.jax_gamma)
+jax_gamma_ = jit(misc_fn.jax_gamma)
 
 
-def get_s1_kernels(eig_idx, ell, GVARS, percomp_dict, s=1):
+def get_s1_kernels(eig_idx, ell, precomp_dict, s=1):
     '''Builds the integrated part of the fixed                                                
     part of pre-computation for the region below                                              
     rth.                                                                                      
@@ -56,17 +54,17 @@ def get_s1_kernels(eig_idx, ell, GVARS, percomp_dict, s=1):
     eigfac = 2*U*V - U**2 - 0.5*(V**2)*ls2fac
     
     # total integrand
-    integrand = -1. * eigfac / GVARS.r
+    integrand = -1. * eigfac / precomp_dict.r
     
-    kernel_Omega1_out = integrate.trapz(integrand, GVARS.r)
+    kernel_Omega1_out = integrate.trapz(integrand, precomp_dict.r)
     
-    kernel_DeltaOmega1 = integrate.trapz(integrand[:precomp_dict.rcz_ind],
-                                         GVARS.r[:precomp_dict.rcz_ind])
+    kernel_DeltaOmega1 = integrate.trapz(integrand[:precomp_dict.rcz_idx],
+                                         precomp_dict.r[:precomp_dict.rcz_idx])
     
     # returns two scalars
-    return kernel_Omega1_out, kernel_DeltaOmega1
+    return np.array([kernel_Omega1_out, kernel_DeltaOmega1])
 
-def get_sgt1_kernels(eig_idx, ell, GVARS, percomp_dict, s):
+def get_sgt1_kernels(eig_idx, ell, precomp_dict, s=3):
     '''Builds the integrated part of the fixed                                                
     part of pre-computation for the region below                                              
     rth.                                                                                      
@@ -99,16 +97,16 @@ def get_sgt1_kernels(eig_idx, ell, GVARS, percomp_dict, s):
     eigfac = 2*U*V - U**2 - 0.5*(V**2)*ls2fac
 
     # total integrand                                                                         
-    integrand = -1. * eigfac / GVARS.r
+    integrand = -1. * eigfac / precomp_dict.r
 
     # sgt1 = s > 1
-    kernel_DeltaOmega_sgt1 = integrate.trapz(integrand[precomp_dict.rcz_ind:],
-                                         GVARS.r[precomp_dict.rcz_ind:])
+    kernel_DeltaOmega_sgt1 = integrate.trapz(integrand[precomp_dict.rcz_idx:],
+                                             precomp_dict.r[precomp_dict.rcz_idx:])
 
     # returns two scalars                                                                     
-    return kernel_DeltaOmega_sgt1
+    return np.array([kernel_DeltaOmega_sgt1])
 
-def build_hm_nonint_n_fxd_1cnm(s, CNM, precomp_dict):
+def build_kernel_each_s(s, CNM, precomp_dict):
     """Main function that does the multiplet-wise                                             
     precomputation of the non-c and the fixed part of the hypermatrix.                        
     In this case, the hypermatrix is effectively the diagonal of                              
@@ -133,17 +131,22 @@ def build_hm_nonint_n_fxd_1cnm(s, CNM, precomp_dict):
     """
     two_ellp1_sum_all = precomp_dict.num_cnm *\
                         (2 * precomp_dict.ellmax + 1)
-    # the non-m part of the hypermatrix
-    non_c_diag_arr = np.zeros((GVARS.nc, two_ellp1_sum_all))
-    non_c_diag_list = []
 
-    # the fixed hypermatrix (contribution below rth)
-    fixed_diag_arr = np.zeros(two_ellp1_sum_all)
+    if(s == 1):
+        # fits for both \Omega1_out and \Delta\Omega1
+        kernel_arr = np.zeros((2, two_ellp1_sum_all))
+        kernel_fn = get_s1_kernels
+    else:
+        # fits for only \Omega_s_out
+        kernel_arr = np.zeros((1, two_ellp1_sum_all))
+        kernel_fn = get_sgt1_kernels
+        
 
     start_cnm_ind = 0
 
     # filling in the non-m part using the masks
-    for i in tqdm(range(precomp_dict.num_cnm), desc=f"Precomputing for s={s}"):
+    for i in tqdm(range(precomp_dict.num_cnm),
+                  desc=f"[Type {precomp_dict.Stype}] Precomputing for s={s}"):
         # updating the start and end indices
         omega0 = CNM.omega_cnm[i]
         end_cnm_ind = start_cnm_ind + 2 * CNM.nl_cnm[i, 1] + 1
@@ -169,47 +172,31 @@ def build_hm_nonint_n_fxd_1cnm(s, CNM, precomp_dict):
         # also including 8 pi * omegaref
         omegaref = CNM.omega_cnm[i]
         ell1_ell2_fac = gamma_prod * Omega_prod *\
-                        8 * np.pi * omegaref *\
+                        4 * np.pi *\
                         (1 - jax_minus1pow_vec(s))
 
         # parameters for calculating the integrated part
-        eig_idx = nl_idx_pruned.index(CNM.nl_cnm_idx[i])
+        eig_idx = precomp_dict.nl_idx_pruned.index(CNM.nl_cnm_idx[i])
 
-        # shape (n_control_points,)
-        # integrated_part = build_integrated_part(eig_idx1, eig_idx2, ell1, ell2, s)
-        integrated_part = build_integrated_part(eig_idx, ell, s)
         #-------------------------------------------------------
-        # integrating wsr_fixed for the fixed part
-        fixed_integral = integrate_fixed_wsr(eig_idx, ell, s)
+        # integrating and returning appropriate kernel depending on s
+        kernel = kernel_fn(eig_idx, ell, precomp_dict, s=s)
 
         wigvalm *= (jax_minus1pow_vec(m_arr) * ell1_ell2_fac)
 
-        for c_ind in range(GVARS.nc):
-            # non-ctrl points submat
-            non_c_diag_arr[c_ind, start_cnm_ind: end_cnm_ind] =\
-                                    integrated_part[c_ind] * wigvalm * wigval1
-
-        # the fixed hypermatrix
-        fixed_diag_arr[start_cnm_ind: end_cnm_ind] = fixed_integral * wigvalm * wigval1 
+        # filling the kernel array
+        for j in range(kernel_arr.shape[0]):
+            kernel_arr[j, start_cnm_ind: end_cnm_ind] =\
+                                kernel[j] * wigvalm * wigval1 
 
         # updating the start index
         start_cnm_ind = (i+1) * (2 * precomp_dict.ellmax + 1)
 
     # deleting wigvalm 
-    del wigvalm, wigval1, fixed_integral, integrated_part
+    del wigvalm, wigval1, kernel
 
-    # making it a list to allow easy c * hypermat later
-    for c_ind in range(GVARS.nc):
-        non_c_diag_arr_sparse = sparse.BCOO.fromdense(non_c_diag_arr[c_ind])
-        non_c_diag_list.append(non_c_diag_arr_sparse)
-
-    del non_c_diag_arr # deleting for ensuring no extra memory
-
-    # sparsifying the fixed hypmat
-    fixed_diag_sparse = sparse.BCOO.fromdense(fixed_diag_arr)
-    del fixed_diag_arr             
-
-    return non_c_diag_list, fixed_diag_sparse
+    # shape = (2 x num_cnm) for s = 1 and (1 - num_cnm for s > 1
+    return kernel_arr
 
 
 def build_kernels_all_cenmults(CNM, precomp_dict):
@@ -242,21 +229,19 @@ def build_kernels_all_cenmults(CNM, precomp_dict):
         start_cnm_ind = (i+1) * (2 * precomp_dict.ellmax + 1)
 
 
-    # stores the diags as a function of s and c. Shape (s x c) 
-    non_c_diag_cs = []
+    # stores the kernels in (num_s + 1 x num_cnm) form
+    # the +1 comes from the fact that only s=1 has two components.
+    kernel_arr_all_s = np.zeros((len(precomp_dict.s_arr)+1,
+                                 precomp_dict.num_cnm * \
+                                 (2 * precomp_dict.ellmax + 1)))
 
-    for s_ind, s in enumerate(GVARS.s_arr):
-        # shape (dim_hyper x dim_hyper) but sparse form
-        non_c_diag_s, fixed_diag_s =\
-                    build_hm_nonint_n_fxd_1cnm(s, CNM, precompte_dict)
+    for s_ind, s in enumerate(precomp_dict.s_arr):
+        # shape (2 x num_cnm) for s = 1 and (1 x num_cnm) for s > 1
+        kernel_arr = build_kernel_each_s(s, CNM, precomp_dict)
         
-        # appending the different m part in the list
-        non_c_diag_cs.append(non_c_diag_s)
-        
-        # adding up the different s for the fixed part
-        if s_ind == 0:
-            fixed_diag = fixed_diag_s
+        if(s == 1):
+            kernel_arr_all_s[:2] = kernel_arr
         else:
-            fixed_diag += fixed_diag_s
-    # non_c_diag_s = (s x 2ellp1_sum_all), fixed_diag = (2ellp1_sum_all,)
-    return non_c_diag_cs, fixed_diag, omega0_arr
+            kernel_arr_all_s[s_ind+1] = kernel_arr
+        
+    return kernel_arr_all_s

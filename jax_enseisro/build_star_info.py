@@ -20,6 +20,8 @@ nStype = 4
 
 num_startype_arr = np.array([4, 2, 8, 5], dtype='int')
 
+rcz_startype_arr = np.array([0.68, 0.71, 0.7, 0.69])
+
 nmin, nmax = 16, 24
 lmin, lmax = 1, 3
 
@@ -50,3 +52,6 @@ with open("inversion_metadata/.star_metadata.dat", "w") as f:
 
 # storing the number of stars in each type
 np.save('inversion_metadata/num_startype_arr.npy', num_startype_arr)
+
+# storing the array of rcz by star type
+np.save('inversion_metadata/rcz_startype_arr.npy', rcz_startype_arr)

@@ -49,7 +49,7 @@ def w3j_vecm(l1, l2, l3, m1, m2, m3):
     return wigvals
 
 
-def get_wigners(nl_nbs, s_arr, wig_list, wig_idx):
+def get_wigners(nl_nbs, s_arr, wig_list, wig_idx, Stype):
     # re-converting it back to array
     nl_nbs = jnp.asarray(nl_nbs)
     
@@ -71,7 +71,8 @@ def get_wigners(nl_nbs, s_arr, wig_list, wig_idx):
     num_multiplets = nl_nbs.shape[0]
     num_blocks = int(num_multiplets**2)
 
-    for i in tqdm(range(num_multiplets), desc=f"Precomputing wigners..."):
+    for i in tqdm(range(num_multiplets),
+                  desc=f"[Type {Stype}] Precomputing wigners"):
         ell = np.array([nl_nbs[i, 1]])[0]
         m = np.arange(0, ell+1)
         larr = np.ones_like(m)*ell
