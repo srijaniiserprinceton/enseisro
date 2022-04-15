@@ -69,7 +69,7 @@ def make_kernels(star_mult_arr, GVARS):
                                                     rmax_idx,
                                                     GVARS.s_arr))
 
-        # getting the cenmult namedtuple for the mults in this startype≈ß
+        # getting the cenmult namedtuple for the mults in this startype
         cenmult_this_startype = build_cnm.getnt4cenmult(GVARS_startype)
         
         # extracting attributes from CNM_AND_NBS                                              

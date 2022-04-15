@@ -5,7 +5,7 @@ from scipy.special import legendre
 NAX = np.newaxis
 
 def adjust_ens_dim(wsr):
-    '''# checking the dimensions of wsr. If ndim=2 then expanding by 1 dim                     
+    '''# checking the dimensions of wsr. If ndim=2 then expanding by 1 dim                   
     this allows for a generic handling if the ensemble form (s x r x N)                       
     is passed
     '''
@@ -18,7 +18,7 @@ def adjust_ens_dim(wsr):
 
     return lens, lenr, lenN, wsr
 
-def w_2_omega(GVAR, wsr):
+def w_2_Omega(GVAR, wsr):
     '''This function converts w_s(r) to \Omega_s(r)
     as can be found in Eqn.~(9) in Vorontsov 2011
     '''
@@ -33,7 +33,7 @@ def w_2_omega(GVAR, wsr):
         s = 2 * s_ind + 1
         
         # Shape: r
-        conv_factor = ((2 * s + 1)/(4*np.pi))**0.5 / GVAR.r
+        conv_factor = np.sqrt((2 * s + 1)/(4*np.pi)) / GVAR.r
 
         Omegasr[s_ind,:,:] = conv_factor[:,NAX] * wsr[s_ind,:,:]
 
@@ -43,6 +43,32 @@ def w_2_omega(GVAR, wsr):
         Omegasr = Omegasr[:,:,0]  # getting rid of extra dimension
 
     return Omegasr
+
+def Omega_2_w(GVAR, Omega_sr):
+    '''This function converts \Omega_s(r) to w_s(r)                                           
+    as can be found in Eqn.~(9) in Vorontsov 2011                                             
+    '''
+    # readjusting ensemble dimension to take care of both                                     
+    # ensemble and non-ensemble case                                                          
+    lens, lenr, lenN, Omega_sr = adjust_ens_dim(Omega_sr)
+
+    # creating the w_s(r) matrix                                                          
+    wsr = np.zeros_like(Omega_sr)
+
+    for s_ind in range(lens):
+        s = 2 * s_ind + 1
+
+        # Shape: r                                                                            
+        conv_factor = np.sqrt((4 * np.pi) / (2 * s + 1)) * GVAR.r
+
+        wsr[s_ind,:,:] = conv_factor[:,NAX] * Omega_sr[s_ind,:,:]
+
+
+    # if its just one star and not an ensemble                                                
+    if(lenN == 1):
+        wsr = wsr[:,:,0]  # getting rid of extra dimension                            
+
+    return wsr
 
 def Omega_s_to_Omega_theta(Omegasr, Ntheta=100):
     '''This function converts Omega_s(r) to Omega(r,theta).

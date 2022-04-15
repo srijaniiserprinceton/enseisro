@@ -29,6 +29,6 @@ setup(
     version='0.1.',
     packages=find_packages("."), # Finds every folder with __init__.py in it. (Hehe)
     install_requires=[
-        "numpy", "matplotlib", "scipy", "wigner", "py3nj"
+        "numpy", "matplotlib", "scipy", "py3nj"
     ],
 )

@@ -54,7 +54,8 @@ def get_s1_kernels(eig_idx, ell, precomp_dict, s=1):
     eigfac = 2*U*V - U**2 - 0.5*(V**2)*ls2fac
     
     # total integrand
-    integrand = -1. * eigfac / precomp_dict.r
+    # does not contain 1 / r since we use Omega_s instead of w_s
+    integrand = -1. * eigfac
     
     kernel_Omega1_out = integrate.trapz(integrand, precomp_dict.r)
     
@@ -96,14 +97,15 @@ def get_sgt1_kernels(eig_idx, ell, precomp_dict, s=3):
     # shape (r,)                                                                             
     eigfac = 2*U*V - U**2 - 0.5*(V**2)*ls2fac
 
-    # total integrand                                                                         
-    integrand = -1. * eigfac / precomp_dict.r
+    # total integrand
+    # does not contain 1/ r since we use Omega_s instead of w_s
+    integrand = -1. * eigfac
 
     # sgt1 = s > 1
     kernel_DeltaOmega_sgt1 = integrate.trapz(integrand[precomp_dict.rcz_idx:],
                                              precomp_dict.r[precomp_dict.rcz_idx:])
 
-    # returns two scalars                                                                     
+    # returns a scalar                                                                     
     return np.array([kernel_DeltaOmega_sgt1])
 
 def build_kernel_each_s(s, CNM, precomp_dict):
@@ -116,7 +118,7 @@ def build_kernel_each_s(s, CNM, precomp_dict):
     Paramters:                                                                                
     ----------                                                                                
     s : int                                                                                   
-        The angualr degree for which the no-c and fixed part                                  
+        The angular degree for which the no-c and fixed part                                  
         needs to be precomputed.                                                              
                                                                                               
     Returns:                                                                                  
@@ -166,11 +168,12 @@ def build_kernel_each_s(s, CNM, precomp_dict):
         #-------------------------------------------------------
         # computing the ell1, ell2 dependent factors such as
         # gamma and Omega
-        gamma_prod =  jax_gamma_(s) * jax_gamma_(ell)**2  
-        Omega_prod = jax_Omega_(ell, 0)**2
+        # does not contain the jax_gamma_(s) factor since we use Omega_s instead of w_s
+        gamma_prod = jax_gamma_(ell)**2  
+        Omega_prod = jax_Omega_(ell,0)**2
         
         # also including 8 pi * omegaref
-        omegaref = CNM.omega_cnm[i]
+        # omegaref = CNM.omega_cnm[i]
         ell1_ell2_fac = gamma_prod * Omega_prod *\
                         4 * np.pi *\
                         (1 - jax_minus1pow_vec(s))
@@ -240,8 +243,10 @@ def build_kernels_all_cenmults(CNM, precomp_dict):
         kernel_arr = build_kernel_each_s(s, CNM, precomp_dict)
         
         if(s == 1):
+            print(s, kernel_arr)
             kernel_arr_all_s[:2] = kernel_arr
         else:
+            print(s, kernel_arr)
             kernel_arr_all_s[s_ind+1] = kernel_arr
         
     return kernel_arr_all_s

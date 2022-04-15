@@ -18,14 +18,14 @@ rand_mults : Whether to introduce minor changes across the radial order of
 #-------------------------- defining metadata -----------------------------#
 nStype = 4
 
-num_startype_arr = np.array([4, 2, 8, 5], dtype='int')
+num_startype_arr = np.array([1, 1, 1, 1], dtype='int')
 
 rcz_startype_arr = np.array([0.68, 0.71, 0.7, 0.69])
 
-nmin, nmax = 16, 24
+nmin, nmax = 20, 21
 lmin, lmax = 1, 3
 
-rand_mults = 1
+rand_mults = 0
 
 # Max angular degree for Omega_s
 smax = 3
