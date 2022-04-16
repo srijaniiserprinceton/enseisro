@@ -40,7 +40,7 @@ use_Delta = 1
 
 #------writing out the metadata to be used in other files-------------------#
 
-with open("inversion_metadata/.star_metadata.dat", "w") as f:
+with open(".star_metadata.dat", "w") as f:
     f.write(f"{nStype}" + "\n" +
             f"{nmin}"+ "\n" +
             f"{nmax}" + "\n" +
@@ -52,7 +52,7 @@ with open("inversion_metadata/.star_metadata.dat", "w") as f:
             f"{use_Delta}")
 
 # storing the number of stars in each type
-np.save('inversion_metadata/num_startype_arr.npy', num_startype_arr)
+np.save('num_startype_arr.npy', num_startype_arr)
 
 # storing the array of rcz by star type
-np.save('inversion_metadata/rcz_startype_arr.npy', rcz_startype_arr)
+np.save('rcz_startype_arr.npy', rcz_startype_arr)

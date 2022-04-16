@@ -52,15 +52,15 @@ def get_s1_kernels(eig_idx, ell, precomp_dict, s=1):
     # the factor in the integral dependent on eigenfunctions
     # shape (r,)
     eigfac = 2*U*V - U**2 - 0.5*(V**2)*ls2fac
-    
+
     # total integrand
     # does not contain 1 / r since we use Omega_s instead of w_s
     integrand = -1. * eigfac
     
     kernel_Omega1_out = integrate.trapz(integrand, precomp_dict.r)
     
-    kernel_DeltaOmega1 = integrate.trapz(integrand[:precomp_dict.rcz_idx],
-                                         precomp_dict.r[:precomp_dict.rcz_idx])
+    kernel_DeltaOmega1 = integrate.trapz(integrand[precomp_dict.rcz_idx:],
+                                         precomp_dict.r[precomp_dict.rcz_idx:])
     
     # returns two scalars
     return np.array([kernel_Omega1_out, kernel_DeltaOmega1])
@@ -174,6 +174,7 @@ def build_kernel_each_s(s, CNM, precomp_dict):
         
         # also including 8 pi * omegaref
         # omegaref = CNM.omega_cnm[i]
+
         ell1_ell2_fac = gamma_prod * Omega_prod *\
                         4 * np.pi *\
                         (1 - jax_minus1pow_vec(s))
@@ -186,7 +187,7 @@ def build_kernel_each_s(s, CNM, precomp_dict):
         kernel = kernel_fn(eig_idx, ell, precomp_dict, s=s)
 
         wigvalm *= (jax_minus1pow_vec(m_arr) * ell1_ell2_fac)
-
+        
         # filling the kernel array
         for j in range(kernel_arr.shape[0]):
             kernel_arr[j, start_cnm_ind: end_cnm_ind] =\
@@ -243,10 +244,8 @@ def build_kernels_all_cenmults(CNM, precomp_dict):
         kernel_arr = build_kernel_each_s(s, CNM, precomp_dict)
         
         if(s == 1):
-            print(s, kernel_arr)
             kernel_arr_all_s[:2] = kernel_arr
         else:
-            print(s, kernel_arr)
             kernel_arr_all_s[s_ind+1] = kernel_arr
         
     return kernel_arr_all_s

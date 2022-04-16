@@ -1,13 +1,21 @@
 import numpy as np
 
 from jax_enseisro import globalvars as gvars_jax
+
+import os
+import sys
+sys.path.append('..')
+
 from data_scripts import create_synthetic_mults
 # from data_scripts import make_data_vector
 from kernel_scripts import make_kernels
 
+# bulding star info
+os.system('python build_star_info_test.py')
+
 # just to get access to the location of metadata
 GVARS_dummy = gvars_jax.GlobalVars()
-ARGS = np.loadtxt(f'{GVARS_dummy.metadata}/.star_metadata.dat')
+ARGS = np.loadtxt(f'.star_metadata.dat')
 
 # creating the actual GVARS
 GVARS = gvars_jax.GlobalVars(nStype=int(ARGS[0]),
@@ -56,4 +64,15 @@ freq_split_nondim = model_params @ kernel['0']
 # frequency splitting in nHz
 freq_split = freq_split_nondim * GVARS.OM * 1e9
 
-print(freq_split)
+# reference frequency that I had checked against qdPy
+# this was not an exact match but was pretty close. 
+# I reduced rcz and the error with qdPy reduced. So it might be because 
+# of how a discrete step function behaves as compared to a continuous function
+# in an integral sense
+freq_split_ref = np.array([-868.58979428,
+                           -414.42921892,
+                           0.,
+                           414.42921892,
+                           868.58979428])
+
+np.testing.assert_array_almost_equal(freq_split, freq_split_ref)
