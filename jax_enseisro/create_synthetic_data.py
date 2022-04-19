@@ -1,9 +1,11 @@
 import numpy as np
+import deepdish as dd
 
 from jax_enseisro import globalvars as gvars_jax
 from data_scripts import create_synthetic_mults
 # from data_scripts import make_data_vector
-from kernel_scripts import make_kernels
+from inversion_scripts import make_kernels
+from inversion_scripts import assemble_G_from_kernels as assemble_G
 
 # just to get access to the location of metadata
 GVARS_dummy = gvars_jax.GlobalVars()
@@ -33,27 +35,27 @@ This is in the form of a dictionary.
 '''
 
 # star-wise list of multiplets
-star_mult_arr = create_synthetic_mults.get_star_mult_arr(GVARS)
+star_mult_arr = dd.io.load(f'{GVARS_dummy.metadata}/star_mult_arr.h5')
 
 # get data vector
 # data_vector = make_data_vector.get_d(star_mult_arr, GVARS)
-kernel = make_kernels.make_kernels((star_mult_arr), GVARS)
+kernels = make_kernels.make_kernels(star_mult_arr, GVARS)
 
-# Omega_step
+# getting G matrix for forward problem
+G = assemble_G.make_G(kernels)
+
+# making model_params from Omega_step
 Omega_step = np.load('Omega_step.npy')
+Omega_1_in = Omega_step[0,0]
+Delta_Omega_1 = Omega_step[0,-1] - Omega_step[0,0]
+Delta_Omega_3 = Omega_step[1, -1]
 
-rcz_ind = np.argmin(np.abs(GVARS.r - 0.7))
+model_params_K = np.array([Omega_1_in, Delta_Omega_1, Delta_Omega_3])
+model_params_G = np.zeros(G.shape[1])
+model_params_G[0:-2] = Omega_1_in
+model_params_G[-2] = Delta_Omega_1
+model_params_G[-1] = Delta_Omega_3
 
-Omega_1_in = Omega_step[0,rcz_ind-1]
-delta_Omega_1 = Omega_step[0, rcz_ind] - Omega_step[0, rcz_ind-1]
-delta_Omega_3 = Omega_step[1, rcz_ind]
-
-model_params = np.array([Omega_1_in, delta_Omega_1, delta_Omega_3])
-
-# frequency splitting
-freq_split_nondim = model_params @ kernel['0']
-
-# frequency splitting in nHz
-freq_split = freq_split_nondim * GVARS.OM * 1e9
-
-print(freq_split)
+# checking if G ad kernels are consistent
+freq_split_K = model_params_K @ kernels['0']
+freq_split_G = G @ model_params_G

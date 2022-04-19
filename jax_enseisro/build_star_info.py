@@ -1,4 +1,8 @@
 import numpy as np
+import deepdish as dd
+
+from jax_enseisro import globalvars as gvars_jax
+from data_scripts import create_synthetic_mults
 
 '''This file is used to specify the metadata. FOr the 
 synthetic problem, this file also saves the information of
@@ -23,8 +27,8 @@ num_startype_arr = np.array([1, 1, 1, 1], dtype='int')
 # rcz_startype_arr = np.array([0.68, 0.71, 0.7, 0.69])
 rcz_startype_arr = np.array([0.7, 0.7, 0.7, 0.7])
 
-nmin, nmax = 20, 20
-lmin, lmax = 2, 2
+nmin, nmax = 16, 24
+lmin, lmax = 1, 3
 
 rand_mults = 0
 
@@ -56,3 +60,24 @@ np.save('inversion_metadata/num_startype_arr.npy', num_startype_arr)
 
 # storing the array of rcz by star type
 np.save('inversion_metadata/rcz_startype_arr.npy', rcz_startype_arr)
+
+#----------building and writing the star_mult_arr----------------------------#
+
+# just to get access to the location of metadata 
+GVARS_dummy = gvars_jax.GlobalVars()                                                         
+ARGS = np.loadtxt(f'{GVARS_dummy.metadata}/.star_metadata.dat')
+
+# creating the actual GVARS
+GVARS = gvars_jax.GlobalVars(nStype=int(ARGS[0]),
+                             nmin=int(ARGS[1]),
+                             nmax=int(ARGS[2]),
+                             lmin=int(ARGS[3]),
+                             lmax=int(ARGS[4]),
+                             smax=int(ARGS[5]),
+                             rand_mults=int(ARGS[6]),
+                             add_Noise=int(ARGS[7]),
+                             use_Delta=int(ARGS[8]))
+
+# star-wise list of multiplets
+star_mult_arr = create_synthetic_mults.get_star_mult_arr(GVARS)
+dd.io.save(f'{GVARS_dummy.metadata}/star_mult_arr.h5', star_mult_arr)

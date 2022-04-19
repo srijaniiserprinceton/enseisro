@@ -6,6 +6,9 @@ def get_star_mult_arr(GVARS):
     
     # the number of stars in each Star Type                                                  
     num_startype_arr = np.load(f'{GVARS.metadata}/num_startype_arr.npy')
+
+    # cumulative of star index in the entire ensemble
+    cumulative_star_ind = 0
     
     for startype_label in range(GVARS.nStype):
         num_stars_thistype = num_startype_arr[startype_label]
@@ -28,7 +31,10 @@ def get_star_mult_arr(GVARS):
         for star_ind in range(num_stars_thistype):
             for n in range(nmin4stars[star_ind], nmax4stars[star_ind]+1):
                 for ell in range(GVARS.lmin, GVARS.lmax+1):
-                    mult_arr_thistype.append([star_ind, n, ell])
+                    mult_arr_thistype.append([cumulative_star_ind, n, ell])
+                    
+            # moving onto next star
+            cumulative_star_ind += 1
 
         mult_arr_thistype = np.asarray(mult_arr_thistype)
         # rejecting the first invalid entry                                                   

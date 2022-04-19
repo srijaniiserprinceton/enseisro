@@ -6,3 +6,4 @@
 *__pycache*
 *.pdf
 docs/build
+*.h5
