@@ -3,27 +3,7 @@ import deepdish as dd
 
 from jax_enseisro import globalvars as gvars_jax
 
-# just to get access to the location of metadata                                   
-GVARS_dummy = gvars_jax.GlobalVars()
-ARGS = np.loadtxt(f'{GVARS_dummy.metadata}/.star_metadata.dat')
-
-# creating the actual GVARS                                                     
-GVARS = gvars_jax.GlobalVars(nStype=int(ARGS[0]),
-                             nmin=int(ARGS[1]),
-                             nmax=int(ARGS[2]),
-                             lmin=int(ARGS[3]),
-                             lmax=int(ARGS[4]),
-                             smax=int(ARGS[5]),
-                             rand_mults=int(ARGS[6]),
-                             add_Noise=int(ARGS[7]),
-                             use_Delta=int(ARGS[8]))
-
-# loading the star mult array
-star_mult_arr = dd.io.load(f'{GVARS.metadata}/star_mult_arr.h5')
-# loading the array with number of stars in each Stype
-num_startype_arr = np.load(f'{GVARS.metadata}/num_startype_arr.npy')
-
-def num_rows_G():
+def num_rows_G(star_mult_arr):
     num_rows = 0
     for star_key in star_mult_arr.keys():
         # summing over the (2*ell+1) in each multiplet of each star within a star type
@@ -32,20 +12,20 @@ def num_rows_G():
         
     return int(num_rows)
 
-def num_cols_G():
+def num_cols_G(GVARS):
     num_cols = 0
     
     # for each star there will be one column for the Omega_1_in
     # and then the rest of the columns will be for Delta_Omega_s
     # so total number of cols = Nstars + len(s_arr)
 
-    num_cols = np.sum(num_startype_arr) + len(GVARS.s_arr)
+    num_cols = np.sum(GVARS.num_startype_arr) + len(GVARS.s_arr)
     
     return int(num_cols)
 
-def make_G(kernels):
-    num_rows = num_rows_G()
-    num_cols = num_cols_G()
+def make_G(kernels, GVARS, star_mult_arr):
+    num_rows = num_rows_G(star_mult_arr)
+    num_cols = num_cols_G(GVARS)
     G = np.zeros((num_rows, num_cols))
 
     # number of Delta_Omega_s which are shared between the stars in ensemble
@@ -60,8 +40,6 @@ def make_G(kernels):
     
     # the star number in across Stypes. Always starts with star index 0.               
     star_num_this_Stype = 0
-
-    print('G shape:', G.shape)
 
     for star_key in kernels.keys():        
         # the kernel for this Stype (contains multiple stars)
@@ -86,9 +64,6 @@ def make_G(kernels):
             end_ind_row_G = start_ind_row_G + 2*ell+1
             end_ind_row_K = start_ind_row_K + 2*ell+1
             
-            print('G:', start_ind_row_G, end_ind_row_G)
-            print('K:', start_ind_row_K, end_ind_row_K)
-
             # checking if we have moved onto a different star
             if(star_num_this_Stype == mult_arr[mult_ind,0]):
                 pass
@@ -96,8 +71,6 @@ def make_G(kernels):
             else:
                 star_num_this_Stype = mult_arr[mult_ind,0]
                 star_number += 1
-
-            print(mult_arr[mult_ind], star_number)
 
             # assuming that only the first column is for Omega_1_in
             # which can differ across stars. Last cols are Delta_Omega_s which

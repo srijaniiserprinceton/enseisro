@@ -1,22 +1,23 @@
 import numpy as np
-
-from jax_enseisro import globalvars as gvars_jax
-
 import os
 import sys
 
+# parent directory path of "tests/"                                                      
+current_dir = os.path.dirname(os.path.realpath(__file__))
+tests_dir = os.path.dirname(current_dir)
+
+# bulding star info
+os.system(f'python {current_dir}/build_star_info.py')
+
+
+from jax_enseisro import globalvars as gvars_jax
 from jax_enseisro.data_scripts import create_synthetic_mults
-# from data_scripts import make_data_vector
 from jax_enseisro.inversion_scripts import make_kernels
 
-def test_splittings_forward_problem():
-    
-    # bulding star info
-    os.system('python build_star_info_test.py')
-    
+def test_splittings_forward_problem():    
     # just to get access to the location of metadata
-    GVARS_dummy = gvars_jax.GlobalVars()
-    ARGS = np.loadtxt(f'.star_metadata.dat')
+    metadata_path = f'{current_dir}'
+    ARGS = np.loadtxt(f'{metadata_path}/.star_metadata.dat')
     
     # creating the actual GVARS
     GVARS = gvars_jax.GlobalVars(nStype=int(ARGS[0]),
@@ -27,7 +28,8 @@ def test_splittings_forward_problem():
                                  smax=int(ARGS[5]),
                                  rand_mults=int(ARGS[6]),
                                  add_Noise=int(ARGS[7]),
-                                 use_Delta=int(ARGS[8]))
+                                 use_Delta=int(ARGS[8]),
+                                 metadata_path=metadata_path)
     
     '''Creating the multiplets used for each star. The order of storing
     these multiplets is as follows:
@@ -46,10 +48,10 @@ def test_splittings_forward_problem():
     
     # get data vector
     # data_vector = make_data_vector.get_d(star_mult_arr, GVARS)
-    kernel = make_kernels.make_kernels((star_mult_arr), GVARS)
+    kernel = make_kernels.make_kernels(star_mult_arr, GVARS)
     
-    # Omega_step
-    Omega_step = np.load('Omega_step.npy')
+    # Omega_step in the parent drectory tests/
+    Omega_step = np.load(f'{tests_dir}/Omega_step.npy')
     
     rcz_ind = np.argmin(np.abs(GVARS.r - 0.7))
     
@@ -77,3 +79,11 @@ def test_splittings_forward_problem():
                                868.58979428])
     
     np.testing.assert_array_almost_equal(freq_split, freq_split_ref)
+    
+    # deleting the metadata files so that it doesn't interfere with next runs
+    os.system(f'rm {current_dir}/*.npy {current_dir}/*.h5' +
+              f' {current_dir}/.star_metadata.dat')
+
+# for a standalone call to this testing
+if __name__ == "__main__":
+    test_splittings_forward_problem()

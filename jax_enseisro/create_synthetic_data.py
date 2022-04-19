@@ -7,9 +7,11 @@ from data_scripts import create_synthetic_mults
 from inversion_scripts import make_kernels
 from inversion_scripts import assemble_G_from_kernels as assemble_G
 
+metadata_path = './inversion_metadata'
+
 # just to get access to the location of metadata
 GVARS_dummy = gvars_jax.GlobalVars()
-ARGS = np.loadtxt(f'{GVARS_dummy.metadata}/.star_metadata.dat')
+ARGS = np.loadtxt(f'{metadata_path}/.star_metadata.dat')
 
 # creating the actual GVARS
 GVARS = gvars_jax.GlobalVars(nStype=int(ARGS[0]),
@@ -20,7 +22,8 @@ GVARS = gvars_jax.GlobalVars(nStype=int(ARGS[0]),
                              smax=int(ARGS[5]),
                              rand_mults=int(ARGS[6]),
                              add_Noise=int(ARGS[7]),
-                             use_Delta=int(ARGS[8]))
+                             use_Delta=int(ARGS[8]),
+                             metadata_path=metadata_path)
 
 '''Creating the multiplets used for each star. The order of storing
 these multiplets is as follows:
@@ -35,14 +38,14 @@ This is in the form of a dictionary.
 '''
 
 # star-wise list of multiplets
-star_mult_arr = dd.io.load(f'{GVARS_dummy.metadata}/star_mult_arr.h5')
+star_mult_arr = dd.io.load(f'{metadata_path}/star_mult_arr.h5')
 
 # get data vector
 # data_vector = make_data_vector.get_d(star_mult_arr, GVARS)
 kernels = make_kernels.make_kernels(star_mult_arr, GVARS)
 
 # getting G matrix for forward problem
-G = assemble_G.make_G(kernels)
+G = assemble_G.make_G(kernels, GVARS, star_mult_arr)
 
 # making model_params from Omega_step
 Omega_step = np.load('Omega_step.npy')
