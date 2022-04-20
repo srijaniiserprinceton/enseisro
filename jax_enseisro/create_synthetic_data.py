@@ -4,13 +4,13 @@ import deepdish as dd
 from jax_enseisro import globalvars as gvars_jax
 from data_scripts import create_synthetic_mults
 # from data_scripts import make_data_vector
-from inversion_scripts import make_kernels
-from inversion_scripts import assemble_G_from_kernels as assemble_G
+from setup_scripts import make_kernels
+from setup_scripts import assemble_G_from_kernels as assemble_G
+from setup_scripts import make_model_params as make_model_params
 
 metadata_path = './inversion_metadata'
 
 # just to get access to the location of metadata
-GVARS_dummy = gvars_jax.GlobalVars()
 ARGS = np.loadtxt(f'{metadata_path}/.star_metadata.dat')
 
 # creating the actual GVARS
@@ -47,18 +47,34 @@ kernels = make_kernels.make_kernels(star_mult_arr, GVARS)
 # getting G matrix for forward problem
 G = assemble_G.make_G(kernels, GVARS, star_mult_arr)
 
-# making model_params from Omega_step
-Omega_step = np.load('Omega_step.npy')
-Omega_1_in = Omega_step[0,0]
-Delta_Omega_1 = Omega_step[0,-1] - Omega_step[0,0]
-Delta_Omega_3 = Omega_step[1, -1]
+# making synthetic model params
+num_model_params = G.shape[1]
 
-model_params_K = np.array([Omega_1_in, Delta_Omega_1, Delta_Omega_3])
-model_params_G = np.zeros(G.shape[1])
-model_params_G[0:-2] = Omega_1_in
-model_params_G[-2] = Delta_Omega_1
-model_params_G[-1] = Delta_Omega_3
+# making model_params from Omega_step stored in parent "tests/" directory                  
+Omega_step = np.load(f'Omega_step.npy')
+model_params_G = make_model_params.make_model_params(Omega_step,
+                                                     num_model_params, GVARS)
 
-# checking if G ad kernels are consistent
-freq_split_K = model_params_K @ kernels['0']
-freq_split_G = G @ model_params_G
+# making the synthetic data
+synth_data = G @ model_params_G
+
+# making the synthetic noise
+synth_noise = np.ones_like(synth_data)
+
+'''
+# to add synthetic noise to synthetic data
+if(GVARS.add_Noise == 1): synth_data = 
+'''
+
+#------------------SAVING THE PRECOMPUTED ARRAYS------------------#
+# saving the precomputed G matrix
+np.save(f'{GVARS.metadata_path}/G.npy', G)
+
+# saving the true model params
+np.save(f'{GVARS.metadata_path}/model_params_true.npy', model_params_G)
+
+# saving the synthetic data
+np.save(f'{GVARS.synthdata}/synthetic_data.npy', synth_data)
+
+# saving the synthetic noise
+np.save(f'{GVARS.synthdata}/sigma_d.npy', synth_noise)

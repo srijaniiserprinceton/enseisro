@@ -13,8 +13,8 @@ def data_misfit_fn(m_arr, data, G, C_d):
 
     return data_misfit
 
-#------------model misfit function-------------#                                         
-def model_misfit_fn(m_arr, m_ref_arr, mu):
+#------------regularization function-------------#                                         
+def regularization_fn(m_arr, m_ref_arr, mu):
     return mu * (m_arr - m_ref_arr)**2
 
 #---------------loss function-------------------#                                            

@@ -60,7 +60,7 @@ class GlobalVars():
         self.eigdir = f"{self.snrnmais}/eig_files"
         self.progdir = self.local_dir
         self.hmidata = np.loadtxt(f"{self.snrnmais}/data_files/hmi.6328.36")
-        self.metadata = f"{metadata_path}"
+        self.metadata_path = f"{metadata_path}"
         self.synthdata = f"{self.scratch_dir}/synthetic_data"
 
         # Frequency unit conversion factor (in Hz (cgs))
@@ -102,9 +102,9 @@ class GlobalVars():
         self.s_arr = np.arange(1, self.smax+1, 2)
         
         # the number of stars of each Stype
-        self.num_startype_arr = np.load(f'{metadata_path}/num_startype_arr.npy')
+        self.num_startype_arr = np.load(f'{self.metadata_path}/num_startype_arr.npy')
         # the rcz of stars of each Stype
-        self.rcz_startype_arr = np.load(f'{metadata_path}/rcz_startype_arr.npy')
+        self.rcz_startype_arr = np.load(f'{self.metadata_path}/rcz_startype_arr.npy')
 
     def get_idx(self, arr, val):
         return abs(arr - val).argmin()

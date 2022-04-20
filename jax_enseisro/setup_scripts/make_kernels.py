@@ -11,7 +11,7 @@ def make_kernels(star_mult_arr, GVARS):
     kernels = {}
 
     # the rcz of stars in each Star Type                                                   
-    rcz_startype_arr = np.load(f'{GVARS.metadata}/rcz_startype_arr.npy')
+    rcz_startype_arr = np.load(f'{GVARS.metadata_path}/rcz_startype_arr.npy')
     
     # looping over the different Star Types
     for startype_label in range(GVARS.nStype):

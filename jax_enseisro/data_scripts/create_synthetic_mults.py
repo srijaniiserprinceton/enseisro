@@ -5,7 +5,7 @@ def get_star_mult_arr(GVARS):
     star_mult_arr = {}
     
     # the number of stars in each Star Type                                          
-    num_startype_arr = np.load(f'{GVARS.metadata}/num_startype_arr.npy')
+    num_startype_arr = np.load(f'{GVARS.metadata_path}/num_startype_arr.npy')
 
     # cumulative of star index in the entire ensemble
     cumulative_star_ind = 0

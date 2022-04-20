@@ -11,8 +11,8 @@ os.system(f'python {current_dir}/build_star_info.py')
 
 from jax_enseisro import globalvars as gvars_jax
 from jax_enseisro.data_scripts import create_synthetic_mults
-from jax_enseisro.inversion_scripts import make_kernels
-from jax_enseisro.inversion_scripts import assemble_G_from_kernels as assemble_G
+from jax_enseisro.setup_scripts import make_kernels
+from jax_enseisro.setup_scripts import assemble_G_from_kernels as assemble_G
 
 def test_G_assembly():    
     # just to get access to the location of metadata
