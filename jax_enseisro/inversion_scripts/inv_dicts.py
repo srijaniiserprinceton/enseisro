@@ -26,13 +26,13 @@ GVARS = gvars_jax.GlobalVars(nStype=int(ARGS[0]),
 # the data dictionary
 data_dict = {}
 data_dict['data'] = np.load(f'{GVARS.synthdata}/synthetic_data.npy')
-data_dict['sigma_d'] = np.load(f'{GVARS.synthdata}/sigma_d.npy')
+data_dict['sigma_d'] = np.load(f'{GVARS.synthdata}/sigma_d.npy') * 1e-3
 
 # the model dictionary
 model_dict = {}
 model_dict['G'] = np.load(f'{GVARS.metadata_path}/G.npy')
 model_dict['model_init'] = np.load(f'{GVARS.metadata_path}/model_params_true.npy') * 0.0
-model_dict['model_true'] = np.load(f'{GVARS.metadata_path}/model_params_true.npy')
+model_dict['model_ref'] = np.load(f'{GVARS.metadata_path}/model_params_true.npy')
 
 # the regularization dictionary
 reg_dict = {}

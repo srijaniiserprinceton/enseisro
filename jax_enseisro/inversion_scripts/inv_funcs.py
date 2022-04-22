@@ -1,6 +1,6 @@
 import jax
 
-import build_newton_components as newton_comps
+from jax_enseisro.inversion_scripts import build_newton_components as newton_comps
 from src_iterinvPy import make_dictionaries as make_dicts
 
 #-----------------the user-defined functions-----------------#

@@ -28,12 +28,14 @@ def get_pruned_attributes(GVARS, CENMULTS):
     wig_list = []
     wig_idx = []
     
-    nl_pruned = CENMULTS.nl_cnm
-    omega_pruned = CENMULTS.omega_cnm
-
+    '''
     wig_list, wig_idx = wigmap.get_wigners(CENMULTS.nl_cnm, GVARS.s_arr,
                                            wig_list, wig_idx, GVARS.Stype)
-
+    '''
+    
+    nl_pruned = CENMULTS.nl_cnm
+    omega_pruned = CENMULTS.omega_cnm
+    
     nl_arr = np.asarray(GVARS.nl_all)
     nl_pruned = np.asarray(nl_pruned)
 
@@ -41,6 +43,10 @@ def get_pruned_attributes(GVARS, CENMULTS):
     nl_pruned, nl_idx_pruned, omega_pruned = get_pruned_multiplets(nl_pruned,
                                                                    omega_pruned,
                                                                    nl_arr)
+    
+    wig_list, wig_idx = wigmap.get_wigners(nl_pruned, GVARS.s_arr,
+                                           wig_list, wig_idx, GVARS.Stype)
+
     
     nl_pruned = np.array(nl_pruned).astype('int')
     nl_idx_pruned = np.array(nl_idx_pruned).astype('int')

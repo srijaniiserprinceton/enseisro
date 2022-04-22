@@ -12,18 +12,18 @@ class inv_Newton:
         self.grad_fn = func_dict['grad_fn']
         self.hess_fn = func_dict['hess_fn']
         
-        #--------unwraps the inversion dictionary (static parts only)-----#
-        # the data components
-        self.data_total = inv_dicts.data_dict['data']
-        self.sigma_d = inv_dicts.data_dict['sigma_d']
+        #--------unwraps the inversion dictionary (static parts only)-----#    
+        # creating the inverse variable dictionary
+        self.inv_var_dict = {}
+        self.inv_var_dict['m_arr_ref'] = inv_dicts.model_dict['model_ref']
+        self.inv_var_dict['data'] = inv_dicts.data_dict['data']
+        self.inv_var_dict['G'] = inv_dicts.model_dict['G']
+        self.inv_var_dict['sigma_d'] = inv_dicts.data_dict['sigma_d']
+        self.inv_var_dict['mu'] = inv_dicts.reg_dict['mu']
         
-        # the model components
-        self.G = inv_dicts.model_dict['G']
+        # the initial model components
         self.model_init = inv_dicts.model_dict['model_init']
-    
-        # the regularization components
-        self.mu = inv_dicts.reg_dict['mu']
-        
+            
         # the loop components
         self.loss_threshold = inv_dicts.loop_dict['loss_threshold']
         self.maxiter = inv_dicts.loop_dict['maxiter']
@@ -32,13 +32,10 @@ class inv_Newton:
         self.hessinv = inv_dicts.misc_dict['hessinv']
 
         # if the hessian inverse has not be precomputed yet
-        hess = self.hess_fn(self.c_init, self.data_total,
-                            self.G, self.C_d, self.D, self.mu)
+        hess = self.hess_fn(self.model_init, self.inv_var_dict)
+                            
         self.hessinv = jnp.linalg.inv(hess)
-                                    
-        # flag needed for deciding whether to print each step
-        self.isIterative = isIterative
-        
+                                            
 
     def print_info(self, itercount, tdiff, data_misfit,
                    loss_diff, max_grads, model_misfit):
@@ -52,16 +49,17 @@ class inv_Newton:
         return None
 
 
-    def update(self, c_arr, grads, hess_inv):
-        return tree_multimap(lambda c, g, h: c - g @ h, c_arr, grads, hess_inv)
+    def update(self, m_arr, grads, hess_inv):
+        return tree_multimap(lambda c, g, h: c - g @ h, m_arr, grads, hess_inv)
 
 
-    def run_newton(self, data, model_arr):
+    def run_newton(self):
+        m_arr = self.model_init
+        
         itercount = 0
         loss_diff = 1e25
-        loss = self.loss_fn(self.model_init, data, self.G,
-                            self.sigma_d, self.model_ref, self.mu)
-        
+        loss = self.loss_fn(m_arr, self.inv_var_dict)
+                
         while ((abs(loss_diff) > self.loss_threshold) and
                (itercount < self.maxiter)):
             
@@ -71,11 +69,10 @@ class inv_Newton:
             #--------------Body of a newton step---------------#
             loss_prev = loss
             
-            grads = self.grad_fn(model_arr, data, self.G,
-                                 self.sigma_d, self.model_ref, self.mu)
-            c_arr = self.update(model_arr, grads, self.hessinv)
-            loss = self.loss_fn(model_arr, data, self.G,
-                                self.sigma_d, self.model_ref, self.mu)
+            grads = self.grad_fn(m_arr, self.inv_var_dict)
+            m_arr = self.update(m_arr, grads, self.hessinv)
+            loss = self.loss_fn(m_arr, self.inv_var_dict)
+
             
             # model_misfit = self.reg_fn(c_arr, self.model_ref, self.mu)
             model_misfit = 0.0
@@ -89,12 +86,9 @@ class inv_Newton:
             # end time for an iteration
             t2 = time.time()
             
-            if(not self.isIterative):
-                self.print_info(itercount, t2-t1, data_misfit,
-                                loss_diff, abs(grads).max(), model_misfit)
-                
-        if(self.isIterative):
+
             self.print_info(itercount, t2-t1, data_misfit,
                             loss_diff, abs(grads).max(), model_misfit)
+                
             
-        return c_arr
+        return m_arr, self.hessinv

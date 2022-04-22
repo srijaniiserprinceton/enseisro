@@ -22,7 +22,7 @@ rand_mults : Whether to introduce minor changes across the radial order of
 #-------------------------- defining metadata -----------------------------#
 nStype = 4
 
-num_startype_arr = np.array([1, 1, 1, 1], dtype='int')
+num_startype_arr = np.array([1e2, 1.4e2, 1.1e2, 1.2e2], dtype='int')
 
 # rcz_startype_arr = np.array([0.68, 0.71, 0.7, 0.69])
 rcz_startype_arr = np.array([0.7, 0.7, 0.7, 0.7])
@@ -30,7 +30,7 @@ rcz_startype_arr = np.array([0.7, 0.7, 0.7, 0.7])
 nmin, nmax = 16, 24
 lmin, lmax = 1, 3
 
-rand_mults = 0
+rand_mults = 1
 
 # Max angular degree for Omega_s
 smax = 3
