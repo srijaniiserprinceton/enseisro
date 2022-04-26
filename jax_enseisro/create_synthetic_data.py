@@ -1,13 +1,14 @@
 import numpy as np
+import sys
 import deepdish as dd
 
 from jax_enseisro import globalvars as gvars_jax
 from jax_enseisro.noise_model import get_noise_for_ens as get_noise
-from data_scripts import create_synthetic_mults
-# from data_scripts import make_data_vector
-from setup_scripts import make_kernels
-from setup_scripts import assemble_G_from_kernels as assemble_G
-from setup_scripts import make_model_params as make_model_params
+from jax_enseisro.data_scripts import create_synthetic_mults
+from jax_enseisro.setup_scripts import make_kernels
+from jax_enseisro.setup_scripts import assemble_G_from_kernels as assemble_G
+from jax_enseisro.setup_scripts import make_model_params as make_model_params
+from jax_enseisro.setup_scripts import misc_functions as misc_FN
 
 metadata_path = './inversion_metadata'
 
@@ -59,15 +60,25 @@ model_params_G = make_model_params.make_model_params(Omega_step,
 # making the synthetic data
 synth_data = G @ model_params_G
 
+# unperturbed mode frequencies in muHz
+mode_unpert_freqs_muHz = misc_FN.get_mult_freqs(GVARS, star_mult_arr)
+
+# total mode frequencies: unpert + splittings
+print(mode_unpert_freqs_muHz.shape, synth_data.shape)
+mode_freq_total = mode_unpert_freqs_muHz + synth_data * GVARS.OM * 1e6
+
 # reading the Teff, surface gravity and numax arrays
 Teff_arr_stars = np.load(f'{GVARS.synthdata}/Teff_arr_stars.npy')
 g_arr_stars = np.load(f'{GVARS.synthdata}/g_arr_stars.npy')
 numax_arr_stars = np.load(f'{GVARS.synthdata}/numax_arr_stars.npy')
+inc_angle_arr_stars = np.load(f'{GVARS.synthdata}/inc_angle_arr_stars.npy')
 
 # making the synthetic noise
 # synth_noise = np.ones_like(synth_data)
-synth_noise = get_noise.get_noise_for_ens(GVARS, star_mult_arr, synth_data,
-                                          Teff_arr_stars, g_arr_stars, numax_arr_stars)
+
+synth_noise = get_noise.get_noise_for_ens(GVARS, star_mult_arr, mode_freq_total,
+                                          Teff_arr_stars, g_arr_stars, numax_arr_stars,
+                                          inc_angle_arr_stars)
 
 '''
 # to add synthetic noise to synthetic data

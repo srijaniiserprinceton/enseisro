@@ -19,7 +19,7 @@ def compute_freq_uncertainties(GVAR, modes, mode_freq_arr, Teff_arr,
     mode_freq_arr : float, array_like                                         
             Array of mode frequencies corresponding to ``modes`` in muHz. 
     """
-   
+
     # values of the parameters taken from Table 2.1 in Stahn's thesis.                                                                                                                  
     A_arr = np.array([1.607, 0.542])       # amplitude array in ppm^2 \muHz^{-1}            
     A_err_arr = np.array([0.082, 0.030])   # error in amplitude array in ppm^2 \muHz^{-1}                                                                                               
@@ -42,10 +42,14 @@ def compute_freq_uncertainties(GVAR, modes, mode_freq_arr, Teff_arr,
     # getting linewidths in muHz
     Gamma_arr_sun = get_Gamma.get_Gamma(n_arr, ell_arr)
     
-    
+    print('Gamma_arr_sun: ', Gamma_arr_sun)
+    print('Modes: ', modes)
+    print('Mode freq array: ', mode_freq_arr)
+
     # computing the mode heights
     Hnlm_sun = Noise_FN.make_Hnlm(modes, mode_freq_arr, Gamma_arr_sun)
 
+    print('Hnlm_sun: ', Hnlm_sun)
 
     # uptil now we got the various params for the Sun. Now we convert
     # to other stars depending on scaling relations with T_eff, nu_max
@@ -59,8 +63,12 @@ def compute_freq_uncertainties(GVAR, modes, mode_freq_arr, Teff_arr,
     Gamma_arr = conv_star_params.convert_Gamma(Gamma_arr_sun, rel_Teff_arr)
     B_nu = conv_star_params.convert_B_nu(B_nu_sun, rel_numax_arr)
 
+    print('B_nu: ', B_nu)
+    
     # \beta or the inverse signal-to-noise ratio
     beta = B_nu / Hnlm
+
+    print('beta: ', beta)
 
     # f(\beta)
     one_plus_beta_sqrt = np.sqrt(1 + beta)
@@ -78,6 +86,8 @@ def compute_freq_uncertainties(GVAR, modes, mode_freq_arr, Teff_arr,
 
     # creating the sigma for frequency splitting (\delta \omega)
     sigma_del_omega_nlm = sigma_omega_nlm / np.abs(m_arr)
+
+    print('sigma_del_omega_nlm: ', sigma_del_omega_nlm)
 
     return sigma_del_omega_nlm
 

@@ -8,7 +8,7 @@ from jax_enseisro.setup_scripts import misc_functions as misc_FN
 
 # {{{ def compute_freq_uncertainties():
 def compute_freq_uncertainties(GVARS, star_mult_arr, mode_freq_arr, Teff_arr,
-                               g_arr, numax_arr):
+                               g_arr, numax_arr, inc_angle_arr):
     """Returns the uncertainty in frequency for each mode
     according to Eqn.~(2.19) in Stahn's thesis.
 
@@ -54,25 +54,33 @@ def compute_freq_uncertainties(GVARS, star_mult_arr, mode_freq_arr, Teff_arr,
     # getting linewidths in muHz
     Gamma_arr_sun = get_Gamma.get_Gamma(n_arr, ell_arr)
     
-    
+    print('Gamma_arr_sun: ', Gamma_arr_sun)
+    print('Modes: ', allstar_modes)
+    print('Mode freq array: ', mode_freq_arr)
     # computing the mode heights
-    Hnlm_sun = Noise_FN.make_Hnlm(allstar_modes, mode_freq_arr, Gamma_arr_sun)
+    Hnlm_sun = Noise_FN.make_Hnlm(allstar_modes, mode_freq_arr, Gamma_arr_sun,
+                                  inc_angle_arr)
 
-
+    print('Hnlm_sun: ', Hnlm_sun)
+    
     # uptil now we got the various params for the Sun. Now we convert
     # to other stars depending on scaling relations with T_eff, nu_max
     # and surface gravity
-
+    
     rel_gravity_arr = g_arr / GVARS.g_sun
     rel_Teff_arr = Teff_arr / GVARS.Teff_sun
     rel_numax_arr = numax_arr / GVARS.numax_sun
-
+    
     Hnlm = conv_star_params.convert_Hnlm(Hnlm_sun, rel_gravity_arr)
     Gamma_arr = conv_star_params.convert_Gamma(Gamma_arr_sun, rel_Teff_arr)
     B_nu = conv_star_params.convert_B_nu(B_nu_sun, rel_numax_arr)
 
+    print('B_nu: ', B_nu)
+    
     # \beta or the inverse signal-to-noise ratio
     beta = B_nu / Hnlm
+    
+    print('beta: ', beta)
 
     # f(\beta)
     one_plus_beta_sqrt = np.sqrt(1 + beta)
@@ -90,6 +98,8 @@ def compute_freq_uncertainties(GVARS, star_mult_arr, mode_freq_arr, Teff_arr,
 
     # creating the sigma for frequency splitting (\delta \omega)
     sigma_del_omega_nlm = sigma_omega_nlm / np.abs(m_arr)
+
+    print('sigma_del_omega_nlm: ', sigma_del_omega_nlm)
 
     return sigma_del_omega_nlm
 

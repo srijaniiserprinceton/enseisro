@@ -81,3 +81,33 @@ def mults2modes(mult_arr):
         index_counter += 2*ell + 1
         
     return mode_arr
+
+def get_mult_freqs(GVARS, star_mult_arr):
+    """This functions returns the unperturbed frequencies of 
+    modes in the Nmodes x 1 form which can be directly added the freq splittings.
+    """
+    
+    # will omit the first index at the end
+    mode_unpert_freqs = np.array([0])
+    
+    for star_key in star_mult_arr.keys():
+        mult_this_Stype = star_mult_arr[f'{star_key}'][:, 1:]
+        
+        for mult_ind in range(len(mult_this_Stype)):
+            n0, ell0 = mult_this_Stype[mult_ind]
+            nl_idx = GVARS.nl_all_list.index([n0, ell0])
+
+            # the array of (2*ell0 + 1) unperturbed omegas for a multiplet with ell0
+            omega4mult = np.ones(2 * ell0 + 1) * GVARS.omega_list[nl_idx]
+            
+            mode_unpert_freqs = np.append(mode_unpert_freqs, omega4mult)
+        
+        
+    # omitting the first invalid entry
+    mode_unpert_freqs = mode_unpert_freqs[1:]
+    
+    # converting to muHz 
+    mode_unpert_freqs = mode_unpert_freqs * GVARS.OM * 1e6
+    
+    return mode_unpert_freqs
+        

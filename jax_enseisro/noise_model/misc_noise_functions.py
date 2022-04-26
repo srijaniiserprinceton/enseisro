@@ -97,7 +97,7 @@ def envelope_function(mode_freq_arr, cen_freq, sigma_1, sigma_2):
     # mode_freq and cen_freq
     sigma_arr = np.zeros_like(mode_freq_arr)
 
-    ind_where_modefreq_leq_cenfreq = mode_freq_arr < cen_freq
+    ind_where_modefreq_leq_cenfreq = mode_freq_arr <= cen_freq
     sigma_arr[ind_where_modefreq_leq_cenfreq] = sigma_1
     sigma_arr[~ind_where_modefreq_leq_cenfreq] = sigma_2
     
@@ -108,7 +108,7 @@ def envelope_function(mode_freq_arr, cen_freq, sigma_1, sigma_2):
 
 
 # {{{ def make_Hnlm():                                                                       
-def make_Hnlm(modes, mode_freq_arr, Gamma_arr, inc_angle_arr=None):
+def make_Hnlm(modes, mode_freq_arr, Gamma_arr, inc_angle_arr):
     """Returns H_nlm computed according to Eqn.~(2.14) in Stahn's thesis.
 
     Parameters
@@ -123,13 +123,7 @@ def make_Hnlm(modes, mode_freq_arr, Gamma_arr, inc_angle_arr=None):
         Array of inclination angles of the stellar rotation axis with respect
         to the line of sight. This may vary across stars. Default is set to 90 degrees.
     """
-
-    # the inclination array. Elements of this array may vary across stars                    
-    # as a simple case, we may choose it to be 0 degrees                                      
-                                                                                         
-    if(inc_angle_arr == None):
-        inc_angle_arr = np.zeros_like(mode_freq_arr) + np.pi/2.0
-
+    
     # the maximum of the amplitude envelope for modes                                        
     # with a particular angular degree ell  
     # values in ppm taken from Table 2.3 in Stahn's thesis                                   
@@ -148,12 +142,13 @@ def make_Hnlm(modes, mode_freq_arr, Gamma_arr, inc_angle_arr=None):
     n_arr = modes[0,:]
     ell_arr = modes[1,:]
     abs_m_arr = np.abs(modes[2,:])
-
+    
 
     # the mode visibility. Same length as the mode_freq_arr or the number of modes           
     E_lm_i = mode_visibility(abs_m_arr, ell_arr, inc_angle_arr)
     # E_lm_i = np.ones_like(mode_freq_arr)
-    
+
+    print('E_lm_i: ', E_lm_i)
 
     # the envelope function. Same length as the mode_freq_arr or the number of modes         
     F_nlm = envelope_function(mode_freq_arr, cen_freq, sigma_1, sigma_2)
@@ -170,7 +165,7 @@ def make_Hnlm(modes, mode_freq_arr, Gamma_arr, inc_angle_arr=None):
 
     # computing the Hnlm                                                                     
     Hnlm = (A_ell_arr**2/ (np.pi * Gamma_arr)) * E_lm_i * F_nlm
-
+    
     # Same length as the mode_freq_arr or the number of modes                                
     return Hnlm
 

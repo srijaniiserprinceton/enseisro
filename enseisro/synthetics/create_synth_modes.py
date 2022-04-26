@@ -14,12 +14,14 @@ def make_modes(mults):
     
     # counter to be executed only once
     is_first = True
+
+    print(mults)
     
     for i, mult in enumerate(mults):
         # we restrict ourselves to m = \pm 1,\pm 2 only
         m_arr = np.array([-2,-1,1,2], dtype='int')
         for m in m_arr:
-            if((np.abs(m) == 1) * (mult[1] == 2)): continue
+            # if((np.abs(m) == 1) * (mult[1] == 2)): continue
             if(np.abs(m) > mult[1]): continue
             mode = np.array([mult[0], mult[1], m], dtype='int')
             # it is okay to hardcode the shape since it won't change
@@ -37,5 +39,7 @@ def make_modes(mults):
             # from the second time onwards
             else:
                 nlm_array = np.append(nlm_array, mode, axis=1)
+                
+    print(nlm_array)
 
     return nlm_array

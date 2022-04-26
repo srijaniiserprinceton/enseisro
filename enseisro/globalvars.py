@@ -32,6 +32,7 @@ class qdParams():
     # args = FN.create_argparser()
     n0 = 0
     l0 = 150
+    years_obs = 3
 
 
 class globalVars():
@@ -65,6 +66,8 @@ class globalVars():
         self.Teff_sun = 5780.0     # in Kelvin
         self.numax_sun = 3067.0    # in muHz
         self.g_sun = 274.0         # in SI units
+
+        self.years_obs = qdPars.years_obs
 
         # self.rho = np.loadtxt(f"{self.datadir}/rho.dat")
         self.r = np.loadtxt(f"{self.datadir}/r.dat")

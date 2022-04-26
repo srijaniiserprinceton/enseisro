@@ -14,7 +14,7 @@ def convert_Hnlm(Hnlm_sun, rel_gravity_arr):
         Relative surface gravity of stars with respect to Sun.
     """
 
-    Hnlm_stars = Hnlm_sun * (rel_gravity_arr**2)
+    Hnlm_stars = Hnlm_sun * 1./(rel_gravity_arr**2)
 
     return Hnlm_stars
 

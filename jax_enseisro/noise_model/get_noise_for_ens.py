@@ -5,7 +5,7 @@ from jax_enseisro.noise_model import compute_libbrecht_noise as gen_libnoise
 
 # {{{ def get_noise_for_ens():
 def get_noise_for_ens(GVARS, star_mult_arr, mode_freq_arr, Teff_arr_stars,
-                      g_arr_stars, numax_arr_stars):
+                      g_arr_stars, numax_arr_stars, inc_angle_arr_stars):
     """Returns the sigma array of length Nmodes
     for an ensemble of stars. Can either return 
     all for replicas of the Sun or for different
@@ -37,6 +37,7 @@ def get_noise_for_ens(GVARS, star_mult_arr, mode_freq_arr, Teff_arr_stars,
     Teff_arr = np.zeros(Nmodes)
     g_arr = np.zeros(Nmodes)
     numax_arr = np.zeros(Nmodes)
+    inc_angle_arr = np.zeros(Nmodes)
 
     # filling in the arrays for these parameters for each star                              
     index_counter = 0
@@ -60,7 +61,9 @@ def get_noise_for_ens(GVARS, star_mult_arr, mode_freq_arr, Teff_arr_stars,
                                                     g_arr_stars[star_ind]
             numax_arr[index_counter:index_counter+twoellp1_sum_star] =\
                                                     numax_arr_stars[star_ind]
-
+            inc_angle_arr[index_counter:index_counter+twoellp1_sum_star] =\
+                                                    inc_angle_arr_stars[star_ind]
+            
             # updating index counters
             index_counter += twoellp1_sum_star
 
@@ -79,6 +82,6 @@ def get_noise_for_ens(GVARS, star_mult_arr, mode_freq_arr, Teff_arr_stars,
     sigma_del_omega_nlm = gen_libnoise.compute_freq_uncertainties(GVARS, star_mult_arr,
                                                                   mode_freq_arr,
                                                                   Teff_arr, g_arr,
-                                                                  numax_arr)
+                                                                  numax_arr, inc_angle_arr)
 
     return sigma_del_omega_nlm

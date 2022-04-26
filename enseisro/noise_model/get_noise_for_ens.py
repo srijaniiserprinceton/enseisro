@@ -46,6 +46,7 @@ def get_noise_for_ens(GVAR, Nstars, modes, mode_freq_arr, Nmodes_single_star=Non
 
     # using the Libbrecht noise model to get \sigma(\delta \omega_nlm) in nHz                                                                                                            
     sigma_del_omega_nlm = gen_libnoise.compute_freq_uncertainties(GVAR, modes, mode_freq_arr,\
-                                                              Teff_arr, g_arr, numax_arr)
+                                                                  Teff_arr, g_arr, numax_arr,
+                                                                  GVAR.years_obs)
 
     return sigma_del_omega_nlm

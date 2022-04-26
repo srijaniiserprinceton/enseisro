@@ -9,9 +9,6 @@ from jax_enseisro.setup_scripts import load_multiplets
 def make_kernels(star_mult_arr, GVARS):
     # dictionary of kernels to be filled by Star Type
     kernels = {}
-
-    # the rcz of stars in each Star Type                                                   
-    rcz_startype_arr = np.load(f'{GVARS.metadata_path}/rcz_startype_arr.npy')
     
     # looping over the different Star Types
     for startype_label in range(GVARS.nStype):
@@ -21,7 +18,8 @@ def make_kernels(star_mult_arr, GVARS):
         
         # the model specific information
         r = np.loadtxt(f"{star_data}/r.dat")
-        rcz = rcz_startype_arr[startype_label]
+        
+        rcz = GVARS.rcz_startype_arr[startype_label]
 
         #-------------slicing radius appropriately-------------#
         rmin_idx = GVARS.get_idx(r, GVARS.rmin)

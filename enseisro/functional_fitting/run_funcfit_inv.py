@@ -64,6 +64,8 @@ def run_ens_inv(Prot, Nstars, nmin, nmax, lmin, lmax, smax, rcz_arr, p, use_Delt
     # adding constant random terms to each star's rotation profiles keeping \Delta \Omega_s constant 
     step_param_arr_in_out = create_synth_DR.randomize_DR_step_params(step_param_arr_in_out, profile_type='in-out', p=p)
     
+    print(step_param_arr_in_out)
+    
     if(smax == 3):
         # converting it to Omega_{out} and \Delta \Omega
         step_param_arr_Delta = np.zeros_like(step_param_arr_in_out)
@@ -104,6 +106,7 @@ def run_ens_inv(Prot, Nstars, nmin, nmax, lmin, lmax, smax, rcz_arr, p, use_Delt
         
         # creating the synthetic sigma for frequency splitting measurements
         sigma_arr_nhz = get_noise.get_noise_for_ens(GVAR, Nstars, modes, omega_nlm_arr, Nmodes_single_star=modes_single_star.shape[1])
+        print('Sigma in nHz: ', sigma_arr_nhz)
         
         # converting to non-dimensional units
         sigma_arr = sigma_arr_nhz / (GVAR.OM * 1e9)
@@ -186,14 +189,14 @@ def run_ens_inv(Prot, Nstars, nmin, nmax, lmin, lmax, smax, rcz_arr, p, use_Delt
 if __name__ == '__main__':
     # defining the parameters necessary
     # Number of stars
-    Nstars = 10
+    Nstars = 1
     
     # Observed mode info
-    nmin, nmax = 16, 24
+    nmin, nmax = 20, 20
     lmin, lmax = 2, 2  
 
     # Max angular degree for Omega_s
-    smax = 1
+    smax = 3
 
     # Base of the convection zone for each star
     rcz_arr = np.zeros(Nstars) + 0.7
