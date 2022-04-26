@@ -59,3 +59,25 @@ def jax_gamma(ell):
     """Computes gamma_ell"""
     return jnp.sqrt((2*ell + 1)/4/jnp.pi)
 
+def mults2modes(mult_arr):
+    """Computes the modes from the multiplet array.
+    """
+    Nmodes = np.sum(2 * mult_arr[:,1] + 1)
+    
+    mode_arr = np.zeros((3, Nmodes), dtype='int')
+    
+    # to keep track of filling index
+    index_counter = 0
+    
+    for mult_ind in range(len(mult_arr)):
+        n = mult_arr[mult_ind, 0]
+        ell = mult_arr[mult_ind, 1]
+        m_arr = np.arange(-ell, ell+1, dtype='int')
+        
+        mode_arr[0, index_counter: index_counter + 2*ell+1] = n
+        mode_arr[1, index_counter: index_counter + 2*ell+1] = ell
+        mode_arr[2, index_counter: index_counter + 2*ell+1] = m_arr
+        
+        index_counter += 2*ell + 1
+        
+    return mode_arr

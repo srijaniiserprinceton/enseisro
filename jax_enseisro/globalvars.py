@@ -33,6 +33,7 @@ class qdParams():
     rmin = 0.0
     rmax = 1.2
     fwindow =  150 
+    years_obs = 3  # in years
 
 class GlobalVars():
     def __init__(self, nStype=10, nmin=16, nmax=24, lmin=1, lmax=2,
@@ -73,6 +74,8 @@ class GlobalVars():
         self.Teff_sun = 5780.0     # in Kelvin
         self.numax_sun = 3067.0    # in muHz
         self.g_sun = 274.0         # in SI units
+        
+        self.years_obs = qdPars.years_obs
 
         # these are the solar data
         # self.rho = np.loadtxt(f"{self.datadir}/rho.dat")

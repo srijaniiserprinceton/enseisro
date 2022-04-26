@@ -46,7 +46,7 @@ def run_ens_inv(Prot, Nstars, nmin, nmax, lmin, lmax, smax, rcz_arr, p, use_Delt
     # extracting the solar DR profile in terms of wsr                                                                                                                                       
     wsr = create_synth_DR.get_solar_DR(GVAR, smax=smax)
     # converting this wsr to Omegasr                                                                                                                                                     
-    Omegasr = w_om_func.w_2_omega(GVAR, wsr)
+    Omegasr = w_om_func.w_2_Omega(GVAR, wsr)
     # making it  in the (1 x s x r) shape
     Omegasr = np.reshape(Omegasr, (1, len(s_arr), len(GVAR.r))) 
     # making multiple identical copies for different stars. Shaoe (Nstars x s x r) 
