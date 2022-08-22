@@ -36,7 +36,7 @@ lmin, lmax = 1, 2
 rand_mults = 0
 
 # Max angular degree for Omega_s
-smax = 3
+smax = 5
 
 # whether to use the noise model to add synthetic noise                                    
 # to the frequency splitting data

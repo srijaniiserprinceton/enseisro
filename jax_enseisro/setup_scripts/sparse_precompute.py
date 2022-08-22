@@ -187,6 +187,11 @@ def build_kernel_each_s(s, CNM, precomp_dict):
         kernel = kernel_fn(eig_idx, ell, precomp_dict, s=s)
 
         wigvalm *= (jax_minus1pow_vec(m_arr) * ell1_ell2_fac)
+
+        # this is where the conversion would happen from 
+        # wigvalm to wigval_acoeff
+        # wigvalm = wigval_acoeff * Psl(m)
+        # \sum_m (wigvalm * Psl(m)) / (\sum_m Psl(m) * Psl(m)) = wigval_acoeff
         
         # filling the kernel array
         for j in range(kernel_arr.shape[0]):
