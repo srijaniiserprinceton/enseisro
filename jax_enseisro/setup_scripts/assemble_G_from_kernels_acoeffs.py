@@ -3,19 +3,13 @@ import deepdish as dd
 
 from jax_enseisro import globalvars as gvars_jax
 
-def num_rows_G(star_mult_arr, is_acoeffs_kernel):
+def num_rows_G(star_mult_arr):
     num_rows = 0
     
-    if(is_acoeffs_kernel):
-        for star_key in star_mult_arr.keys():
-            # summing over the (2*ell+1) in each multiplet of each star within a star type
-            num_rows += len(star_mult_arr[f'{star_key}'][:,2])
-    else:
-        for star_key in star_mult_arr.keys():
-            # summing over the (2*ell+1) in each multiplet of each star within a star type 
-            num_rows += (2 * np.sum(star_mult_arr[f'{star_key}'][:,2]) +
-                         len(star_mult_arr[f'{star_key}'][:,2]))
-                        
+    for star_key in star_mult_arr.keys():
+        # summing over the (2*ell+1) in each multiplet of each star within a star type
+        num_rows += len(star_mult_arr[f'{star_key}'][:,2])
+
     return int(num_rows)
 
 def num_cols_G(GVARS):
@@ -30,7 +24,7 @@ def num_cols_G(GVARS):
     return int(num_cols)
 
 def make_G(kernels, GVARS, star_mult_arr):
-    num_rows = num_rows_G(star_mult_arr, GVARS.is_acoeffs_kernel)
+    num_rows = num_rows_G(star_mult_arr)
     num_cols = num_cols_G(GVARS)
     G = np.zeros((num_rows, num_cols))
 
