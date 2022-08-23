@@ -9,12 +9,13 @@ def num_rows_G(star_mult_arr, is_acoeffs_kernel):
     if(is_acoeffs_kernel):
         for star_key in star_mult_arr.keys():
             # summing over the (2*ell+1) in each multiplet of each star within a star type
-            num_rows += (2 * np.sum(star_mult_arr[f'{star_key}'][:,2]) +
-                         len(star_mult_arr[f'{star_key}'][:,2]))
+            num_rows += len(star_mult_arr[f'{star_key}'][:,2])
     else:
         for star_key in star_mult_arr.keys():
             # summing over the (2*ell+1) in each multiplet of each star within a star type 
-            num_rows += len(star_mult_arr[f'{star_key}'][:,2])
+            num_rows += (2 * np.sum(star_mult_arr[f'{star_key}'][:,2]) +
+                         len(star_mult_arr[f'{star_key}'][:,2]))
+                        
     return int(num_rows)
 
 def num_cols_G(GVARS):
@@ -40,8 +41,7 @@ def make_G(kernels, GVARS, star_mult_arr):
     star_number = 0
 
     # looping over the multiplets to tile G matrix compactly
-    start_ind_row_G = 0
-    end_ind_row_G = 0
+    ind_row_G = 0
     
     # the star number in across Stypes. Always starts with star index 0.               
     star_num_this_Stype = 0
@@ -61,14 +61,8 @@ def make_G(kernels, GVARS, star_mult_arr):
         # the array of angular degrees ell for the star type
         ell_arr = mult_arr[:, 2]
 
-        # looping over the multiplets from the kernel matrix
-        start_ind_row_K = 0
-        end_ind_row_K = 0
-
+        
         for mult_ind, ell in enumerate(ell_arr):
-            end_ind_row_G = start_ind_row_G + 2*ell+1
-            end_ind_row_K = start_ind_row_K + 2*ell+1
-            
             # checking if we have moved onto a different star
             if(star_num_this_Stype == mult_arr[mult_ind,0]):
                 pass
@@ -80,14 +74,11 @@ def make_G(kernels, GVARS, star_mult_arr):
             # assuming that only the first column is for Omega_1_in
             # which can differ across stars. Last cols are Delta_Omega_s which
             # are fixed for all the stars in the ensemble
-            G[start_ind_row_G: end_ind_row_G, star_number] =\
-                                kernel[start_ind_row_K: end_ind_row_K, 0]
+            G[ind_row_G, star_number] = kernel[mult_ind, 0]
             
             # filling in the Delta_Omega_s parts (which are the last cols of each row)
-            G[start_ind_row_G: end_ind_row_G, -len_s:] =\
-                                kernel[start_ind_row_K: end_ind_row_K, -len_s:]
+            G[ind_row_G, -len_s:] = kernel[mult_ind, -len_s:]
             
-            start_ind_row_G += 2*ell+1
-            start_ind_row_K += twoellmaxp1        
+            ind_row_G += 1
     
     return G

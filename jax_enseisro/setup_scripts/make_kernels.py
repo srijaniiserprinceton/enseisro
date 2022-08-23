@@ -3,12 +3,19 @@ import numpy as np
 from jax_enseisro.setup_scripts import misc_functions as misc_fn
 from jax_enseisro.setup_scripts import build_cenmults as build_cnm
 from jax_enseisro.setup_scripts import sparse_precompute as precompute
+from jax_enseisro.setup_scripts import sparse_precompute_acoeffs as precompute_acoeffs
 from jax_enseisro.setup_scripts import prune_multiplets
 from jax_enseisro.setup_scripts import load_multiplets
 
 def make_kernels(star_mult_arr, GVARS):
     # dictionary of kernels to be filled by Star Type
     kernels = {}
+
+    # choosing the precomputation routine 
+    if(GVARS.is_acoeffs_kernel):
+        precompute_script = precompute_acoeffs
+    else:
+        precompute_script = precompute
     
     # looping over the different Star Types
     for startype_label in range(GVARS.nStype):
@@ -108,7 +115,7 @@ def make_kernels(star_mult_arr, GVARS):
                                                   rcz_idx))
     
         kernels_this_startype =\
-            precompute.build_kernels_all_cenmults(cenmult_this_startype,
+            precompute_script.build_kernels_all_cenmults(cenmult_this_startype,
                                                   precomp_dict)
                                                  
         kernels[f'{startype_label}'] = kernels_this_startype

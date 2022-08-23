@@ -38,7 +38,7 @@ class qdParams():
 class GlobalVars():
     def __init__(self, nStype=10, nmin=16, nmax=24, lmin=1, lmax=2,
                  smax=3, rand_mults=0, add_Noise=0, use_Delta=1,
-                 metadata_path = '.'):
+                 metadata_path = '.', is_acoeffs_kernel=False):
         # incorporating the params from metadata
         self.nStype = nStype
         self.nmin, self.nmax = nmin, nmax
@@ -47,6 +47,7 @@ class GlobalVars():
         self.rand_mults = rand_mults
         self.add_Noise = add_Noise
         self.use_Delta = use_Delta
+        self.is_acoeffs_kernel=is_acoeffs_kernel
         
         # getting the global parameters
         qdPars = qdParams()

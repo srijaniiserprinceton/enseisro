@@ -1,7 +1,9 @@
+import os
 import numpy as np
 from tqdm import tqdm
 from scipy import integrate
 from scipy.interpolate import splev
+import deepdish as dd
 
 from jax.experimental import sparse
 import jax.numpy as jnp
@@ -20,6 +22,12 @@ jax_minus1pow_vec = misc_fn.jax_minus1pow_vec
 jax_Omega_ = jit(misc_fn.jax_Omega)
 jax_gamma_ = jit(misc_fn.jax_gamma)
 
+current_dir = os.path.dirname(os.path.realpath(__file__))
+package_dir = os.path.dirname(current_dir)
+
+metadata_path = f'{package_dir}/inversion_metadata'
+
+RL_Poly = dd.io.load(f'{metadata_path}/RL_poly.h5')
 
 def get_s1_kernels(eig_idx, ell, precomp_dict, s=1):
     '''Builds the integrated part of the fixed                                                
@@ -131,27 +139,22 @@ def build_kernel_each_s(s, CNM, precomp_dict):
                         The pre-integrated part of the hypermatrix                            
                         which has the shape (2*ell+1).sum().
     """
-    two_ellp1_sum_all = precomp_dict.num_cnm *\
-                        (2 * precomp_dict.ellmax + 1)
 
     if(s == 1):
         # fits for both \Omega1_out and \Delta\Omega1
-        kernel_arr = np.zeros((2, two_ellp1_sum_all))
+        kernel_arr = np.zeros((2, precomp_dict.num_cnm))
         kernel_fn = get_s1_kernels
     else:
         # fits for only \Omega_s_out
-        kernel_arr = np.zeros((1, two_ellp1_sum_all))
+        kernel_arr = np.zeros((1, precomp_dict.num_cnm))
         kernel_fn = get_sgt1_kernels
         
-
-    start_cnm_ind = 0
 
     # filling in the non-m part using the masks
     for i in tqdm(range(precomp_dict.num_cnm),
                   desc=f"[Type {precomp_dict.Stype}] Precomputing for s={s}"):
         # updating the start and end indices
         omega0 = CNM.omega_cnm[i]
-        end_cnm_ind = start_cnm_ind + 2 * CNM.nl_cnm[i, 1] + 1
 
         # self coupling for isolated multiplets
         ell = CNM.nl_cnm[i, 1]
@@ -187,17 +190,22 @@ def build_kernel_each_s(s, CNM, precomp_dict):
         kernel = kernel_fn(eig_idx, ell, precomp_dict, s=s)
 
         wigvalm *= (jax_minus1pow_vec(m_arr) * ell1_ell2_fac)
+
+        # this is where the conversion would happen from 
+        # wigvalm to wigval_acoeff
+        # wigvalm = wigval_acoeff * Psl(m)
+        # \sum_m (wigvalm * Psl(m)) / (\sum_m Psl(m) * Psl(m)) = wigval_acoeff
+
+        Psl_m = RL_Poly[f'{ell}'][f'{s}']
+        wigval_acoeff = wigvalm @ Psl_m / (Psl_m @ Psl_m)
         
         # filling the kernel array
         for j in range(kernel_arr.shape[0]):
-            kernel_arr[j, start_cnm_ind: end_cnm_ind] =\
-                                kernel[j] * wigvalm * wigval1 
+            kernel_arr[j,i] = kernel[j] * wigval_acoeff * wigval1 
 
-        # updating the start index
-        start_cnm_ind = (i+1) * (2 * precomp_dict.ellmax + 1)
 
     # deleting wigvalm 
-    del wigvalm, wigval1, kernel
+    del wigval_acoeff, wigval1, kernel
 
     # shape = (2 x num_cnm) for s = 1 and (1 - num_cnm for s > 1
     return kernel_arr
@@ -236,8 +244,7 @@ def build_kernels_all_cenmults(CNM, precomp_dict):
     # stores the kernels in (num_s + 1 x num_cnm) form
     # the +1 comes from the fact that only s=1 has two components.
     kernel_arr_all_s = np.zeros((len(precomp_dict.s_arr)+1,
-                                 precomp_dict.num_cnm * \
-                                 (2 * precomp_dict.ellmax + 1)))
+                                 precomp_dict.num_cnm))
 
     for s_ind, s in enumerate(precomp_dict.s_arr):
         # shape (2 x num_cnm) for s = 1 and (1 x num_cnm) for s > 1

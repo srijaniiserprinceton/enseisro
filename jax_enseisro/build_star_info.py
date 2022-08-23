@@ -21,7 +21,7 @@ rand_mults : Whether to introduce minor changes across the radial order of
 '''
 
 #-------------------------- defining metadata -----------------------------#
-num_startype_arr = np.array([1, 1, 1, 1], dtype='int')
+num_startype_arr = 10 * np.array([1, 1, 1, 1], dtype='int')
 # num_startype_arr = np.array([1], dtype='int')
 
 nStype = len(num_startype_arr)
@@ -36,7 +36,7 @@ lmin, lmax = 1, 2
 rand_mults = 0
 
 # Max angular degree for Omega_s
-smax = 5
+smax = 3
 
 # whether to use the noise model to add synthetic noise                                    
 # to the frequency splitting data
@@ -44,6 +44,8 @@ add_Noise = 0
 
 # whether to use (Omega_in, Omega_out) or (Omega_out, Delta_Omega)
 use_Delta = 1
+
+is_acoeffs_kernel = 1
 
 metadata_path = './inversion_metadata'
 
@@ -58,7 +60,8 @@ with open(f"{metadata_path}/.star_metadata.dat", "w") as f:
             f"{smax}" + "\n" +
             f"{rand_mults}" + "\n" +
             f"{add_Noise}" + "\n" +
-            f"{use_Delta}")
+            f"{use_Delta}" + "\n" +
+            f"{is_acoeffs_kernel}")
 
 # storing the number of stars in each type
 np.save(f'{metadata_path}/num_startype_arr.npy', num_startype_arr)
@@ -78,7 +81,8 @@ GVARS = gvars_jax.GlobalVars(nStype=int(ARGS[0]),
                              rand_mults=int(ARGS[6]),
                              add_Noise=int(ARGS[7]),
                              use_Delta=int(ARGS[8]),
-                             metadata_path = f'{metadata_path}')
+                             metadata_path = f'{metadata_path}',
+                             is_acoeffs_kernel=int(ARGS[9]))
 
 # star-wise list of multiplets
 star_mult_arr = create_synthetic_mults.get_star_mult_arr(GVARS)

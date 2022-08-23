@@ -7,6 +7,7 @@ from jax_enseisro.noise_model import get_noise_for_ens as get_noise
 from jax_enseisro.data_scripts import create_synthetic_mults
 from jax_enseisro.setup_scripts import make_kernels
 from jax_enseisro.setup_scripts import assemble_G_from_kernels as assemble_G
+from jax_enseisro.setup_scripts import assemble_G_from_kernels_acoeffs as assemble_G_acoeffs
 from jax_enseisro.setup_scripts import make_model_params as make_model_params
 from jax_enseisro.setup_scripts import misc_functions as misc_FN
 
@@ -25,7 +26,8 @@ GVARS = gvars_jax.GlobalVars(nStype=int(ARGS[0]),
                              rand_mults=int(ARGS[6]),
                              add_Noise=int(ARGS[7]),
                              use_Delta=int(ARGS[8]),
-                             metadata_path=metadata_path)
+                             metadata_path=metadata_path,
+                             is_acoeffs_kernel=int(ARGS[9]))
 
 '''Creating the multiplets used for each star. The order of storing
 these multiplets is as follows:
@@ -47,7 +49,15 @@ star_mult_arr = dd.io.load(f'{metadata_path}/star_mult_arr.h5')
 kernels = make_kernels.make_kernels(star_mult_arr, GVARS)
 
 # getting G matrix for forward problem
-G = assemble_G.make_G(kernels, GVARS, star_mult_arr)
+# deciding the assemble script
+if(GVARS.is_acoeffs_kernel):
+    assemble_G_script = assemble_G_acoeffs
+else:
+    assemble_G_script = assemble_G
+
+G = assemble_G_script.make_G(kernels, GVARS, star_mult_arr)
+
+sys.exit()
 
 # making synthetic model params
 num_model_params = G.shape[1]
