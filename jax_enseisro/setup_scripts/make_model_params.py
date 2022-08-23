@@ -15,7 +15,7 @@ def make_model_params(Omega_step, num_model_params, GVARS):
     
     # for s=3,5,... where the Omega_step in the interior is zero
     for sind, s in enumerate(GVARS.s_arr[1:]):
-        Delta_Omega_s_arr[sind+1] = Omega_step[sind, -1]
+        Delta_Omega_s_arr[sind+1] = Omega_step[sind+1, -1]
         
 
     model_params_G = np.zeros(num_model_params)

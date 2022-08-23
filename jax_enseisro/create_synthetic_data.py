@@ -57,8 +57,6 @@ else:
 
 G = assemble_G_script.make_G(kernels, GVARS, star_mult_arr)
 
-sys.exit()
-
 # making synthetic model params
 num_model_params = G.shape[1]
 
@@ -73,8 +71,7 @@ synth_data = G @ model_params_G
 # unperturbed mode frequencies in muHz
 mode_unpert_freqs_muHz = misc_FN.get_mult_freqs(GVARS, star_mult_arr)
 
-# total mode frequencies: unpert + splittings
-print(mode_unpert_freqs_muHz.shape, synth_data.shape)
+# total mode frequencies: unpert + splittings (in muHz)
 mode_freq_total = mode_unpert_freqs_muHz + synth_data * GVARS.OM * 1e6
 
 # reading the Teff, surface gravity and numax arrays
